@@ -5,7 +5,7 @@
         "name": "服务器管理框架V2(基于GameTest框架)1.21+",
         "uuid": "9472c503-5a92-43c8-7ddf-0492de2362d7",
         "version": [1, 0, 0],
-        "min_engine_version": [1, 21, 0]
+        "min_engine_version": [1, 21, 90]
     },
     "modules": [
         {

@@ -200,7 +200,7 @@ export function infoBar(){
                    )
                     break;
                 case "options":
-                    this.ui = this.ui.dropdown(cf.text, cf.options, { defaultIndex: { defaultValue: cf.value } })
+                    this.ui = this.ui.dropdown(cf.text, cf.options, { defaultValueIndex: cf.value })
                     break;
             }
         }

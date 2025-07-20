@@ -1,30 +1,30 @@
 {
     "format_version": 2,
     "header": {
-        "description": "By EarthDLL,保留所有权利\n适配1.21.70：by 凋空凌",
+        "description": "By USFrameTeam,保留所有权利\n作者:EarthDLL，本次贡献者:dyf189",
         "name": "服务器管理框架V2(基于GameTest框架)1.21+",
         "uuid": "9472c503-5a92-43c8-7ddf-0492de2362d7",
         "version": [1, 0, 0],
-        "min_engine_version": [1, 21, 60]
+        "min_engine_version": [1, 21, 90]
     },
     "modules": [
         {
-            "description": "By EarthDLL,保留所有权利",
+            "description": "By USFrameTeam,保留所有权利",
             "type": "script",
             "language":"javascript",
             "uuid": "317b0654-acf7-903f-8639-9dd226ee395f",
-            "version": [1, 0, 0],
+            "version": [0, 7, 9],
             "entry": "scripts/Main.js"
         }
     ],
     "dependencies": [
       {
         "module_name": "@minecraft/server",
-        "version": "2.0.0-beta"
+        "version": "2.1.0-beta"
       },
       {
         "module_name": "@minecraft/server-ui",
-        "version": "2.0.0-beta"
+        "version": "2.1.0-beta"
       }
     ]
 }

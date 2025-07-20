@@ -29,8 +29,8 @@ system.run(() => {
   dimensions = [overworld, nether, end];
 });
 
-const version_code = "0.6.30S";
-const version_text = `欢迎使用无名氏服务器框架\n插件版本:${version_code}\n作者：EarthDLL`;
+const version_code = "0.7.10S";
+const version_text = `欢迎使用无名氏服务器框架\n插件版本:${version_code}\n作者：EarthDLL(USFrameTeam)，感谢所有社区贡献者的贡献`;
 
 //命名空间
 const namespace = "usfV2:";
@@ -662,7 +662,7 @@ system_ids.land_test = system.runInterval(() => {
 
       if (array_has(config.cd_items, itemTypeId) && !isPublicLand) {
         if (config.other.other_mod_support && player.getGameMode() === "survival") {
-          player.setGameMode("adventure");
+          player.setGameMode("Adventure");
         }
         text = `§e领地名称:${landName}\n领地主:${(isPublicLand ? "公共领地" : get_name_by_id(land.creater))}\n领地ID:${landId}`;
       } else {
@@ -670,12 +670,12 @@ system_ids.land_test = system.runInterval(() => {
 
         if (memberLevel >= 1) {
           if (config.other.other_mod_support && player.getGameMode() === "adventure") {
-            player.setGameMode("survival");
+            player.setGameMode("Survival");
           }
           text += get_text(`land.${memberLevel}`);
         } else {
           if (config.other.other_mod_support) {
-            player.setGameMode("adventure");
+            player.setGameMode("Adventure");
           }
           text += get_text("land.0");
         }
@@ -696,7 +696,7 @@ system_ids.land_test = system.runInterval(() => {
     else if (playerInLand !== "") {
       player.in_land = "";
       if (config.other.other_mod_support && player.getGameMode() === "adventure") {
-        player.setGameMode("survival");
+        player.setGameMode("Survival");
       }
       setActionBar(player, ` `);
     }
@@ -1542,7 +1542,9 @@ function setActionBar(player, text, tran = false) {
   try {
     player.onScreenDisplay.setActionBar(content);
   } catch (err) {
-    player.runCommandAsync(`titleraw @s actionbar {"rawtext": [{"text":"${content}"}]}`);
+  system.run(()=>{
+    player.runCommand(`titleraw @s actionbar {"rawtext": [{"text":"${content}"}]}`);
+    })
   }
 }
 
@@ -1749,16 +1751,16 @@ function get_mode(player) {
   const gameMode = player.getGameMode();
 
   const modeMappings = {
-    "creative": 1,
-    "adventure": 2,
-    "spectator": 3
+    "Creative": 1,
+    "Adventure": 2,
+    "Spectator": 3
   };
 
   return modeMappings[gameMode] || 0;
 }
 
-function set_mode(player, mode) {
-  const gameModes = ["survival", "creative", "adventure", "spectator"];
+function mode(player, mode) {
+  const gameModes = ["Survival", "Creative", "Adventure", "Spectator"];
   const gameMode = gameModes[mode];
 
   if (gameMode) {
@@ -1779,7 +1781,10 @@ function afterEntityDie(event) {
   const hurt_entity = source.damagingEntity;
 
   if (entity.typeId === "minecraft:bat" && entity.hasTag("Float")) {
-    const bat = entity.dimension.spawnEntity("minecraft:bat<usf:text>", entity.location);
+    const bat = entity.dimension.spawnEntity("minecraft:bat", entity.location, {
+    spawnEvent : "usf:text"
+    }
+    );
 
     const entityData = {
       "lo": get_data("lo", entity),
@@ -2459,15 +2464,19 @@ function axeFillBar(player) {
   ui.input("re", "替换的方块ID(仅替换时填)", "输入ID", "minecraft:")
   ui.options("id", "填充的方块", ["接下来放置的方块", "空气"], 0)
   ui.show(player, (r) => {
-    if (r.type === 1) {
-      add = r.re
-    }
-    if (r.id === 1) {
-      player.dimension.runCommand(`fill ${blocks[0].x} ${blocks[0].y} ${blocks[0].z} ${blocks[1].x} ${blocks[1].y} ${blocks[1].z} air ` + modes[r.type] + " " + add)
+    if (r.type === 1){
+      player.dimension.runCommand(`fill ${blocks[0].x} ${blocks[0].y} ${blocks[0].z} ${blocks[1].x} ${blocks[1].y} ${blocks[1].z} ` + r.re + " ")
       chat("§e[小木斧]执行中...", [player])
-    } else {
-      player.axe_filling = `fill ${blocks[0].x} ${blocks[0].y} ${blocks[0].z} ${blocks[1].x} ${blocks[1].y} ${blocks[1].z} {{{{}}}} ` + modes[r.type] + " " + add
-    }
+      }
+    else {
+      if (r.id === 1) {
+        player.dimension.runCommand(`fill ${blocks[0].x} ${blocks[0].y} ${blocks[0].z} ${blocks[1].x} ${blocks[1].y} ${blocks[1].z} air ` + modes[r.type] + " " + add)
+        chat("§e[小木斧]执行中...", [player])
+      } 
+      else {
+         player.axe_filling = (`fill ${blocks[0].x} ${blocks[0].y} ${blocks[0].z} ${blocks[1].x} ${blocks[1].y} ${blocks[1].z} {{{{}}}} ` + modes[r.type] + " " + add)
+       }
+     }
   })
 }
 
@@ -2737,7 +2746,7 @@ function beforeBlockPlace(event) {
   if (to_string(player.axe_filling) !== "") {
     event.cancel = true
     system.run(() => {
-      player.dimension.runCommand(player.axe_filling.replaceAll("{{{{}}}}", event.permutationBeingPlaced.type.id))
+      player.dimension.runCommand(player.axe_filling.replaceAll("{{{{}}}}", event.permutationToPlace.type.id))
       player.axe_filling = ""
       chat("§e[小木斧]执行中...", [player])
     })
@@ -8059,7 +8068,10 @@ function managerFloat(player) {
     text: "添加悬浮字",
     icon: ui_icon.add,
     func: () => {
-      var bat = player.dimension.spawnEntity("minecraft:bat<usf:text>", player.location)
+      var bat = player.dimension.spawnEntity("minecraft:bat", player.location, {
+      spawnEvent : "usf:text"
+      }
+      )
       editFloat(player, bat, true)
     }
   })
@@ -9141,7 +9153,7 @@ function editScorePage(player, tag, page, first = false) {
       board: ""
     }
   }
-
+  
   var text = "切换维度-输入目标维度ID\n破坏方块-破坏的方块ID\n放置方块-放置的方块ID\n造成伤害-伤害的实体ID\n杀死实体-杀死的实体ID\n其他不用填"
   var ui = new infoBar()
   ui.cancel = () => {
@@ -9151,7 +9163,7 @@ function editScorePage(player, tag, page, first = false) {
   ui.input("name", "备注名", "输入备注名", page.name)
   ui.options("type", "统计类型", [
     "玩家死亡", "玩家切换维度", "破坏方块", "放置方块", "造成伤害", "生命值", "杀死实体", "加入游戏", "购买物品金额", "收购物品金额", "玩家受伤的血量(约为整数)", "玩家受伤次数", "击杀敌对生物"
-  ], array_has(data_format.score, page.type) ? array_index(data_format.score, page.type) : 0)
+  ], array_index(data_format.score, page.type))
 
   ui.input("board", "记分版ID", "输入记分版", page.board)
   ui.input("data", "限制数据\n" + text, "输入限制数据", page.data)
