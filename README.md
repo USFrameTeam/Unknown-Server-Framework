@@ -6,9 +6,10 @@
 
 基于原版MinecraftBedrockEdition ScriptAPI
 
-当前开源版本：0.6.26(B)测试版  
-最新版本：USF0.7.10Fix.zip社区测试版  
-更多版本请查看压缩包内文件  
+当前开源版本：0.7.10Fix  
+最新版本：USF0.7.10Fix
+插件所有版本请查看YYTZ666/usfdown仓库内文件  
+[https://github.com/YYTZ666/usfdown/tree/main/files/main](https://github.com/YYTZ666/usfdown/tree/main/files/main)  
 适用于MinecraftBE官方服务端(BDS)、个人存档、LLSE和Realms的生存辅助向、服务器管理插件  
 作者：EarthDLL(USFrameTeam)、XiaoXiaoYang、Antonbin(社区贡献者)
 
