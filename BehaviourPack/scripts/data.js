@@ -32,6 +32,7 @@ export const usf_config = {
         "must" : false,
         "show" : "§e你已进入/name的领地！",
         "view" : false,
+        "mode" : false
     },
     "log" : {
         "able" : true,

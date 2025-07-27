@@ -661,7 +661,7 @@ system_ids.land_test = system.runInterval(() => {
       let text = "";
 
       if (array_has(config.cd_items, itemTypeId) && !isPublicLand) {
-        if (config.other.other_mod_support && player.getGameMode() === "survival") {
+        if (config.land.mode && player.getGameMode() === "Survival" && get_op_level(player) == 0) {
           player.setGameMode("Adventure");
         }
         text = `§e领地名称:${landName}\n领地主:${(isPublicLand ? "公共领地" : get_name_by_id(land.creater))}\n领地ID:${landId}`;
@@ -669,12 +669,12 @@ system_ids.land_test = system.runInterval(() => {
         const memberLevel = land_member_level(player, land);
 
         if (memberLevel >= 1) {
-          if (config.other.other_mod_support && player.getGameMode() === "adventure") {
+          if (config.land.mode && player.getGameMode() === "Adventure"&& get_op_level(player) == 0) {
             player.setGameMode("Survival");
           }
           text += get_text(`land.${memberLevel}`);
         } else {
-          if (config.other.other_mod_support) {
+          if (config.land.mode && get_op_level(player) == 0) {
             player.setGameMode("Adventure");
           }
           text += get_text("land.0");
@@ -695,7 +695,7 @@ system_ids.land_test = system.runInterval(() => {
     }
     else if (playerInLand !== "") {
       player.in_land = "";
-      if (config.other.other_mod_support && player.getGameMode() === "adventure") {
+      if (config.land.mode && player.getGameMode() === "Adventure"&& get_op_level(player) == 0) {
         player.setGameMode("Survival");
       }
       setActionBar(player, ` `);
@@ -1759,7 +1759,7 @@ function get_mode(player) {
   return modeMappings[gameMode] || 0;
 }
 
-function mode(player, mode) {
+function set_mode(player, mode) {
   const gameModes = ["Survival", "Creative", "Adventure", "Spectator"];
   const gameMode = gameModes[mode];
 
@@ -2580,7 +2580,7 @@ function beforeItemUse(event) {
   if (item.typeId === "minecraft:fire_charge") {
     if (config.game.fb) {
       system.run(() => {
-        if (player.getGameMode() !== "creative") {
+        if (player.getGameMode() !== "Creative") {
           var slot = player.slots.getSlot(player.selectedSlotIndex)
           if (slot.amount === 1) {
             slot.setItem()
@@ -2610,7 +2610,7 @@ function afterPlayerGameModeChange(event) {
   }
   var player = event.player
   if (get_op_level(player) === 0) {
-    if (event.toGameMode !== "survival") {
+    if (event.toGameMode !== "Survival") {
       set_mode(player, 0)
     }
   }
@@ -2720,6 +2720,7 @@ function beforeChatSend(event) {
 
 function afterEntitySpawn(event) {
   var entity = event.entity
+  if(entity.isValid){
   if (!is_player(entity)) {
     if (array_has(config.ban_entity, entity.typeId)) {
       entity.remove()
@@ -2734,7 +2735,7 @@ function afterEntitySpawn(event) {
         entity.remove()
       }
     }
-  }
+  }}
 
 }
 
@@ -9260,6 +9261,7 @@ function usfFunctionBar(player, type) {
       ui.range("price", "领地价格/每方块(最后价格约成整数)", 0, 10, 1, config.land.price)
       ui.toggle("must", "金额必须足够(若关闭，则记分版可能会被扣费成负数)", config.land.must)
       ui.input("show", "领地提示语(/name转换为领地主名字)", "输入提示语", config.land.show)
+      ui.toggle("mode", "进入领地强制冒险模式(管理员不受限)", config.land.mode)
       break
     case "cd_con":
       var menu = to_array(parse_json(get_data("menu_text")), data_format.menu)
@@ -9442,6 +9444,7 @@ function usfFunctionBar(player, type) {
         config.land.board = r.board
         config.land.max = r.max
         config.land.show = r.show
+        config.land.mode = r.mode
         save_config()
         if (un(world.scoreboard.getObjective(config.land.board))) {
           confirm(player, "刚才配置的记分版不存在！领地功能无法使用！", () => {
