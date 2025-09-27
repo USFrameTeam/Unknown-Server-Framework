@@ -1,13 +1,27 @@
 const fs = require('node:fs');
 const archiver = require('archiver');
+const SRC_PATH = 'BehaviourPack/';
+
+const minimizedJSONs = ['entities', 'items', 'cameras/presets'].map(name => {
+  const path = SRC_PATH + name;
+  return fs.readdirSync(path).map(filename => {
+    filename = path + '/' + filename;
+    return [filename, fs.readFileSync(filename, 'utf8')
+      .replaceAll('\r', '')
+      .replaceAll('\n', '')
+      .replaceAll('\t', '')
+      .replaceAll(' ', '')];
+  });
+}).flat(1);
 
 const archive = archiver('zip', {
   zlib: { level: 9 }
 });
 
-archive.file('BehaviourPack/manifest.json', { name: 'manifest.json' });
-archive.file('BehaviourPack/pack_icon.png', { name: 'pack_icon.png' });
-['cameras','items','functions','entities'].forEach(_=>archive.directory('BehaviourPack/' + _, _));
+archive.file(SRC_PATH + 'manifest.json', { name: 'manifest.json' });
+archive.file(SRC_PATH + 'pack_icon.png', { name: 'pack_icon.png' });
+minimizedJSONs.forEach(data => archive.append(data[1], { name: data[0].substring(SRC_PATH.length) }));
+archive.directory(SRC_PATH + 'functions', 'functions');
 archive.file('temp/Main.js', { name: 'scripts/Main.js' });
 
 archive.finalize();
