@@ -7,27 +7,39 @@
 基于原版MinecraftBedrockEdition ScriptAPI
 
 当前开源版本：0.7.10Fix  
-最新版本：USF0.7.10Fix
+最新版本：__USF0.7.14C__  
 插件所有版本请查看YYTZ666/usfdown仓库内文件  
-[https://github.com/YYTZ666/usfdown/tree/main/files/main](https://github.com/YYTZ666/usfdown/tree/main/files/main)  
+[https://github.com/YYTZ666/usfdown/tree/main/files/main](https://github.com/YYTZ666/usfdown/tree/main/files/main)   
+ 
 适用于MinecraftBE官方服务端(BDS)、个人存档、LLSE和Realms的生存辅助向、服务器管理插件  
 作者：EarthDLL(USFrameTeam)、XiaoXiaoYang、Antonbin(社区贡献者)
 
 
-特别鸣谢：dyf189，Command Wither，交流群全体成员  
-官方发布/授权发布的资源地址:
+特别鸣谢：交流群全体成员  
+官方发布的资源地址:
 __https://www.minebbs.com/threads/usf.17109/__  
+__https://klpbbs.com/thread-131213-1-1.html__
 
-# USF文档站  
+## USFrameTeam官网  
+访问USFrameTeam官网以了解USF和快速跳转
+[↗️立即访问](https://www.usframeteam.top/)
+
+## USF文档站  
 USF文档站(官方站点)
-主域名：https://www.usfpack.site/  
+主站：https://usfdoc.pages.dev/  
 ——
-https://usframeteam.github.io/
-(GithubPage，稳定访问，DDOS关服时备份)
+域名: https://usfdocs.usframeteam.top/  
+https://docs.usframeteam.top/  
+https://www.usfpack.site/  
+
+备份站:https://usframeteam.github.io/  
+(GithubPage，稳定访问，DDOS时备份)
 一般问题文档里都有，来群里问也没有用
 
-# USF下载站
-usfdown.zuyst.top
+## USF下载站
+主域名: d.usframeteam.top
+跳转域名: usfdown.usframeteam.top
+备用域名: usfdown.zuyst.top
 
 # 已实现的系统/功能：  
 传送系统、群组系统、领地系统、公告功能、管理功能  
