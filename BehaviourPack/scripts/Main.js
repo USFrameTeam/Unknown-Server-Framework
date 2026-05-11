@@ -4126,7 +4126,7 @@ function get_pos_name(pos) {
   return `[${get_di(pos.di).name}]${pos.name}`
 }
 
-function editPosBar(player, pos, save = function () { }, back = function () { }) {
+/*function editPosBar(player, pos, save = function () { }, back = function () { }) {
   var ui = new infoBar()
   var poss = [null, null]
   var texts = ["保持位置", "当前位置"]
@@ -4171,6 +4171,76 @@ function editPosBar(player, pos, save = function () { }, back = function () { })
     switch (r.lo) {
       case 0:
 
+        break
+      case 1:
+        pos.x = player.location.x
+        pos.y = player.location.y
+        pos.z = player.location.z
+        pos.di = player.dimension.id
+        break
+      default:
+        pos.x = poss[r.lo].x
+        pos.y = poss[r.lo].y
+        pos.z = poss[r.lo].z
+        break
+    }
+
+    save()
+    var ui2 = new btnBar()
+    viewPosBar(player, pos, true, ui2, save, back)
+  })
+}*/
+function editPosBar(player, pos, save = function () { }, back = function () { }) {
+  var ui = new infoBar()
+  var poss = [null, null]
+  var texts = ["保持位置", "当前位置"]
+  ui.cancel = () => {
+    back()
+  }
+
+  if (Object.keys(pos).length === 0) {
+    object_override(pos, {
+      "owner": get_id(player),
+      "di": player.dimension.id,
+      "x": player.location.x,
+      "y": player.location.y,
+      "z": player.location.z,
+      "name": "",
+      "icon": null,
+      "home": false,
+    })
+    texts = ["当前位置", "当前位置"]
+    ui.cancel = () => {
+      pos.name = undefined
+      save()
+      back()
+    }
+  }
+
+  for (var p of get_player_personal_pos()) {
+    poss.push(p)
+    texts.push(get_pos_name(p))
+  }
+
+  ui.title = "编辑传送点"
+  ui.input("name", "传送点名称", "输入名称", pos.name)
+  add_pictures_choice(ui, "选择传送点图标", pos.icon)
+  ui.options("lo", "位置", texts, 0)
+  ui.toggle("home", "设为Home(仅个人传送点有效)", pos.home)
+
+  ui.show(player, (r) => {
+    // 重名检测（仅对公共传送点）
+    if (world_pos.includes(pos) && world_pos.some(p => p !== pos && p.name === r.name)) {
+      player.sendMessage("§c已存在同名的公共传送点！");
+      editPosBar(player, pos, save, back); // 重新打开编辑界面
+      return;
+    }
+
+    pos.name = r.name
+    pos.icon = r.icon
+    pos.home = r.home
+    switch (r.lo) {
+      case 0:
         break
       case 1:
         pos.x = player.location.x
@@ -4237,9 +4307,17 @@ function viewPosBar(player, pos, editable, ui = new btnBar(), save = function ()
       text: "删除",
       icon: ui_icon.delete,
       func: () => {
-        delete pos.name
-        save()
-        back()
+        confirm(player, `确认删除传送点"${pos.name}"吗？`, (result) => {
+          if (result) {
+            delete pos.name
+            save()
+            back()
+          } else {
+            // 不删除，重新打开当前界面
+            //viewPosBar(player, pos, editable)//, ui, save, back)
+            back()
+          }
+        })
       }
     }
     ])
