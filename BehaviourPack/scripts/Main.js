@@ -2078,6 +2078,7 @@ function acceptTPA(player) {
     }
 
     chat("§e[传送系统]正在进行玩家传送", [player, goal]);
+    delete goal.tpa;
   } else {
     chat(get_text("tp.fail"), [player]);
   }
