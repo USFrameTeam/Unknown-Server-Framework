@@ -2159,10 +2159,33 @@ function chatBoardBar(player, block, creater) {
       text: get_text("board.clear"),
       icon: ui_icon.rubbish,
       func: () => {
-        const emptyContent = [];
+        /*const emptyContent = [];
         save_data("content", to_json(emptyContent), item);
         container.setItem(0, item);
-        chatBoardBar(player, block, creater);
+        chatBoardBar(player, block, creater);*/
+        // 添加确认对话框
+        var confirmUI = new btnBar()
+        confirmUI.title = "确认清理"
+        confirmUI.body = ["确定要清空所有留言吗？", "此操作不可恢复！"]
+
+        confirmUI.btns = [{
+          text: "确认清空",
+          icon: ui_icon.delete,
+          func: () => {
+            const emptyContent = []
+            save_data("content", to_json(emptyContent), item)
+            container.setItem(0, item)
+            chatBoardBar(player, block, creater)
+          }
+        }, {
+          text: "取消",
+          icon: ui_icon.back,
+          func: () => {
+            chatBoardBar(player, block, creater)  // 返回留言板
+          }
+        }]
+
+        confirmUI.show(player)
       }
     });
   }
