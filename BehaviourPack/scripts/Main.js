@@ -437,7 +437,7 @@ system_ids.tag = system.runInterval(() => {
 
 var follow_index = 0;
 system_ids.follow = system.runInterval(() => {
-  follow_index = (follow_index + 1) % 15;
+  follow_index = (follow_index + 1) % 37;
   const shouldTeleport = follow_index === 0;
 
   const players = world.getAllPlayers();
@@ -502,9 +502,21 @@ system_ids.follow = system.runInterval(() => {
           easeOptions: cameraEaseOptions
         });
         break;
+      
+      case 2: {
+        if (shouldTeleport && player.dimension.id !== targetDimension.id) { // 同步维度
+          player.runCommand(`titleraw "${player.name}" actionbar {"rawtext":[{"text":"同步 ${targetPlayer.name} 维度 : ${targetDimension.id.replace(/^minecraft:/, "")}"}]}`);
+          player.runCommand(`execute in ${targetDimension.id.replace(/^minecraft:/, "")} run tp @s ~ ~ ~`);
+        }
+
+        world.getDimension("minecraft:overworld").runCommand(`execute as "${targetPlayer.name}" at @s run camera "${player.name}" set minecraft:free ease 0.5 linear pos ^1.1 ^1.6 ^-2.2 rot ~ ~10`);
+        const headLoc = targetPlayer.getHeadLocation()
+        player.onScreenDisplay.setActionBar(`§b视监 ${targetPlayer.name} 中...§r\n§l§aX§r:§a${~~headLoc.x}§r, §l§bY§r:§b${~~headLoc.y}§r, §l§eZ§r:§e${~~headLoc.z}§r`)
+        break;
+      }
     }
   }
-}, 5);
+}, 2);
 
 system_ids.second = system.runInterval(() => {
   const players = world.getAllPlayers();
@@ -7467,7 +7479,7 @@ function followBar(player) {
   }
   ui.title = "跟踪视角"
   ui.options("index", text + "\n选择玩家", names, 0)
-  ui.options("mode", "选择跟踪模式", ["第一视角", "自由视角"], 0)
+  ui.options("mode", "选择跟踪模式", ["第一视角", "自由视角", "越肩视角"], 0)
   ui.show(player, (r) => {
     player.camera.fade({
       fadeColor: {
@@ -7485,7 +7497,7 @@ function followBar(player) {
       var lo = players[r.index].location
       if (r.mode === 0) {
         tp_entity(player, players[r.index].dimension, lo.x, -10000, lo.z, false)
-      } else {
+      } else if (r.mode === 1) {
         tp_entity(player, players[r.index].dimension, lo.x, -10000 + lo.y, lo.z, false)
       }
 
