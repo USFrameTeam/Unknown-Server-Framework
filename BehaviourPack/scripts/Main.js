@@ -4272,10 +4272,10 @@ function viewPosBar(player, pos, editable, ui = new btnBar(), save = function ()
     back()
   }
   ui.body = [
-    "传送点:" + pos.name,
-    `创建者:${get_name_by_id(pos.owner)}`,
-    `维度:${get_di(pos.di).name}`,
-    `坐标:${pos_to_text(pos)}`
+    "§b传送点§r: " + pos.name,
+    `§b创建者§r: ${get_name_by_id(pos.owner)}`,
+    `§a所在维度§r: ${get_di(pos.di).name}`,
+    `§a所在坐标§r: ${pos_to_text(pos)}`
   ]
 
   ui.btns = [{
@@ -4501,31 +4501,64 @@ function groupPosBar(player) {
   ui.show(player)
 }
 
-function worldPosBar(player) {
+
+function worldPosBar(player, page = 0, reverseOrder = false) {
+  const PAGE_SIZE = 50;
+  const MAX_POINTS = 200;
+
+  // 根据参数决定是否倒序
+  const displayPos = reverseOrder ? [...world_pos].reverse() : world_pos;
+
+  const startIdx = page * PAGE_SIZE;
+  const endIdx = Math.min(startIdx + PAGE_SIZE, displayPos.length);
+  const totalPages = Math.max(1, Math.ceil(displayPos.length / PAGE_SIZE));
+
   var ui = new btnBar()
-  ui.title = "世界公共点"
-  ui.body = "管理世界的传送点"
-  for (var pos of world_pos) {
+  ui.title = `世界公共点 (${page + 1}/${totalPages}页) - ${reverseOrder ? "倒序" : "正序"}`
+
+  ui.body = `添加传送点时记得加上图标哦∽\n§b总共记录 §a(${world_pos.length}/${MAX_POINTS})§b 个传送点`
+
+  // 遍历显示数组
+  for (var i = startIdx; i < endIdx; i++) {
+    const pos = displayPos[i];
     ui.btns.push({
       text: `[${get_di(pos.di).name}]${pos.name}`,
       icon: pictures[pos.icon],
-      op: {
-        "pos": pos
-      },
+      op: { "pos": pos },
       func: (op) => {
         var ui2 = new btnBar()
         ui2.cancel = () => {
-          worldPosBar(player)
+          worldPosBar(player, page, reverseOrder)
         }
         viewPosBar(player, op.pos, (get_id(player) === op.pos.owner || get_op_level(player) > 0), ui2, () => {
           save_world_pos()
         }, () => {
-          worldPosBar(player)
+          worldPosBar(player, page, reverseOrder)
         })
       }
     })
   }
-  if (world_pos.length < 100) {
+
+  // 添加排序切换按钮（放在最前面）
+  ui.btns.unshift({
+    text: reverseOrder ? "↓ 切换正序" : "↑ 切换倒序",
+    icon: reverseOrder ? "textures/ui/refresh_light" : "textures/ui/refresh",
+    func: () => {
+      worldPosBar(player, 0, !reverseOrder)  // 切换到相反排序，回到第1页
+    }
+  })
+
+  // 添加上一页按钮
+  if (page > 0) {
+    ui.btns.push({
+      text: "上一页",
+      icon: "textures/ui/arrow_dark_left_stretch",
+      func: () => worldPosBar(player, page - 1, reverseOrder)
+    })
+  }
+
+  // 添加传送点按钮
+  if (world_pos.length < MAX_POINTS) {
     ui.btns.push({
       text: "添加传送点",
       icon: ui_icon.add,
@@ -4533,16 +4566,29 @@ function worldPosBar(player) {
         world_pos.push({})
         editPosBar(player, (world_pos[world_pos.length - 1]), () => {
           save_world_pos()
+          // 添加后根据排序决定显示在第几页
+          const targetPage = reverseOrder ? 0 : Math.floor((world_pos.length - 1) / PAGE_SIZE)
+          worldPosBar(player, targetPage, reverseOrder)// 4726
         }, () => {
-          worldPosBar(player)
+          worldPosBar(player, page, reverseOrder)
         })
       }
+    })
+  }
+
+  // 添加下一页按钮
+  if (endIdx < displayPos.length) {
+    ui.btns.push({
+      text: "下一页",
+      icon: "textures/ui/arrow_dark_right",
+      func: () => worldPosBar(player, page + 1, reverseOrder)
     })
   }
 
   ui.show(player)
 }
 
+// 个人传送UI -调用者/被调用者-
 function personalPosBar(player, goal) {
   var ui = new btnBar()
   ui.title = "个人传送点"
@@ -4807,6 +4853,27 @@ function posBar(player) {
       func: () => {
         public_pos.push({})
         editPosBar(player, public_pos[public_pos.length - 1], () => {
+          save_public_pos()
+        }, () => {
+          posBar(player)
+        })
+      }
+    })
+  }
+
+  for (var pos of public_pos) {
+    ui.btns.push({
+      text: `${pos.name}`,
+      icon: pictures[pos.icon],
+      op: {
+        "pos": pos
+      },
+      func: (op) => {
+        var ui2 = new btnBar()
+        ui2.cancel = () => {
+          posBar(player)
+        }
+        viewPosBar(player, op.pos, is_public_editable(player), ui2, () => {
           save_public_pos()
         }, () => {
           posBar(player)
