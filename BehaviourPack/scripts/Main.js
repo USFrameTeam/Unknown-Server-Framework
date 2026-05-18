@@ -1382,7 +1382,9 @@ function get_random_land_id() {
   do {
     id = Math.floor(Math.random() * (max - min + 1)) + min;
     attempts++;
-    if (attempts > maxAttempts) break;
+    if (attempts > maxAttempts){
+        id = -1;
+    }
   } while (array_has(lands.ids, id));
 
   return id;
@@ -7366,6 +7368,14 @@ function createLandBar(player) {
       player.landing.mode = 0
       player.landing.points = []
       return
+    }
+    
+    const current_land_id = get_random_land_id();
+    if(current_land_id < 0){
+        confirm(player,["当前无法生成领地，请稍后再试！"],()=>{
+            createLandBar(player)
+        })
+        return;
     }
 
     var ps = get_edge_from_block(points[0].location, points[1].location)
