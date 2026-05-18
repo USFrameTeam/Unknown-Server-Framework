@@ -1384,6 +1384,7 @@ function get_random_land_id() {
     attempts++;
     if (attempts > maxAttempts){
         id = -1;
+        break;
     }
   } while (array_has(lands.ids, id));
 
