@@ -6670,6 +6670,7 @@ function editBtnBar(player, slot, data, index) {
       "打开商店系统",
       "打开转账机",
       "打开公告",
+      //注意改下面的if btn.type>= ...
     ], 0)
     ui.show(player, (r) => {
       btn.type = r.op
@@ -6734,14 +6735,15 @@ function editBtnBar3(player, slot, data, btn, save = false) {
     }
   }
 
-  switch (btn.type) {
-    case 11:
+  if(btn.type >= 5){
       if (save) {
         data.things.push(btn)
       }
       save_data("data", to_json(data), slot)
       editConfigFileBar(player)
       return
+  }
+  switch (btn.type) {
     case 0:
       ui.input("command", '执行的命令\n格式:["命令1","命令2","命令3"]', "输入命令数组", to_string(btn.command))
       break
