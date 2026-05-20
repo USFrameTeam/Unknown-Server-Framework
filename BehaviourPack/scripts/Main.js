@@ -5426,7 +5426,8 @@ function get_global_good(id) {
 }
 
 function get_moneys() {
-  var s = config.store.moneys.split(";")
+  var s = config.store.moneys
+  s = (s == "" ? [] : s.split(";"))
   return s
 }
 
