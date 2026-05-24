@@ -7,38 +7,37 @@ import { performTeleportAnimation } from "./TpAni.js";
 import { tpWithAnimation } from "./TpAni.js";
 import { ScoreBoardGUI } from "./ScoreBoard.js";
 
-var config = {};
-var dictionary = {};
-var fixed_texts = {
-  ZN: {},
-  ZW: {}
-};
+//var config = {};
+//var dictionary = {};废弃
+// var fixed_texts = {废弃
+  // ZN: {},
+  // ZW: {}
+// };
 var vars = {};
 
 //获取3个维度
-var overworld;
-var end;
-var nether;
-var dimensions;
-system.run(() => {
-  overworld = world.getDimension("minecraft:overworld");
-  nether = world.getDimension("minecraft:nether");
-  end = world.getDimension("minecraft:the_end");
+// var overworld;
+// var end;
+// var nether;
+// var dimensions;
+// system.run(() => {
+  // overworld = world.getDimension("minecraft:overworld");
+  // nether = world.getDimension("minecraft:nether");
+  // end = world.getDimension("minecraft:the_end");
 
-  //给予三个维度名字
-  overworld.name = get_text("overworld.name");
-  end.name = get_text("end.name");
-  nether.name = get_text("nether.name");
-  dimensions = [overworld, nether, end];
-});
+  // //给予三个维度名字
+  // overworld.name = get_text("overworld.name");
+  // end.name = get_text("end.name");
+  // nether.name = get_text("nether.name");
+  // dimensions = [overworld, nether, end];
+// });
 
-const version_code = "0.7.19B";
-const version_text = `欢迎使用无名氏服务器框架\n插件版本:${version_code}\n作者：EarthDLL(USFrameTeam)，感谢所有社区贡献者的贡献\n快速适配版本，如有Bug，及时反馈`;
+// const version_code = "0.7.19B";
+// const version_text = `欢迎使用无名氏服务器框架\n插件版本:${version_code}\n作者：EarthDLL(USFrameTeam)，感谢所有社区贡献者的贡献\n快速适配版本，如有Bug，及时反馈`;
 
-//命名空间
-const namespace = "usfV2:";
 
-var has_owner = false;
+
+//var has_owner = false;
 var last_id = Date.now();
 var reset_boards = [];
 var cache = {
@@ -114,8 +113,8 @@ system.afterEvents.scriptEventReceive.subscribe(scriptEventReceive, {
 });
 
 import("@minecraft/server-net").then((http)=>{
-    push_text("log.enable","当前日志功能可用！请开启日志服务器！")
-    log(get_text("log.enable"),[],"tip",1)
+    //push_text("log.enable","")
+    log("当前日志功能可用！请开启日志服务器！",[],"tip",1)
     log_config.able = true
     system.runInterval(()=>{
         if(!log_config.server){
@@ -968,13 +967,13 @@ function afterGameRuleChange(event) {
   }
 }
 
-function push_text(id, text1, text2) {
-  fixed_texts.ZN[id] = text1;
-  if (typeof text2 === 'string') {
-    fixed_texts.ZW[id] = text2;
-  }
-  return id;
-}
+// function push_text(id, text1, text2) {废弃
+  // fixed_texts.ZN[id] = text1;
+  // if (typeof text2 === 'string') {
+    // fixed_texts.ZW[id] = text2;
+  // }
+  // return id;
+// }
 
 function get_di(id) {
   return world.getDimension(id);
@@ -1538,7 +1537,7 @@ function clear_data(id) {
   world.setDynamicProperty(namespace + id);
 }
 
-function save_data(id, content, en = null) {
+/*function save_data(id, content, en = null) {
   const target = en === null ? world : en;
   target.setDynamicProperty(namespace + id, content);
 }
@@ -1548,7 +1547,7 @@ function get_data(id, en = null) {
   const data = target.getDynamicProperty(namespace + id);
 
   return typeof data === 'string' ? data : "";
-}
+}*/
 
 function get_id(player) {
   if (typeof player.usf_id !== 'string') {
@@ -4717,13 +4716,13 @@ function random_tp(player, now) {
 }
 
 function posBar(player) {
-  push_text("pos.body", "此处保存您的所有传送点/n您可以编辑、修改、分享传送点")
-  push_text("pos.name", "传送系统")
+  //push_text("pos.body", "此处保存您的所有传送点/n您可以编辑、修改、分享传送点")
+  //push_text("pos.name", "传送系统")
 
   var now = Date.now()
   var ui = new btnBar()
-  ui.title = get_text("pos.name")
-  ui.body = tran_text(player, get_text("pos.body"))
+  ui.title = "传送系统"
+  ui.body = tran_text(player, "此处保存您的所有传送点/n您可以编辑、修改、分享传送点")
   for (var pos of public_pos) {
     ui.btns.push({
       text: `[公共]${pos.name}`,
@@ -5450,6 +5449,7 @@ function selectGoodTypeBar(player, type, good, save) {
 }
 
 function editGoodBar(player, type, good, save = function () { }) {
+  //注意传入的good必须是object，如果是新商品请传入一个空object
   var fir = false
   if (un(good.type)) {
     good = {
@@ -5569,7 +5569,7 @@ function editGoodBar(player, type, good, save = function () { }) {
         good.count = Math.round(r.count)
         good.bar = r.bar
         good.code = r.code
-        if (r.op !== 0) {
+        if (r.op !== 0 && type === 0) {
           var item = get_player_hand_item(player)
           if (r.op >= 2) {
             item = player.slots.getItem(r.op - 2)
@@ -5580,7 +5580,9 @@ function editGoodBar(player, type, good, save = function () { }) {
             set_store_item(item, (chest, slot) => {
               good.chest = chest
               good.slot = slot
-              save_data(good.id, to_json(good))
+              if(type === 0){
+                save_data(good.id, to_json(good))
+              }
             })
           }
         }
@@ -5604,7 +5606,7 @@ function editGoodBar(player, type, good, save = function () { }) {
       }
       manageStoreBar(player, type)
     } else {
-      save(good, true)
+      save(good, true , r.op)
     }
 
   })
@@ -6753,9 +6755,31 @@ function editBtnBar3(player, slot, data, btn, save = false) {
       if (!save) {
         good = btn.good
       }
-      editGoodBar(player, 1, good, (g, r) => {
+      editGoodBar(player, 1, good, (g, r , op) => {
+      //g 商品， r result，成功为true ,op 是否存物品
         if (r) {
           btn.good = g
+          console.log(to_json(btn.good))
+          if(!un(op)){
+              var item = get_player_hand_item(player)
+              if (op >= 2) {
+                item = player.slots.getItem(op - 2)
+              }
+              if (un(item)) {
+                chat("§e无法获取手持物品，售卖物品更改失败！", [player], false)
+              } else {
+                set_store_item(item, (chest, slot) => {
+                  good.chest = chest
+                  good.slot = slot
+                  if (save) {
+                    data.things.push(btn)
+                  }
+                  save_data("data", to_json(data), slot)
+                  editConfigFileBar(player)
+                })
+                return
+              }
+          }
           if (save) {
             data.things.push(btn)
           }
@@ -6911,16 +6935,16 @@ function cdBar(player) {
     return
   }
 
-  push_text("cd.name", "主菜单")
-  push_text("cd.pos", "传送系统")
-  push_text("cd.kill", "自杀")
-  push_text("cd.chat", "聊天设置")
-  push_text("cd.land", "领地")
-  push_text("cd.group", "群组")
-  push_text("cd.board", "公告")
+  //push_text("cd.name", "主菜单")
+  // push_text("cd.pos", "传送系统")
+  // push_text("cd.kill", "自杀")
+  // push_text("cd.chat", "聊天设置")
+  // push_text("cd.land", "领地")
+  // push_text("cd.group", "群组")
+  // push_text("cd.board", "公告")
 
   var ui = new btnBar()
-  ui.title = get_text("cd.name")
+  ui.title = "主菜单"
   ui.body = tran_text(player, to_array(parse_json(get_data("menu_text")), data_format.menu), true)
   ui.busy = null
 
@@ -6936,14 +6960,14 @@ function cdBar(player) {
   }
 
   ui.btns.push({
-    text: get_text("cd.pos"),
+    text: "传送系统",
     icon: ui_icon.pos,
     func: () => {
       posBar(player)
     }
   })
   ui.btns.push({
-    text: get_text("cd.chat"),
+    text: "聊天设置",
     icon: ui_icon.chat,
     func: () => {
       setChatBar(player)
@@ -6951,7 +6975,7 @@ function cdBar(player) {
   })
   if (config.land.able) {
     ui.btns.push({
-      text: get_text("cd.land"),
+      text: "领地系统",
       icon: ui_icon.land,
       func: () => {
         landBar(player, player)
@@ -6960,7 +6984,7 @@ function cdBar(player) {
   }
   if (config.groups.able) {
     ui.btns.push({
-      text: get_text("cd.group"),
+      text: "群组系统",
       icon: ui_icon.player,
       func: () => {
         groupsBar(player)
@@ -7009,7 +7033,7 @@ function cdBar(player) {
   }
   if (config.game.kill) {
     ui.btns.push({
-      text: get_text("cd.kill"),
+      text: "自杀",
       icon: ui_icon.sword,
       func: () => {
         player.kill()
@@ -7019,7 +7043,7 @@ function cdBar(player) {
 
   if (get_board_ids().length > 0 && config.board.able) {
     ui.btns.push({
-      text: get_text("cd.board"),
+      text: "公告",
       icon: ui_icon.sign,
       func: () => {
         show_board(player)
@@ -9824,52 +9848,52 @@ function show_board(player, id = null, show_cd = true) {
 
 //工具函数
 
-function clear_colour(text) {
-  return text.replace(/§./g, "")
-}
+// function clear_colour(text) {
+  // return text.replace(/§./g, "")
+// }
 
-//判断变量是否是string
-function is_string(v) {
-  return typeof (v) == "string" ? true : false
-}
+// //判断变量是否是string
+// function is_string(v) {
+  // return typeof (v) == "string" ? true : false
+// }
 
-function is_function(v) {
-  return typeof (v) == "function" ? true : false
-}
+// function is_function(v) {
+  // return typeof (v) == "function" ? true : false
+// }
 
-function to_bool(v, none = false) {
-  if (typeof (v) === "boolean") {
-    return v
-  }
-  return none
-}
+// function to_bool(v, none = false) {
+  // if (typeof (v) === "boolean") {
+    // return v
+  // }
+  // return none
+// }
 
-function is_object(v) {
-  return typeof (v) == "object" ? true : false
-}
+// function is_object(v) {
+  // return typeof (v) == "object" ? true : false
+// }
 
-function is_array(v) {
-  return Array.isArray(v)
-}
+// function is_array(v) {
+  // return Array.isArray(v)
+// }
 
-//下面是格式化函数
+// //下面是格式化函数
 
-function to_string(value, none = "") {
-  return typeof (value) == "string" ? value : none
-}
+// function to_string(value, none = "") {
+  // return typeof (value) == "string" ? value : none
+// }
 
-function to_array(value, none = []) {
-  return Array.isArray(value) ? value : none
-}
+// function to_array(value, none = []) {
+  // return Array.isArray(value) ? value : none
+// }
 
-function to_object(value, none = {}) {
-  return typeof (value) == "object" ? value : none
-}
+// function to_object(value, none = {}) {
+  // return typeof (value) == "object" ? value : none
+// }
 
-function array_index(array, text, none = 0) {
-  var index = array.indexOf(text)
-  return (index >= 0) ? index : none
-}
+// function array_index(array, text, none = 0) {
+  // var index = array.indexOf(text)
+  // return (index >= 0) ? index : none
+// }
 
 function add_pictures_choice(ui, text, choice = null) {
   var texts = ["无"]
@@ -9885,77 +9909,77 @@ function random_int(max = 10) {
   return Math.floor(Math.random() * max)
 }
 
-function array_clear(array, text) {
-  while (array.indexOf(text) >= 0) {
-    array.splice(array.indexOf(text), 1)
-  }
-}
+// function array_clear(array, text) {
+  // while (array.indexOf(text) >= 0) {
+    // array.splice(array.indexOf(text), 1)
+  // }
+// }
 
-function array_has(array, text) {
-  if (array.indexOf(text) >= 0) {
-    return true
-  }
-  return false
-}
+// function array_has(array, text) {
+  // if (array.indexOf(text) >= 0) {
+    // return true
+  // }
+  // return false
+// }
 
-function is_number(value) {
-  if (typeof (value) == "number") {
-    if (!isNaN(value)) {
-      return true
-    }
-  }
-  return false
-}
+// function is_number(value) {
+  // if (typeof (value) == "number") {
+    // if (!isNaN(value)) {
+      // return true
+    // }
+  // }
+  // return false
+// }
 
-function is_bool(value) {
-  if (typeof (value) == "boolean") {
-    return true
-  }
-  return false
-}
+// function is_bool(value) {
+  // if (typeof (value) == "boolean") {
+    // return true
+  // }
+  // return false
+// }
 
-function to_number(value, none = 0) {
-  if (typeof (value) == "number") {
-    if (!isNaN(value)) {
-      return value
-    }
-  }
-  return none
-}
+// function to_number(value, none = 0) {
+  // if (typeof (value) == "number") {
+    // if (!isNaN(value)) {
+      // return value
+    // }
+  // }
+  // return none
+// }
 
-function array2string(array = [], none = "", clear_color = false) {
-  if (is_string(array)) {
-    return array
-  } else {
-    if (is_array(array)) {
-      var text = ""
-      for (var cf of array) {
-        text += "\n"
-        if (clear_color) {
-          text += "§r"
-        }
-        text += cf
-      }
-      return text.slice(1)
-    }
-  }
-  return none
-}
+// function array2string(array = [], none = "", clear_color = false) {
+  // if (is_string(array)) {
+    // return array
+  // } else {
+    // if (is_array(array)) {
+      // var text = ""
+      // for (var cf of array) {
+        // text += "\n"
+        // if (clear_color) {
+          // text += "§r"
+        // }
+        // text += cf
+      // }
+      // return text.slice(1)
+    // }
+  // }
+  // return none
+// }
 
-function parse_number(text, none = 0) {
-  var num = parseFloat(text)
-  if (Number.isNaN(num)) {
-    return none
-  }
-  return num
-}
+// function parse_number(text, none = 0) {
+  // var num = parseFloat(text)
+  // if (Number.isNaN(num)) {
+    // return none
+  // }
+  // return num
+// }
 
-function string_has(str, text) {
-  if (str.indexOf(text) === -1) {
-    return false
-  }
-  return true
-}
+// function string_has(str, text) {
+  // if (str.indexOf(text) === -1) {
+    // return false
+  // }
+  // return true
+// }
 
 function format(id, replacer) {
   var text = get_text(id)
@@ -9965,30 +9989,30 @@ function format(id, replacer) {
   return text
 }
 
-function parse_json(data) {
-  if (!is_string(data) || data == "") {
-    return {}
-  }
-  try {
-    data = JSON.parse(data)
-  } catch (e) { }
-  return to_object(data, {})
-}
+// function parse_json(data) {
+  // if (!is_string(data) || data == "") {
+    // return {}
+  // }
+  // try {
+    // data = JSON.parse(data)
+  // } catch (e) { }
+  // return to_object(data, {})
+// }
 
-function pos_string(vec) {
-  return `(${Math.round(vec.x)},${Math.round(vec.y)},${Math.round(vec.z)})`
-}
+// function pos_string(vec) {
+  // return `(${Math.round(vec.x)},${Math.round(vec.y)},${Math.round(vec.z)})`
+// }
 
-//to_json必须传入object
-function to_json(data) {
-  if (!is_object(data)) {
-    return
-  }
-  try {
-    data = JSON.stringify(data)
-  } catch (e) { }
-  return to_string(data, "{}")
-}
+// //to_json必须传入object
+// function to_json(data) {
+  // if (!is_object(data)) {
+    // return
+  // }
+  // try {
+    // data = JSON.stringify(data)
+  // } catch (e) { }
+  // return to_string(data, "{}")
+// }
 
 //文本格式化
 function tran_text(player, texts, keep_array = false) {
@@ -10071,12 +10095,12 @@ function tran_text(player, texts, keep_array = false) {
   return text
 }
 
-function un(v) {
-  if (v == undefined) {
-    return true
-  }
-  return false
-}
+// function un(v) {
+  // if (v == undefined) {
+    // return true
+  // }
+  // return false
+// }
 
 function server_log(type, text, path) {
   if (!log_config.able || !config.log.able) {

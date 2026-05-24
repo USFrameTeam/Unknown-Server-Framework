@@ -1,4 +1,6 @@
 
+
+
 export var texts = {
     "score.bb" : "破坏方块",
     "score.pb" : "放置方块",
@@ -368,3 +370,4 @@ export function get_text(id,lang){
 function is_string(v){
      return typeof(v) == "string" ? true : false
 }
+

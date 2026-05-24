@@ -1,3 +1,18 @@
+import { world } from "@minecraft/server";
+import { namespace } from "./Core.js";
+
+export function save_data(id, content, en = null) {
+  const target = en === null ? world : en;
+  target.setDynamicProperty(namespace + id, content);
+}
+
+export function get_data(id, en = null) {
+  const target = en === null ? world : en;
+  const data = target.getDynamicProperty(namespace + id);
+
+  return typeof data === 'string' ? data : "";
+}
+
 export const usf_config = {
     "name":{
         "format" : "/name",
