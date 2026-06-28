@@ -29,6 +29,20 @@ export function is_number(value) {
   return false
 }
 
+export function is_entity(entity){
+  if(is_object(entity) && is_string(entity.id)){
+    return true;
+  }
+  return false;
+}
+
+export function is_player(player) {
+  if (is_entity(player)) {
+    return player.typeId === "minecraft:player";
+  }
+  return false;
+}
+
 export function is_bool(value) {
   if (typeof (value) == "boolean") {
     return true
@@ -87,10 +101,7 @@ export function array_clear(array, text) {
 }
 
 export function array_has(array, text) {
-  if (array.indexOf(text) >= 0) {
-    return true
-  }
-  return false
+  return array.includes(text);
 }
 
 export function array_get(array , index){
@@ -161,4 +172,20 @@ export function to_json(data) {
 //vec => Location3
 export function pos_string(vec) {
   return `(${Math.round(vec.x)},${Math.round(vec.y)},${Math.round(vec.z)})`
+}
+
+//数学
+export function is_between(count, c1, c2) {
+  if (c1 === c2) {
+    return count === c1;
+  }
+
+  const min = Math.min(c1, c2);
+  const max = Math.max(c1, c2);
+
+  return count >= min && count <= max;
+}
+
+export function random_int(max = 10) {
+  return Math.floor(Math.random() * max)
 }

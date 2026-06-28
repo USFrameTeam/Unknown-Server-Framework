@@ -51,8 +51,6 @@ function tran_text(player, texts, keep_array = false) {
                         let index = line.indexOf(front_symbol);
                         while(index !== -1){
                             const index2 = line.indexOf(")", index);
-                            
-                            
                             index = line.indexOf(front_symbol);
                         }
                     }
@@ -97,12 +95,25 @@ function tran_text(player, texts, keep_array = false) {
   return text
 }
 
+//格式化文本 将[0][1]等进行格式化
 export function format(id, replacer) {
   var text = get_text(id)
   for (var i = 0; i < replacer.length; i++) {
     text = text.replaceAll(("[" + String(i) + "]"), String(replacer[i]))
   }
   return text
+}
+
+export function cut_minecraft(text) {
+  if (!is_string(text)) return "";
+
+  return text.replaceAll("minecraft:", "");
+}
+
+export function shorter_minecraft(text) {
+  if (!is_string(text)) return "";
+
+  return text.replaceAll("minecraft:", "mc:");
 }
 
 export var texts = {
@@ -318,160 +329,22 @@ export var texts = {
     "PlayerChoise/title":"玩家选择器"
 }
 
-export var texts_ZW = {
-    "score.bb" : "破壞方塊",
-    "score.pb" : "放置方塊",
-    "score.login" : "每日登錄遊戲",
-    "score.pvp" : "PVP",
-    "score.kill" : "殺怪",
-    "score.hit" : "攻擊生物",
-    "follow.tip" : "跟踪开始后，你可以使用+op命令退出跟踪.",
-    "action.land" : "空手[點擊]/[右鍵]方塊以選取坐標點\n輸入+land創建領地\n打開主菜單以取消創建",
-    "commands.cd" : "打開主菜單",
-    "commands.op" : "打開管理界面",
-    "commands.tpaccept" : "玩家互傳",
-    "commands.home" : "Home點傳送",
-    "commands.back" : "返回死亡點",
-    "commands.die" : "自殺",
-    "commands.land" : "領地設置",
-    "commands.unsleep" : "顯示未入睡玩家",
-    "log.chat" : "聊天記錄(Chat.log)",
-    "log.chat_" : "聊天顯示在日誌伺服器控制台",
-    "log.lo" : "記錄玩家位置/每60s",
-    "log.die" : "玩家死亡記錄",
-    "log.kill" : "玩家擊殺記錄",
-    "log.jl" : "玩家進出遊戲記錄",
-    "log.chest" : "容器記錄",
-    "log.pb" : "放置方塊記錄",
-    "log.bb" : "破壞方塊記錄",
-    "log.tp" : "USF內置傳送記錄",
-    "log.di" : "維度改變記錄",
-    "log.sign" : "告示牌更改記錄(Sign.log)",
-    "overworld.name" : "§b主世界§r",
-    "end.name" : "§5末地§r",
-    "nether.name" : "§4下界§r",
-    "Log/start": "USF插件已啟動！",
-    "Log/reload_all": "USF加載完成！",
-    "Log/watchdog" : "性能監視器：@0",
-    "land.4" : "§e[管理員]§r",
-    "land.3" : "§e[領地主]§r",
-    "land.2" : "§e[領地成員]§r",
-    "land.1" : "§e[群組成員]§r",
-    "land.0" : "§e[訪客]§r",
-    "land.two" : "未選擇兩個坐標點",
-    "about" : ["伺服器資訊§?Something about the Server"],
-    "board_text" : ["歡迎來到伺服器§?Welcome to this Server!"],
-    "menu": ["歡迎來到主菜單§?Welcome to the Menu"],
-    "helps" : ["你好，歡迎使用幫助頁面§?Hi,welcome to Help Page","命令使用大全：§?Plugin Commands:","cd,主菜單：打開主菜單§?cd : Open the menu","talk,私聊：打開私聊界面§?talk : open Private chat Page","die,死：立即自殺§?Kill yourself immediately","tpaccept : 同意tpa請求§?tpaccept : Accept others' tp request"],
-    "tip.init":"歡迎使用USF，當前插件未初始化！\n在聊天欄輸入§b/function get_owner§r獲取§6超級管理員§r\n或在伺服器後臺輸入§n/scriptevent usf:get_owner 玩家名§r獲取",
-    "data/die" : "死亡記錄",
-    "data/break" : "挖掘方塊量",
-    "data/place" : "放置方塊量",
-    "data/join" : "加入遊戲次數",
-    "data/chat" : "聊天數",
-    "data/health" : "玩家(帶Health標籤的實體)生命值",
-    "data/x" : "當前位置x軸",
-    "data/y" : "當前位置y軸",
-    "data/z" : "當前位置z軸",
-    "data/di" : "當前維度(0=主世界 1=下界 2=末地 3=其他)",
-    "data/sneak" : "玩家潛行時間(0=未潛行)(1秒=10)",
-    "data/slot" : "玩家選擇的快捷欄",
-    "data/health_listen" : "生命值監聽",
-    "tran_text" : "\n此內容啟用了轉義，輸入以下內容會自動轉換\n/worldspawn >> 世界出生點\n/pos >>玩家當前位置\n/§rlist >>玩家列表\n/§rname >>玩家名稱\n/§ralltime >>世界運行總時間(秒)\n/§rboard.計分板ID.score >>玩家計分板分數\n/§rboard.計分板ID.name >>該計分板顯示名稱\n/§rdimension >>玩家所在維度\n/tag >>聊天頭銜\n/health >>玩家生命值\n/n >> 換行\n/unsleep >>未入睡玩家\n/worldspawn >>世界出生點\n/respawn >> 玩家出生點\n/join >>玩家進入遊戲次數\n/items >> 掉落物數量\n/date >>年.月.日\n/time >>時.分.秒\n/level >>等級",
-    "tran_text_" : "\n此內容啟用了轉義，輸入以下內容會自動轉換\n/worldspawn >> 世界出生點\n/§rlist >>玩家列表\n/§ralltime >>世界運行總時間(秒)\n/§rboard.計分板ID.name >>該計分板顯示名稱\n/n >> 換行\n/unsleep >>未入睡玩家\n/worldspawn >>世界出生點\n/items >> 掉落物數量\n/date >>年.月.日\n/time >>時.分.秒",
-    "tran_mess" : "\n/§rsender >>發送者名稱\n/§rtag >>聊天頭銜/§rtext >>聊天內容",
-    "Scriptevent/error/NotFound" : "[USF]你所找的命令\"@0\"不存在",
-    "Weather.Rain.Thunder" : "§e天氣轉為：雷雨",
-    "Weather.Rain" : "下雨",
-    "Weather.Thunder" : "雷暴",
-    "Weather.Clear" : "晴天",
-    "tp/callback" : "",
-    "framework/Closed" : "插件狀態  [開啟｜關閉]",
-    "OP/Enable" : "OP  [否｜是]",
-    "OP/Player" : "玩家管理功能",
-    "OP/BanList" : "封禁列表管理",
-    "OP/Score" : "計分板修改",
-    "OP/BagCheck" : "背包檢查",
-    "OP/Setting" : "修改插件設置",
-    "slot/0" : "物品欄1",
-    "slot/1" : "物品欄2",
-    "slot/2" : "物品欄3",
-    "slot/3" : "物品欄4",
-    "slot/4" : "物品欄5",
-    "slot/5" : "物品欄6",
-    "slot/6" : "物品欄7",
-    "slot/7" : "物品欄8",
-    "slot/8" : "物品欄9",
-    "Pictures.world" : "地球",
-    "Pictures.bottle" : "藥水瓶",
-    "Pictures.chat" : "聊天框",
-    "Pictures.star" : "星星",
-    "Pictures.glass" : "放大鏡",
-    "Pictures.coin" : "金幣",
-    "Pictures.missing" : "材質丟失",
-    "Pictures.bed" : "床",
-    "Pictures.boat" : "船",
-    "Pictures.endereye" : "末影之眼",
-    "Pictures.emerald" : "綠寶石",
-    "Pictures.trident" : "三叉戟",
-    "Pictures.wheat" : "小麥",
-    "Pictures.bell" : "鐘",
-    "Pictures.sign" : "告示牌",
-    "Pictures.totem" : "不死圖騰",
-    "Pictures.ore" : "鑽石礦",
-    "Pictures.end" : "末地石",
-    "Pictures.flower" : "花",
-    "Pictures.path" : "草徑",
-    "Pictures.snow" : "雪",
-    "Pictures.hay" : "乾草塊",
-    "Pictures.ice" : "冰",
-    "Pictures.mushroom" : "菌絲",
-    "Pictures.sand" : "沙石",
-    "Pictures.netherrack" : "下界岩",
-    "Pictures.nether" : "下界磚塊",
-    "Pictures.rail" : "鐵路",
-    "Pictures.wool" : "羊毛",
-    "Pictures.tnt" : "TNT",
-    "Pictures.lamp" : "紅石燈",
-    "Pictures.mob" : "刷怪籠",
-    "Pictures.campfire" : "營火",
-    "Pictures.bucket" : "水桶",
-    "Pictures.chest" : "箱子",
-    "Pictures.meat" : "肉",
-    "Pictures.book" : "書本",
-    "Pictures.bow" : "弓",
-    "Pictures.cake" : "蛋糕",
-    "Pictures.ex" : "經驗瓶",
-    "Pictures.rod" : "釣魚竿",
-    "Pictures.sword" : "劍",
-    "Pictures.shovel" : "鏟",
-    "Pictures.pickaxe" : "鎬",
-    "Pictures.axe" : "斧",
-    "Pictures.hoe" : "鋤",
-    "Pictures.kelp" : "海帶",
-    "Pictures.map" : "地圖",
-    "Pictures.bottle" : "水瓶",
-    "PlayerChoise/title":"玩家選擇器"
-
+export var text_dictionary = {
+    
 }
 
 export function get_text(id,lang){
     if(is_string(id)){
-        var text = undefined
-        if(lang === 1){
-            text = texts_ZW[id]
+        let text = text_dictionary[id];
+        if( text == undefined){
+          text = texts[id];
         }
-        
-        if(text == undefined){
-            text = texts[id]
-        }
-        
-        return is_string(text) ? text : id
+        return is_string(text) ? text : id;
     }
-    return id
+    return "??";
 }
 
 function is_string(v){
-     return typeof(v) == "string" ? true : false
+     return typeof(v) == "string" ? true : false;
 }
 

@@ -6,6 +6,13 @@ const hint_map = ["§f[信息]§r","§c[错误]§r","§e[警告]§r"];
 
 var log_reporters = [];
 
+
+/*
+Logger本身不播报日志，此处注册播报日志的函数
+func将被传入两个参数：
+message : String (日志消息)
+is_global : bool (该日志是否需要全局播报)
+*/
 export function reporter_register(func){
   if(tool.is_function(func)){
     log_reporters.push(func);

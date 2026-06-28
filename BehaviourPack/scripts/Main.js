@@ -51,7 +51,6 @@ var tran_info = {
   weather: "",
 };
 var lock_config = [];
-var ops = [];
 var command_set = [];
 //var reloaded = false;
 var item_count = 0;
@@ -85,7 +84,7 @@ var log_info = {
 };
 
 //注册事件与任务
-world.afterEvents.entityHurt.subscribe(afterEntityHurt);
+/* world.afterEvents.entityHurt.subscribe(afterEntityHurt);
 world.afterEvents.itemUse.subscribe(afteritemUse);
 world.afterEvents.entityDie.subscribe(afterEntityDie);
 world.beforeEvents.entityRemove.subscribe(beforeEntityRemove);
@@ -108,9 +107,10 @@ world.afterEvents.entitySpawn.subscribe(afterEntitySpawn);
 world.afterEvents.worldLoad.subscribe(worldInitializeEvent);
 world.afterEvents.weatherChange.subscribe(afterWeatherChanged);
 world.afterEvents.gameRuleChange.subscribe(afterGameRuleChange);
-system.afterEvents.scriptEventReceive.subscribe(scriptEventReceive, {
+system.afterEvents.scriptEventReceive.subscribe(scriptEventReceive, ); */
+/* {
   "namespaces": ["usf"]
-});
+} */
 
 import("@minecraft/server-net").then((http)=>{
     //push_text("log.enable","")
@@ -975,9 +975,6 @@ function afterGameRuleChange(event) {
   // return id;
 // }
 
-function get_di(id) {
-  return world.getDimension(id);
-}
 
 // function log(text, replacer = [], hint = "", mode = 0) {
   // const hintMap = {
@@ -1046,22 +1043,6 @@ function score_event(player, id, data, count = 1, type = 0) {
       }
     }
   }
-}
-
-function entity_command(entity, command) {
-  if (!entity) return;
-
-  try {
-    entity.runCommand(command);
-  } catch (err) { }
-}
-
-function kick(player, reason = "", force = false) {
-  if (!force && get_op_level(player) > 0) return;
-
-  if (!player || !player.name) return;
-
-  overworld.runCommand(`kick "${player.name}" ${reason}`);
 }
 
 function get_player_path(player) {
@@ -1155,7 +1136,7 @@ function save_player_lands(player) {
   save_data("lands", to_json(player.lands), player);
 }
 
-function is_between(count, c1, c2) {
+/* function is_between(count, c1, c2) {
   if (c1 === c2) {
     return count === c1;
   }
@@ -1164,29 +1145,11 @@ function is_between(count, c1, c2) {
   const max = Math.max(c1, c2);
 
   return count >= min && count <= max;
-}
+} */
 
-function get_op_level(player) {
-  if (!player) return 0;
 
-  if (is_owner(player)) {
-    return 2;
-  }
 
-  if (is_op(player)) {
-    return 1;
-  }
 
-  return 0;
-}
-
-function is_op(player) {
-  if (!player) return false;
-
-  const id = is_object(player) ? get_id(player) : player;
-
-  return ops.includes(id);
-}
 
 function tp_entity(entity, di, x, y, z, show = false, keep = false, back = false) {
   if (!entity) return;
@@ -1240,13 +1203,7 @@ function show_title(player, text) {
   } catch (err) { }
 }
 
-function is_player(player) {
-  if (!player || typeof player !== 'object') {
-    return false;
-  }
 
-  return player.typeId === "minecraft:player";
-}
 
 function save_player_info(player) {
   if (!player || !player.info) return;
@@ -1436,7 +1393,8 @@ function arraysEqual(a, b) {
 
 function reload_all() {
   if (Date.now() - parse_number(get_data("reset")) <= 30000) {
-    save_data("owners", "");
+    //save_data("owners", "");
+    //使用reset_onwers代替
     log("最高管理员已被重置!", [], "warn", 2);
   }
 
@@ -1466,7 +1424,8 @@ function reload_all() {
 
   ids = to_array(parse_json(get_data("ids")), []);
   id_names = to_object(parse_json(get_data("id_names")), {});
-  ops = to_array(parse_json(get_data("op")), []);
+  //
+  //使用permission.load_ops
   chests = to_array(parse_json(get_data("chests")), []);
   global_goods = to_array(parse_json(get_data("global_goods")), []);
   tag_groups = to_array(parse_json(get_data("tag_groups")));
@@ -3776,7 +3735,7 @@ function groupLookBar(player, g, op = false) {
   ui.show(player)
 }
 
-function confirm(player, text, back = function () { }) {
+/* function confirm(player, text, back = function () { }) {
   var ui = new btnBar()
   ui.title = "确认"
   ui.body = text
@@ -3797,7 +3756,7 @@ function confirm(player, text, back = function () { }) {
     back(false)
   }
   ui.show(player)
-}
+} */
 
 function add_invite(player, id) {
   var invites = to_array(parse_json(get_data("invites", player)), [])
@@ -8422,9 +8381,9 @@ function setOpBar(player) {
   ui.show(player)
 }
 
-function save_ops() {
+/* function save_ops() {
   save_data("op", to_json(ops))
-}
+} */
 
 function OnlineBoardBar(player) {
   var ui = new infoBar()
@@ -9895,7 +9854,7 @@ function show_board(player, id = null, show_cd = true) {
   // return (index >= 0) ? index : none
 // }
 
-function add_pictures_choice(ui, text, choice = null) {
+/* function add_pictures_choice(ui, text, choice = null) {
   var texts = ["无"]
   var keys = Object.keys(pictures)
   for (var k of keys) {
@@ -9903,11 +9862,11 @@ function add_pictures_choice(ui, text, choice = null) {
   }
   ui.options("icon", text, texts, (keys.indexOf(choice) === -1) ? 0 : keys.indexOf(choice) + 1)
   ui.match([null].concat(Object.keys(pictures)))
-}
+} */
 
-function random_int(max = 10) {
+/* function random_int(max = 10) {
   return Math.floor(Math.random() * max)
-}
+} */
 
 // function array_clear(array, text) {
   // while (array.indexOf(text) >= 0) {
@@ -10009,7 +9968,7 @@ function random_int(max = 10) {
 // }
 
 //文本格式化
-function tran_text(player, texts, keep_array = false) {
+/* function tran_text(player, texts, keep_array = false) {
   var things = {}
 
   if (is_player(player)) {
@@ -10087,7 +10046,7 @@ function tran_text(player, texts, keep_array = false) {
   }
 
   return text
-}
+} */
 
 // function un(v) {
   // if (v == undefined) {
