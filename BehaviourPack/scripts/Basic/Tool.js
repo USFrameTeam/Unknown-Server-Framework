@@ -93,6 +93,10 @@ export function array_has(array, text) {
   return false
 }
 
+export function array_get(array , index){
+  return (array.length > index) ? array[index] : array[0]
+}
+
 export function array2string(array = [], none = "", clear_color = false) {
   if (is_string(array)) {
     return array

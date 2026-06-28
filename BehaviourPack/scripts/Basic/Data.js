@@ -1,5 +1,8 @@
 import { world } from "@minecraft/server";
-import { namespace } from "./Core.js";
+import * as tool from "./Tool.js";
+
+//命名空间
+export const namespace = "usfV2:";
 
 export function save_data(id, content, en = null) {
   const target = en === null ? world : en;
@@ -10,7 +13,7 @@ export function get_data(id, en = null) {
   const target = en === null ? world : en;
   const data = target.getDynamicProperty(namespace + id);
 
-  return typeof data === 'string' ? data : "";
+  return typeof tool.is_string(data) ? data : "";
 }
 
 export const usf_config = {

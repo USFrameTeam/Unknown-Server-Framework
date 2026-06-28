@@ -1,5 +1,109 @@
+import * as tool from "./Tool.js";
 
 
+var trans_info = {};
+var tran_standard_symbol_functions = {};
+var tran_standard_symbols = [];
+var tran_special_symbol_functions = {};
+var tran_special_symbols = [];
+
+//文本格式化
+
+export function register_symbol(is_special = false , symbol = "symbol" , func = return_empty){
+    if(is_special){
+        tran_special_symbol_functions[symbol] = func;
+        tran_special_symbols.push(symbol);
+        return;
+    }
+    tran_standard_symbol_functions[symbol] = func;
+    tran_standard_symbols.push(symbol);
+}
+
+function return_empty(player){
+    return "";
+}
+
+function tran_text(player, texts, keep_array = false) {
+    //内部定义(转外部定义)(还有个计分板：things["board." + b.id + ".score"])
+        // things = {
+          // name: player.name,
+          // pos: pos_string(player.location),
+          // dimension: player.dimension.name,
+          // tag: get_chat_tag(player),
+          // health: String(Math.ceil(player.health.currentValue)),
+          // level: String(player.level),
+          // respawn: get_block_pos({
+            // location: spawn
+          // }),
+          // join: String(player.info.join_times)
+        // }
+    //trans_info需要定义(在Mc.js)
+    var tran = function (line) {
+        if (line.startsWith("**")) {}
+        else {
+            if (tool.string_has(line, "/")) {
+                for (var symbol of tran_standard_symbols) {
+                  line = line.replaceAll("/" + symbol, tran_standard_symbol_functions[symbol]);
+                }
+                for (var symbol of tran_special_symbols) {
+                    const front_symbol = "/" + symbol + "(";
+                    if(tool.string_has(front_symbol)){
+                        let index = line.indexOf(front_symbol);
+                        while(index !== -1){
+                            const index2 = line.indexOf(")", index);
+                            
+                            
+                            index = line.indexOf(front_symbol);
+                        }
+                    }
+                }
+                
+            
+            if (string_has(line, "var(")) {
+                while (line.indexOf("var(") !== -1) {
+                  var index = line.indexOf("var(")
+                  var index2 = line.indexOf(")", index)
+                  if (index2 !== -1) {
+                    line = line.slice(0, index) + to_string(vars[line.slice(index + 4, index2)]) + line.slice(index2 + 1)
+                  } else {
+                    line = line.slice(0, index) + to_string(vars[line.slice(index + 4)])
+                  }
+                }
+              }
+            }
+        }
+
+    line = line.replaceAll("/n", "\n")
+    return line
+  }
+
+  var text = []
+
+  if (is_array(texts)) {
+    for (var cf = 0; cf < texts.length; cf++) {
+      text.push(tran(texts[cf]))
+    }
+
+    if (keep_array) {
+      return text
+    } else {
+      return array2string(text, "", true)
+    }
+  }
+  if (is_string(texts)) {
+    text = tran(texts)
+  }
+
+  return text
+}
+
+export function format(id, replacer) {
+  var text = get_text(id)
+  for (var i = 0; i < replacer.length; i++) {
+    text = text.replaceAll(("[" + String(i) + "]"), String(replacer[i]))
+  }
+  return text
+}
 
 export var texts = {
     "score.bb" : "破坏方块",

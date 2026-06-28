@@ -13,7 +13,7 @@ import { ScoreBoardGUI } from "./ScoreBoard.js";
   // ZN: {},
   // ZW: {}
 // };
-var vars = {};
+//var vars = {};
 
 //获取3个维度
 // var overworld;
@@ -38,7 +38,7 @@ var vars = {};
 
 
 //var has_owner = false;
-var last_id = Date.now();
+// var last_id = Date.now();
 var reset_boards = [];
 var cache = {
   time: 0,
@@ -53,7 +53,7 @@ var tran_info = {
 var lock_config = [];
 var ops = [];
 var command_set = [];
-var reloaded = false;
+//var reloaded = false;
 var item_count = 0;
 var id_names = {};
 var lands = {
@@ -979,32 +979,32 @@ function get_di(id) {
   return world.getDimension(id);
 }
 
-function log(text, replacer = [], hint = "", mode = 0) {
-  const hintMap = {
-    "tip": "§6[提示]§r",
-    "info": "§f[信息]§r",
-    "error": "§c[错误]§r",
-    "warn": "§e[警告]§r",
-    "lead": "§7[指引]§r"
-  };
+// function log(text, replacer = [], hint = "", mode = 0) {
+  // const hintMap = {
+    // "tip": "§6[提示]§r",
+    // "info": "§f[信息]§r",
+    // "error": "§c[错误]§r",
+    // "warn": "§e[警告]§r",
+    // "lead": "§7[指引]§r"
+  // };
 
-  text = format(to_string(text), replacer);
+  // text = format(to_string(text), replacer);
 
-  const hintText = hintMap[hint] || hint;
+  // const hintText = hintMap[hint] || hint;
 
-  const finalText = "§3[USFLog]§r" + hintText + text;
+  // const finalText = "§3[USFLog]§r" + hintText + text;
 
-  if (mode !== 1) {
-    const opPlayers = world.getAllPlayers().filter(p => get_op_level(p) > 0);
-    if (opPlayers.length > 0) {
-      chat(finalText, opPlayers, false);
-    }
-  }
+  // if (mode !== 1) {
+    // const opPlayers = world.getAllPlayers().filter(p => get_op_level(p) > 0);
+    // if (opPlayers.length > 0) {
+      // chat(finalText, opPlayers, false);
+    // }
+  // }
 
-  if (mode !== 0) {
-    console.warn(clear_colour(finalText));
-  }
-}
+  // if (mode !== 0) {
+    // console.warn(clear_colour(finalText));
+  // }
+// }
 
 function get_ban_list() {
   const banData = get_data("ban");
@@ -1090,12 +1090,12 @@ function chat(mess, targets = null, tran = true) {
   }
 }
 
-function get_owners() {
-  const ownersData = get_data("owners");
-  const os = ownersData ? to_array(parse_json(ownersData), []) : [];
-  has_owner = os.length > 0;
-  return os;
-}
+// function get_owners() {
+  // const ownersData = get_data("owners");
+  // const os = ownersData ? to_array(parse_json(ownersData), []) : [];
+  // has_owner = os.length > 0;
+  // return os;
+// }
 
 function player_add_group(player, id) {
   if (!player || !id) return;
@@ -1109,13 +1109,13 @@ function player_add_group(player, id) {
   }
 }
 
-function is_owner(player) {
-  if (!player) return false;
+// function is_owner(player) {
+  // if (!player) return false;
 
-  const id = is_object(player) ? get_id(player) : player;
+  // const id = is_object(player) ? get_id(player) : player;
 
-  return get_owners().includes(id);
-}
+  // return get_owners().includes(id);
+// }
 
 function get_text(id) {
   if (!id) return "";
@@ -1549,24 +1549,24 @@ function get_data(id, en = null) {
   return typeof data === 'string' ? data : "";
 }*/
 
-function get_id(player) {
-  if (typeof player.usf_id !== 'string') {
-    const id = get_data("id", player);
+// function get_id(player) {
+  // if (typeof player.usf_id !== 'string') {
+    // const id = get_data("id", player);
 
-    if (id === "") {
-      if (Date.now() !== last_id) {
-        const newId = String(last_id);
-        save_data("id", newId, player);
-        last_id++;
-        player.usf_id = newId;
-      }
-    } else {
-      player.usf_id = id;
-    }
-  }
+    // if (id === "") {
+      // if (Date.now() !== last_id) {
+        // const newId = String(last_id);
+        // save_data("id", newId, player);
+        // last_id++;
+        // player.usf_id = newId;
+      // }
+    // } else {
+      // player.usf_id = id;
+    // }
+  // }
 
-  return player.usf_id;
-}
+  // return player.usf_id;
+// }
 
 function get_block_pos(block) {
   const { x, y, z } = block.location;
@@ -9981,13 +9981,7 @@ function random_int(max = 10) {
   // return true
 // }
 
-function format(id, replacer) {
-  var text = get_text(id)
-  for (var i = 0; i < replacer.length; i++) {
-    text = text.replaceAll(("[" + String(i) + "]"), String(replacer[i]))
-  }
-  return text
-}
+
 
 // function parse_json(data) {
   // if (!is_string(data) || data == "") {
