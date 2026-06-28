@@ -1,6 +1,6 @@
 
 
-export function clear_colour(text) {
+export function clear_color(text) {
   return text.replace(/§./g, "")
 }
 
@@ -142,6 +142,36 @@ export function string_has(str, text) {
     return false
   }
   return true
+}
+
+export function object_override(object, format) {
+  if (!object || !format || typeof format !== 'object') return;
+
+  const formatKeys = Object.keys(format);
+
+  for (const cf of formatKeys) {
+    const formatValue = format[cf];
+    const isFormatNull = formatValue === null;
+    const isFormatObject = typeof formatValue === 'object' && !isFormatNull;
+    const isFormatArray = Array.isArray(formatValue);
+
+    if (un(object[cf])) {
+      if (isFormatNull) {
+        object[cf] = null;
+      } else if (isFormatArray) {
+        object[cf] = [...formatValue];
+      } else if (isFormatObject) {
+        object[cf] = {};
+        object_override(object[cf], formatValue);
+      } else {
+        object[cf] = formatValue;
+      }
+    }
+    else if (typeof object[cf] === 'object' && !Array.isArray(object[cf]) &&
+      object[cf] !== null && isFormatObject) {
+      object_override(object[cf], formatValue);
+    }
+  }
 }
 
 //JSON相关

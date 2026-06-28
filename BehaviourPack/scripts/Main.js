@@ -77,7 +77,7 @@ var share_pos = [];
 var world_pos = [];
 var sign = {};
 var chest = {};
-var white_words = [];
+//var white_words = [];
 var log_info = {
   "bb": {},
   "pb": {}
@@ -1051,7 +1051,7 @@ function get_player_path(player) {
   return "Players/" + player.name;
 }
 
-function chat(mess, targets = null, tran = true) {
+/* function chat(mess, targets = null, tran = true) {
   const players = is_array(targets) ? targets : world.getAllPlayers();
 
   if (!tran) {
@@ -1069,7 +1069,7 @@ function chat(mess, targets = null, tran = true) {
       p.sendMessage(new_mess);
     }
   }
-}
+} */
 
 // function get_owners() {
   // const ownersData = get_data("owners");
@@ -1098,7 +1098,7 @@ function player_add_group(player, id) {
   // return get_owners().includes(id);
 // }
 
-function get_text(id) {
+/* function get_text(id) {
   if (!id) return "";
 
   const isZW = config.language === 1;
@@ -1114,7 +1114,7 @@ function get_text(id) {
   }
 
   return text;
-}
+} */
 
 function get_land(id) {
   const data = get_data(`land.${id}`);
@@ -1241,7 +1241,7 @@ function get_string_length(str, charset) {
   return id_names[id] !== undefined ? id_names[id] : "离线玩家";
 } */
 
-function object_override(object, format) {
+/* function object_override(object, format) {
   if (!object || !format || typeof format !== 'object') return;
 
   const formatKeys = Object.keys(format);
@@ -1269,7 +1269,7 @@ function object_override(object, format) {
       object_override(object[cf], formatValue);
     }
   }
-}
+} */
 
 function save_config() {
   save_data("config", to_json(config));
@@ -1392,17 +1392,17 @@ function arraysEqual(a, b) {
 }
 
 function reload_all() {
-  if (Date.now() - parse_number(get_data("reset")) <= 30000) {
+  /* if (Date.now() - parse_number(get_data("reset")) <= 30000) {
     //save_data("owners", "");
     //使用reset_onwers代替
     log("最高管理员已被重置!", [], "warn", 2);
-  }
+  } */
 
   /* if (un(world.scoreboard.getObjective("usf_data"))) {
     world.scoreboard.addObjective("usf_data", "USF数据");
   } */
 
-  dictionary = to_object(parse_json(get_data("dictionary")), {});
+  //dictionary = to_object(parse_json(get_data("dictionary")), {});
 
   groups = to_array(parse_json(get_data("group_ids")), []);
 
@@ -1411,7 +1411,7 @@ function reload_all() {
 
   lock_config = to_array(parse_json(get_data("lock_items")));
 
-  get_owners();
+  
 
   reset_boards = to_array(parse_json(get_data("reset_boards")), []);
 
@@ -1419,13 +1419,13 @@ function reload_all() {
   lands.max = to_array(parse_json(get_data("lands_max")), []);
   lands.ids = to_array(parse_json(get_data("lands_ids")), []);
 
-  config = parse_json(get_data("config"));
-  object_override(config, usf_config);
+  /* config = parse_json(get_data("config")); */
+  //object_override
 
-  ids = to_array(parse_json(get_data("ids")), []);
+  //ids = to_array(parse_json(get_data("ids")), []);
   //id_names = to_object(parse_json(get_data("id_names")), {});
   //
-  //使用permission.load_ops
+
   chests = to_array(parse_json(get_data("chests")), []);
   global_goods = to_array(parse_json(get_data("global_goods")), []);
   tag_groups = to_array(parse_json(get_data("tag_groups")));
@@ -1438,7 +1438,7 @@ function reload_all() {
     overworld.runCommand(`scoreboard players reset * ${config.timer}`);
   }
 
-  white_words = to_array(parse_json(get_data("white_words")), []);
+  //white_words = to_array(parse_json(get_data("white_words")), []);
 }
 
 function save_generic(key, data) {
@@ -1714,9 +1714,9 @@ function set_mode(player, mode) {
 
 //事件
 
-function get_chat_players() {
+/* function get_chat_players() {
   return world.getAllPlayers().filter(p => p.info.block === false);
-}
+} */
 
 function afterEntityDie(event) {
   const entity = event.deadEntity;
@@ -1866,20 +1866,20 @@ function reset_lock_item(player) {
   } catch (err) { }
 }
 
-function run_command(player, com) {
-  com = com.slice(1) + " ";
+//function run_command(player, com) {
+  //com = com.slice(1) + " ";
 
-  const commands = parseCommandArgs(com);
+ // const commands = parseCommandArgs(com);
 
-  if (commands.length < 1) {
+  /* if (commands.length < 1) {
     return;
-  }
+  } */
 
-  const cmdName = commands[0];
+  //const cmdName = commands[0];
 
-  if (!array_has(config.commands, cmdName) && cmdName !== "usf") {
+  /* if (!array_has(config.commands, cmdName) && cmdName !== "usf") {
     return;
-  }
+  } */
 
   const commandHandlers = {
     "unland": () => {
@@ -1950,9 +1950,9 @@ function run_command(player, com) {
       }
     },
 
-    "usf": () => {
+    /* "usf": () => {
       chat(version_text, [player]);
-    },
+    }, */
 
     "op": () => {
       opBar(player);
@@ -1975,14 +1975,9 @@ function run_command(player, com) {
       acceptTPA(player);
     }
   };
+//}
 
-  const handler = commandHandlers[cmdName];
-  if (handler) {
-    handler();
-  }
-}
-
-function parseCommandArgs(commandStr) {
+/* function parseCommandArgs(commandStr) {
   const commands = [];
   let isInQuotes = false;
   let lastIndex = 0;
@@ -2005,7 +2000,7 @@ function parseCommandArgs(commandStr) {
   }
 
   return commands;
-}
+} */
 
 function acceptTPA(player) {
   if (un(player.tpa)) {
@@ -2588,33 +2583,34 @@ function afterPlayerGameModeChange(event) {
   }
 }
 
-function say_stop_talk(player) {
+/* function say_stop_talk(player) {
   chat(format("talk.stop", [String(Math.round(get_left_time(player) / 1000))]), [player])
-}
+} */
 
 function beforeChatSend(event) {
-  var sender = event.sender
+  /* var sender = event.sender
   var message = event.message
   var format = config.chat.format
 
+  
   if (message[0] === "+") {
     event.cancel = true
     system.run(() => {
       run_command(sender, message)
     })
     return
-  }
+  } */
 
-  if (config.chat.disable === true) {
+  /* if (config.chat.disable === true) {
     return
-  }
-  for (var w of white_words) {
+  } */
+  /* for (var w of white_words) {
     if (message.includes(w)) {
       return
     }
-  }
+  } */
 
-  if (message.length > config.chat.length) {
+  /* if (message.length > config.chat.length) {
     message = message.slice(0, config.chat.length)
     message += "..."
   }
@@ -2625,14 +2621,14 @@ function beforeChatSend(event) {
   format = format.replaceAll("/sender", sender.name)
   format = format.replaceAll("/text", message)
 
-  event.cancel = true
+  event.cancel = true */
 
-  if (get_left_time(sender) > 0) {
+  /* if (get_left_time(sender) > 0) {
     say_stop_talk(sender)
     return
-  }
-  var t = get_chat_players()
-  switch (sender.talk.mode) {
+  } */
+  /* var t = get_chat_players() */
+  /* switch (sender.talk.mode) {
     case 0:
       break
     case 1:
@@ -2644,7 +2640,7 @@ function beforeChatSend(event) {
         t = []
         chat(get_text("talk.public"), [sender])
       }
-      break
+      break */
     case 2:
       var g = get_group(sender.talk.goal)
       if (is_group(g)) {
@@ -2677,10 +2673,10 @@ function beforeChatSend(event) {
     }
   }
 
-  chat(format, t, false)
+  /* chat(format, t, false)
   system.run(() => {
     emitEvent(sender, "chat")
-  })
+  }) */
   if (array_has(config.log.allow, "chat")) {
     server_log(0, format, "Chat")
   }
@@ -2837,48 +2833,46 @@ function is_same_day(d1, d2) {
 }
 
 function playerSpawn(event) {
-  var player = event.player
-  var is_login = false
+  //var player = event.player
+  //var is_login = false
 
   if (event.initialSpawn === true) {
-    player.info = parse_json(get_data("info", player))
+    //player.info = parse_json(get_data("info", player))
+    //签到相关
     if (un(player.info.last_time)) {
-      is_login = true
     } else {
       var d1 = new Date(player.info.last_time)
       var d2 = new Date()
       if (is_same_day(d1, d2) === false) {
         player.info.score = {}
-        is_login = true
-
       }
     }
 
     if (is_object(player.info.follow)) {
       reset_player_follow(player)
     }
-    player.info.last_time = Date.now()
+    /* player.info.last_time = Date.now()
     player.info.join_times = to_number(player.info.join_times, 0) + 1
 
-    object_override(player.info, data_format.info)
-    save_player_info(player)
+    object_override(player.info, data_format.info);
+    save_player_info(player); */
 
     //reset_player_data(player)
 
-    array_clear(ids, get_id(player))
+    /* array_clear(ids, get_id(player))
     ids.push(get_id(player))
     try {
       if (ids.length > 200) {
         delete id_names[ids.shift()]
       }
-    } catch (err) { }
+    } catch (err) { } */
    /*  id_names[get_id(player)] = player.name
     save_data("id_names", to_json(id_names))
     save_data("ids", to_json(ids)) */
 
-    if (get_owners().length === 0) {
+    /* if (get_owners().length === 0) {
       chat(get_text("tip.init"), [player], false)
-    }
+    } */
     show_board(player, null, false)
     //show_tips(player)
 
@@ -4021,7 +4015,7 @@ function groupsBar(player) {
   ui.show(player)
 }
 
-function setChatBar(player) {
+/* function setChatBar(player) {
   var texts = ["公共聊天"]
   var ops = [null]
   for (var p of world.getAllPlayers()) {
@@ -4049,7 +4043,7 @@ function setChatBar(player) {
       }
     }
   })
-}
+} */
 
 function is_public_editable(player) {
   if (get_op_level(player) > 0) {
@@ -7140,9 +7134,9 @@ function usfTickCheck(player) {
   ui.show(player)
 } */
 
-function get_left_time(p) {
+/* function get_left_time(p) {
   return Math.round(p.info.ban_time - Date.now())
-}
+} */
 
 function stopPlayerBar(player) {
   var ps = world.getAllPlayers()

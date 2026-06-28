@@ -1,6 +1,7 @@
 import { ItemStack, world, system } from "@minecraft/server";
 import * as logger from "./Logger.js";
 import * as tool from "./Tool.js";
+import * as text from "./Text.js";
 import * as permission from "./Permission.js";
 
 export function is_entity_valid(entity){
@@ -42,4 +43,14 @@ export function kick(player, reason = "", force = false) {
 
     overworld.runCommand(`kick "${player.name}" ${reason}`);
     return true;
+}
+
+export function chat(message, targets = null, tran = true) {
+    const players = is_array(targets) ? targets : get_all_players();
+    for (const p of players) {
+        let final_message = (tran) ? text.tran_text(p,message) : message;
+        if (tool.is_player(p)) {
+            p.sendMessage(final_message);
+        }
+    }
 }

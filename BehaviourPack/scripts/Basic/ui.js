@@ -7,9 +7,12 @@ import { system } from "@minecraft/server";
 import { ActionFormData,
     MessageFormData,
     ModalFormData,
-    ActionFormResponse
+    ActionFormResponse,
+    uiManager
   } from "@minecraft/server-ui";
-import {get_text}  from "./text.js"
+import {get_text}  from "./text.js";
+
+
 
 function to_array(value , none = []){
     return Array.isArray(value) ? value : none
@@ -50,6 +53,10 @@ function is_object(v ){
 
 function is_array(v ){
      return Array.isArray(v)
+}
+
+export function clear_bars(player){
+    uiManager.closeAllForms(player);
 }
 
 export function btnBar(){

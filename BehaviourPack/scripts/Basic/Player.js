@@ -4,12 +4,16 @@ import * as event from "./Event.js";
 
 var last_id = Date.now();
 //id_name : { USFID : 玩家ID}
+var ids = [];
 var id_names = {};
 var id_players = {};
 
 event.report_custom_event("player_join");
+event.report_custom_event("new_player");
+
 event.register_mc_event(false,"WorldLoad",undefined,function(event){
     id_names = tool.to_object(tool.parse_json(data.get_data("id_names")), {});
+    ids = tool.to_array(tool.parse_json(data.get_data("ids")), []);
 });
 event.register_mc_event(false,"playerSpawn",undefined,playerSpawn);
 function playerSpawn(event){
@@ -18,7 +22,22 @@ function playerSpawn(event){
         reset_player_data(player);
         id_names[get_id(player)] = player.name
         data.save_data("id_names", tool.to_json(id_names))
-        data.save_data("ids", tool.to_json(ids))
+        data.save_data("ids", tool.to_json(ids));
+
+        array_clear(ids, get_id(player));
+        ids.push(get_id(player));
+        if (ids.length > 300) {
+            ids.shift();
+        }
+
+        if (un(player.info.last_time)){
+            event.emit_custom_event("new_player",{"player" : player});
+        }
+
+        player.info.last_time = Date.now();
+        player.info.join_times = to_number(player.info.join_times, 0) + 1;
+        object_override(player.info, data_format.info);
+        save_player_info(player);
     }
 }
 

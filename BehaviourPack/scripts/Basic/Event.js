@@ -39,7 +39,7 @@ export function connect_custom_event(event_id , func = function(things){}){
     }
 }
 //自定义事件只能携带一个参数，请统一使用object类型来传入参数（哪怕无参数也传一个空object或undefined)
-export function emit_custom_event(event_id , things){
+export function emit_custom_event(event_id , things = {}){
     if(!tool.is_array(custom_event_signals[event_id])){return;}
     for(let func of custom_event_signals[event_id]){
         func(things);
