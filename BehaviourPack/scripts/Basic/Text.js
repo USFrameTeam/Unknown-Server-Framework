@@ -104,6 +104,12 @@ export function format(id, replacer) {
   return text
 }
 
+export function push_text(id , text){
+  if(tool.is_string(text) && tool.is_string(id)){
+    texts[id] = text;
+  }
+}
+
 export function cut_minecraft(text) {
   if (!is_string(text)) return "";
 

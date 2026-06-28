@@ -54,7 +54,7 @@ var lock_config = [];
 var command_set = [];
 //var reloaded = false;
 var item_count = 0;
-var id_names = {};
+//var id_names = {};
 var lands = {
   min: [],
   max: [],
@@ -1003,7 +1003,7 @@ function afterGameRuleChange(event) {
   // }
 // }
 
-function get_ban_list() {
+/* function get_ban_list() {
   const banData = get_data("ban");
   if (!banData) return [];
 
@@ -1013,7 +1013,7 @@ function get_ban_list() {
   } catch (e) {
     return [];
   }
-}
+} */
 
 function score_event(player, id, data, count = 1, type = 0) {
   const cmdType = type === 0 ? "add" : "set";
@@ -1205,11 +1205,11 @@ function show_title(player, text) {
 
 
 
-function save_player_info(player) {
+/* function save_player_info(player) {
   if (!player || !player.info) return;
 
   save_data("info", to_json(player.info), player);
-}
+} */
 
 function get_string_length(str, charset) {
   if (!str || str.length === 0) return 0;
@@ -1235,11 +1235,11 @@ function get_string_length(str, charset) {
   return total;
 }
 
-function get_name_by_id(id) {
+/* function get_name_by_id(id) {
   if (!id) return "离线玩家";
 
   return id_names[id] !== undefined ? id_names[id] : "离线玩家";
-}
+} */
 
 function object_override(object, format) {
   if (!object || !format || typeof format !== 'object') return;
@@ -1398,9 +1398,9 @@ function reload_all() {
     log("最高管理员已被重置!", [], "warn", 2);
   }
 
-  if (un(world.scoreboard.getObjective("usf_data"))) {
+  /* if (un(world.scoreboard.getObjective("usf_data"))) {
     world.scoreboard.addObjective("usf_data", "USF数据");
-  }
+  } */
 
   dictionary = to_object(parse_json(get_data("dictionary")), {});
 
@@ -1423,7 +1423,7 @@ function reload_all() {
   object_override(config, usf_config);
 
   ids = to_array(parse_json(get_data("ids")), []);
-  id_names = to_object(parse_json(get_data("id_names")), {});
+  //id_names = to_object(parse_json(get_data("id_names")), {});
   //
   //使用permission.load_ops
   chests = to_array(parse_json(get_data("chests")), []);
@@ -1558,9 +1558,9 @@ function get_di_num(di) {
   return "0";
 }
 
-function get_player_by_id(id) {
+/* function get_player_by_id(id) {
   return id_player[id] === undefined ? null : id_player[id];
-}
+} */
 
 function change_player_name(player) {
   const infoName = to_string(player.info.name);
@@ -1575,8 +1575,8 @@ function change_player_name(player) {
   }
 }
 
-function reset_player_data(player) {
-  const playerId = get_id(player);
+ function reset_player_data(player) {
+  c/* onst playerId = get_id(player);
   const banList = get_ban_list();
 
   if (banList.includes(String(playerId)) || banList.includes(player.name)) {
@@ -1587,15 +1587,15 @@ function reset_player_data(player) {
   const inventoryComponent = player.getComponent("minecraft:inventory");
   const healthComponent = player.getComponent("minecraft:health");
 
-  const playerInfo = parse_json(get_data("info", player));
+  const playerInfo = parse_json(get_data("info", player)); */
   const playerLandsData = to_array(parse_json(get_data("lands", player)));
   const storeRecord = parse_json(get_data("store_record", player));
 
-  player.info = playerInfo;
-  player.slots = inventoryComponent.container;
+  //player.info = playerInfo;
+  //player.slots = inventoryComponent.container;
   player.lands = [];
   player.store_record = to_object(storeRecord);
-  player.health = healthComponent;
+  //player.health = healthComponent;
   player.last_tp = 0;
   player.landing = {
     points: [],
@@ -1612,7 +1612,7 @@ function reset_player_data(player) {
 
   save_player_lands(player);
 
-  id_player[playerId] = player;
+  //id_player[playerId] = player;
 
   if (config.tip.able) {
     chat(get_data("tip"), [player], true);
@@ -1632,7 +1632,7 @@ function reset_player_data(player) {
 
   change_player_name(player);
   return;
-}
+} 
 
 function emitEvent(player, type) {
   const eventsList = events[type];
@@ -2841,7 +2841,6 @@ function playerSpawn(event) {
   var is_login = false
 
   if (event.initialSpawn === true) {
-    player.runCommand("scoreboard players set @s usf_data 1")
     player.info = parse_json(get_data("info", player))
     if (un(player.info.last_time)) {
       is_login = true
@@ -2864,7 +2863,7 @@ function playerSpawn(event) {
     object_override(player.info, data_format.info)
     save_player_info(player)
 
-    reset_player_data(player)
+    //reset_player_data(player)
 
     array_clear(ids, get_id(player))
     ids.push(get_id(player))
@@ -2873,9 +2872,9 @@ function playerSpawn(event) {
         delete id_names[ids.shift()]
       }
     } catch (err) { }
-    id_names[get_id(player)] = player.name
+   /*  id_names[get_id(player)] = player.name
     save_data("id_names", to_json(id_names))
-    save_data("ids", to_json(ids))
+    save_data("ids", to_json(ids)) */
 
     if (get_owners().length === 0) {
       chat(get_text("tip.init"), [player], false)
@@ -3272,14 +3271,14 @@ function afterPlayerInteractWithBlock(event) {
 
 function beforePlayerLeave(event) {
   var player = event.player
-  delete id_player[get_id(player)]
+  //delete id_player[get_id(player)]
   var name = player.name
   var spawn_pos = player.getSpawnPoint()
   var tags = player.getTags()
   var pos = player.location
   pos.dimension = player.dimension
 
-  save_player_info(player)
+  //save_player_info(player)
 
   system.run(() => {
     if (array_has(config.log.allow, "jl")) {
@@ -3793,7 +3792,7 @@ function chooseBar(player, things = [], back = function () { }) {
   })
 }
 
-function choosePlayer(player, ps, back = function () { }) {
+/* function choosePlayer(player, ps, back = function () { }) {
   if (ps.length <= 0) {
     back([])
     return
@@ -3816,7 +3815,7 @@ function choosePlayer(player, ps, back = function () { }) {
     }
     back(pps)
   })
-}
+} */
 
 function editGroupBar(player, g) {
   var new_g = false
@@ -7074,7 +7073,7 @@ function usfTickCheck(player) {
   }, 100)
 }
 
-function banListCheck(player) {
+/* function banListCheck(player) {
   var ui = new btnBar()
   ui.title = "封禁列表管理"
   ui.body = ["管理封禁列表",
@@ -7139,7 +7138,7 @@ function banListCheck(player) {
   })
 
   ui.show(player)
-}
+} */
 
 function get_left_time(p) {
   return Math.round(p.info.ban_time - Date.now())

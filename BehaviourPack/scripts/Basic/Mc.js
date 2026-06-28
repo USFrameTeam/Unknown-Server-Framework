@@ -3,6 +3,13 @@ import * as logger from "./Logger.js";
 import * as tool from "./Tool.js";
 import * as permission from "./Permission.js";
 
+export function is_entity_valid(entity){
+    if(!tool.is_entity(entity)){
+        return false;
+    }
+    return entity.isValid();
+}
+
 export function get_all_players(){
     return world.getAllPlayers()
 }
@@ -25,7 +32,8 @@ export function entity_run_command(entity, command) {
 }
 
 //force = true时会无视权限踢出
-function kick(player, reason = "", force = false) {
+export function kick(player, reason = "", force = false) {
+    if(!is_entity_valid(player)){return false;}
     if(!tool.is_player(player)){
         logger.log(1,2,"目标错误，无法踢出玩家！");
         return false;

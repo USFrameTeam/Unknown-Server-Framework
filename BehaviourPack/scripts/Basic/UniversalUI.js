@@ -36,3 +36,32 @@ export function confirm(player, text, back = function (is_confirm) { }) {
   }
   ui.show(player)
 }
+
+//玩家选择器
+//传入: ranged_players : 可供选择的玩家的对象数组 , back(选中的玩家)
+//取消后仍会执行back函数
+export function playerChooser(player, ranged_players, back = function (goal_players) { }) {
+  if (ranged_players.length === 0) {
+    back([]);
+    return;
+  }
+  let ui = new infoBar()
+  ui.title = "玩家选择器"
+  for (var p of ranged_players) {
+    ui.toggle("results", p.name, false)
+  }
+
+  ui.show(player, (r) => {
+    if (!is_array(r.results)) {
+      r.results = [r.results] //只有一个目标时转为数组
+    }
+
+    var goal_players = []
+    for (var i = 0; i < r.results.length; i++) {
+      if (r.results[i]) {
+        goal_players.push(ranged_players[i])
+      }
+    }
+    back(goal_players)
+  })
+}
