@@ -110,18 +110,6 @@ export function push_text(id , text){
   }
 }
 
-export function cut_minecraft(text) {
-  if (!is_string(text)) return "";
-
-  return text.replaceAll("minecraft:", "");
-}
-
-export function shorter_minecraft(text) {
-  if (!is_string(text)) return "";
-
-  return text.replaceAll("minecraft:", "mc:");
-}
-
 export var texts = {
     "score.bb" : "破坏方块",
     "score.pb" : "放置方块",

@@ -66,12 +66,12 @@ var log_config = {
   time: Date.now(),
   server: true
 };
-var ids = [];
+//var ids = [];
 var chests = [];
 var global_goods = [];
 var groups = [];
 var group_mess = {};
-var id_player = {};
+//var id_player = {};
 var public_pos = [];
 var share_pos = [];
 var world_pos = [];
@@ -940,7 +940,7 @@ system_ids.time = system.runInterval(() => {
   }
 }, 20);
 
-function afterGameRuleChange(event) {
+/* function afterGameRuleChange(event) {
   if (!config.rule.able) {
     return;
   }
@@ -965,7 +965,9 @@ function afterGameRuleChange(event) {
   if (ruleHandlers[event.rule]) {
     ruleHandlers[event.rule]();
   }
-}
+
+  //为什么都要改成这种形式呢
+} */
 
 // function push_text(id, text1, text2) {废弃
   // fixed_texts.ZN[id] = text1;
@@ -1271,9 +1273,9 @@ function get_string_length(str, charset) {
   }
 } */
 
-function save_config() {
+/* function save_config() {
   save_data("config", to_json(config));
-}
+} */
 
 function get_board_ids() {
   return to_array(parse_json(get_data("board_ids")), [])
@@ -2686,7 +2688,7 @@ function beforeChatSend(event) {
 
 }
 
-function afterEntitySpawn(event) {
+/* function afterEntitySpawn(event) {
   var entity = event.entity
   if(entity.isValid){
   if (!is_player(entity)) {
@@ -2705,7 +2707,7 @@ function afterEntitySpawn(event) {
     }
   }}
 
-}
+} */
 
 function beforeBlockPlace(event) {
   var player = event.player
@@ -2909,13 +2911,13 @@ function playerSpawn(event) {
   }
 }
 
-function dimension_pos_to_text(pos) {
+/* function dimension_pos_to_text(pos) {
   if (un(pos)) {
     return "none"
   }
   return `[${no_minecraft(pos.dimension.id)}](${Math.round(pos.x)},${Math.round(pos.y)},${Math.round(pos.z)})`
 }
-
+ */
 function afteritemUse(event) {
   var item = event.itemStack
   var player = event.source
@@ -7686,7 +7688,7 @@ function reportBar(player) {
   ui.show(player)
 }
 
-function lockRulesBar(player) {
+/* function lockRulesBar(player) {
   var ui = new infoBar()
   ui.title = "规则锁定"
   var text = ""
@@ -7717,7 +7719,7 @@ function lockRulesBar(player) {
     save_config()
     opBar(player)
   })
-}
+} */
 
 function editItemEvents(player) {
   var ui = new btnBar()
@@ -7942,6 +7944,7 @@ function opBar(player) {
     }
   }, {
     text: "封禁掉落物",
+    //加一个封禁方块
     icon: ui_icon.rubbish,
     func: () => {
       confirm(player, [

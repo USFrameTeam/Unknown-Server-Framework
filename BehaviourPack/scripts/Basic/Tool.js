@@ -204,6 +204,27 @@ export function pos_string(vec) {
   return `(${Math.round(vec.x)},${Math.round(vec.y)},${Math.round(vec.z)})`
 }
 
+//DimendionPosition -> string
+export function dimension_pos_to_text(pos) {
+  if (un(pos)) {
+    return "none";
+  }
+  return `[${shorter_minecraft(pos.dimension.id)}](${Math.round(pos.x)},${Math.round(pos.y)},${Math.round(pos.z)})`;
+}
+
+//文本处理相关
+export function cut_minecraft(text) {
+  if (!is_string(text)) return "";
+
+  return text.replaceAll("minecraft:", "");
+}
+
+export function shorter_minecraft(text) {
+  if (!is_string(text)) return "";
+
+  return text.replaceAll("minecraft:", "mc:");
+}
+
 //数学
 export function is_between(count, c1, c2) {
   if (c1 === c2) {

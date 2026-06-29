@@ -8,7 +8,7 @@ export function is_entity_valid(entity){
     if(!tool.is_entity(entity)){
         return false;
     }
-    return entity.isValid();
+    return entity.isValid;
 }
 
 export function get_all_players(){
@@ -53,4 +53,16 @@ export function chat(message, targets = null, tran = true) {
             p.sendMessage(final_message);
         }
     }
+}
+
+export function change_gamerule(rule , value){
+    world.gameRules[rule] = value;
+}
+
+export function get_gamerule(rule){
+    if(tool.un(world.gameRules[rule])){
+        logger.log(2,1,"无法获取游戏规则[0]",[rule]);
+        return false;
+    }
+    return world.gameRules[rule];
 }

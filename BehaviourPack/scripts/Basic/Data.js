@@ -99,6 +99,7 @@ export const usf_config = {
     "cd_items" : ["minecraft:clock"],
     "ban_entity" : [],
     "ban_item" : [],
+    "ban_block" : [], 
     "scores": [],
     "score":{
         "able" :false,

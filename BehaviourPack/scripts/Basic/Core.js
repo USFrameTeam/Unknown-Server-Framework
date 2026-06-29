@@ -53,3 +53,7 @@ function reload_all() {
 
   event.emit_custom_event("world_load",{})
 }
+
+export function save_config() {
+  save_data("config", to_json(config));
+}
