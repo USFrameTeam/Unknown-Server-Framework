@@ -1,3 +1,4 @@
+import { format } from "core-js/core/date"
 
 
 export function clear_color(text) {
@@ -239,4 +240,20 @@ export function is_between(count, c1, c2) {
 
 export function random_int(max = 10) {
   return Math.floor(Math.random() * max)
+}
+
+//时间
+export function get_date_now() {
+  return Date.now();
+}
+
+export function get_date_object() {
+  var d = new Date();
+  return d;
+}
+
+export function get_player_path(player) {
+  if (!is_player(player)) return "Players/unknown";
+
+  return "Players/" + player.name;
 }

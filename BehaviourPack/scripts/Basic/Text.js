@@ -19,6 +19,12 @@ export function register_symbol(is_special = false , symbol = "symbol" , func = 
     tran_standard_symbols.push(symbol);
 }
 
+export function get_time_text(date){
+  return format("[[0]:[1]:[2] [3]:[4]:[5]]",[
+    date.getFullYear(),getMonth() + 1 ,date.getDay(),date,getHours(),date.getMinutes(),date.getSeconds()
+  ]);
+}
+
 function return_empty(player){
     return "";
 }
@@ -96,8 +102,8 @@ function tran_text(player, texts, keep_array = false) {
 }
 
 //格式化文本 将[0][1]等进行格式化
-export function format(id, replacer) {
-  var text = get_text(id)
+export function format(text, replacer) {
+  text = get_text(text);
   for (var i = 0; i < replacer.length; i++) {
     text = text.replaceAll(("[" + String(i) + "]"), String(replacer[i]))
   }

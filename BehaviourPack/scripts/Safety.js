@@ -3,7 +3,7 @@ import * as event from "./Basic/Event.js";
 import * as tool from "./Basic/Tool.js";
 import * as logger from "./Basic/Logger.js";
 import { config , save_config } from "./Basic/Core.js";
-import { is_op } from "./Basic/Permission.js";
+import { is_op , get_op_level } from "./Basic/Permission.js";
 
 /*
 Safety.js
@@ -68,7 +68,7 @@ event.connect_custom_event("world_load",(things) => {
 //is_place为true则为放置方块，否则则为破坏方块
 function clear_ban_block(event){
     const player = event.player;
-    if(!is_op(player)){
+    if(get_op_level(player) === 0){
         event.cancel = true;
         const block = event.block;
         logger.log(0,1,"检测到玩家[0][3]违禁方块[1]于[2],已退回操作",
@@ -107,3 +107,18 @@ function lockRulesBar(player) {
     event.emit_custom_event("sitting_changed",{type : "safety"});
   })
 }
+
+event.register_mc_event(true , "playerGameModeChange" , undefined , (event) => {
+    if (!config.game.lock) {
+        return;
+    }
+    var player = event.player;
+    if (get_op_level(player) === 0) {
+        if (event.toGameMode !== "Survival") {
+            event.cancel = true;
+            logger.log(0,1,"玩家[0]的游戏模式试图修改为[1],已重置为生存模式",[player.name,event.toGameMode]);
+        }
+    }
+});
+
+

@@ -54,7 +54,7 @@ export const usf_config = {
     },
     "log" : {
         "able" : true,
-        "down" : 30,
+        "down" : 30, //连接时间
         "address" : "http://127.0.0.1:1024/",
         "allow" : []
     },
@@ -118,7 +118,7 @@ export const usf_config = {
         "r_di" : 0,
         "r_rs" : 0,
         "fb" : false,
-        "lock": false,
+        "lock": false,//非op锁定生存
     },
     "store" : {
         "able" : false,

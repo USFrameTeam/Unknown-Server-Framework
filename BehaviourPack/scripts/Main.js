@@ -60,12 +60,12 @@ var lands = {
   max: [],
   ids: []
 };
-var logs = [];
-var log_config = {
+/* var logs = []; */
+/* var log_config = {
   able: false,
   time: Date.now(),
   server: true
-};
+}; */
 //var ids = [];
 var chests = [];
 var global_goods = [];
@@ -78,10 +78,10 @@ var world_pos = [];
 var sign = {};
 var chest = {};
 //var white_words = [];
-var log_info = {
+/* var log_info = {
   "bb": {},
   "pb": {}
-};
+}; */
 
 //注册事件与任务
 /* world.afterEvents.entityHurt.subscribe(afterEntityHurt);
@@ -112,7 +112,7 @@ system.afterEvents.scriptEventReceive.subscribe(scriptEventReceive, ); */
   "namespaces": ["usf"]
 } */
 
-import("@minecraft/server-net").then((http)=>{
+/* import("@minecraft/server-net").then((http)=>{
     //push_text("log.enable","")
     log("当前日志功能可用！请开启日志服务器！",[],"tip",1)
     log_config.able = true
@@ -138,7 +138,7 @@ import("@minecraft/server-net").then((http)=>{
         }
         logs = []
     },10)
-}).catch((err)=>{})
+}).catch((err)=>{}) */
 
 var chat_board = {};
 
@@ -793,7 +793,7 @@ system_ids.chest_log = system.runInterval(() => {
   }
 }, 1 * 20);
 
-system_ids.long_log = system.runInterval(() => {
+/* system_ids.long_log = system.runInterval(() => {
   if (config.log.able === false || log_config.able === false) {
     log_info = {
       bb: {},
@@ -838,7 +838,7 @@ system_ids.long_log = system.runInterval(() => {
     bb: {},
     pb: {}
   };
-}, 30 * 20);
+}, 30 * 20); */
 
 system.group_mess = system.runInterval(() => {
   const groupIds = Object.keys(group_mess);
@@ -1047,11 +1047,11 @@ function score_event(player, id, data, count = 1, type = 0) {
   }
 }
 
-function get_player_path(player) {
+/* function get_player_path(player) {
   if (!player || !player.name) return "Players/unknown";
 
   return "Players/" + player.name;
-}
+} */
 
 /* function chat(mess, targets = null, tran = true) {
   const players = is_array(targets) ? targets : world.getAllPlayers();
@@ -2574,7 +2574,7 @@ function beforeItemUse(event) {
 function afterPlayerGameModeChange(event) {
   server_log(0, `GameMode changed:${event.toGameMode}`, get_player_path(event.player))
 
-  if (!config.game.lock) {
+  /* if (!config.game.lock) {
     return
   }
   var player = event.player
@@ -2582,7 +2582,7 @@ function afterPlayerGameModeChange(event) {
     if (event.toGameMode !== "Survival") {
       set_mode(player, 0)
     }
-  }
+  } */
 }
 
 /* function say_stop_talk(player) {
@@ -7017,7 +7017,7 @@ function cdBar(player) {
   ui.show(player)
 }
 
-function get_date_now_China_time() {
+/* function get_date_now_China_time() {
   var d = new Date()
   return d.getTime()
 }
@@ -7025,7 +7025,7 @@ function get_date_now_China_time() {
 function get_date_object_China_time() {
   var d = new Date()
   return d
-}
+} */
 
 function usfTickCheck(player) {
   chat("正在进行时长为5s的性能检测...", [player])
@@ -10051,7 +10051,7 @@ function show_board(player, id = null, show_cd = true) {
   // return false
 // }
 
-function server_log(type, text, path) {
+/* function server_log(type, text, path) {
   if (!log_config.able || !config.log.able) {
     return
   }
@@ -10078,5 +10078,5 @@ function server_log(type, text, path) {
     v: "2"
   })
 
-}
+} */
 export { config, usfSettingBar };

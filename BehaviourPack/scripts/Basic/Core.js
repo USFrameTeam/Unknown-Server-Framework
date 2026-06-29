@@ -57,3 +57,12 @@ function reload_all() {
 export function save_config() {
   save_data("config", to_json(config));
 }
+
+//播报日志
+logger.reporter_register((message , is_global) => {
+  var report_goals = mc.get_all_players();
+  if(!is_global){
+    report_goals = report_goals.filter((p) => { return permission.get_op_level(p) >= 1;});
+  }
+  mc.chat(message , report_goals , false)
+});
