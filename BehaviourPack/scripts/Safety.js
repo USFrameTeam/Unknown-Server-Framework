@@ -2,7 +2,7 @@ import * as mc from "./Basic/Mc.js";
 import * as event from "./Basic/Event.js";
 import * as tool from "./Basic/Tool.js";
 import * as logger from "./Basic/Logger.js";
-import { config , save_config } from "./Basic/Core.js";
+import { config , save_config , register_system , get_system } from "./Basic/Core.js";
 import { is_op , get_op_level } from "./Basic/Permission.js";
 
 /*
@@ -120,5 +120,4 @@ event.register_mc_event(true , "playerGameModeChange" , undefined , (event) => {
         }
     }
 });
-
 

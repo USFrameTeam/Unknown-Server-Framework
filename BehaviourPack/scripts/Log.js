@@ -3,6 +3,8 @@ import * as tool from "./Basic/Tool.js";
 import * as text from "./Basic/Text.js";
 import { config } from "./Basic/Core.js";
 import { system } from "@minecraft/server";
+import { data_format } from "./Basic/Data.js";
+import * as event from "./Basic/Event.js";
 
 
 var logs = [];
@@ -25,13 +27,30 @@ const long_log_prefix = {
     "pb" : "Place ",
 }
 var long_logs = {...long_log_format};
-
-
 var log_config = {
   able: false,
   connect_time: 0,
   connected : false,
 };
+
+export function is_log_type_allowed(type){
+    return tool.array_has(config.log.allow,type);
+}
+
+//自动注册一些自带的日志
+//传送
+event.connect_custom_event("tp",after_tp);
+event.connect_custom_event("anima_tp",after_tp);
+function after_tp(options){
+    if(!is_log_type_allowed("tp") || !tool.is_player(options.entity)){return;}
+    if(tool.to_bool(options.log,false)){
+        const pos_text = tool.dimension_pos_to_text({
+            dimension: options.di,
+            location: { x:options.x , y:options.y, z:options.z }
+        });
+        push_log(0,`TP:${pos_text}`,tool.get_player_path(options.entity));
+    }
+}
 
 //推送日志
 //type 0-日志 1-输出 2-日志+输出

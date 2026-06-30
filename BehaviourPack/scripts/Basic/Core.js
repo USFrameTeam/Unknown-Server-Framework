@@ -10,6 +10,7 @@ export const version_code = "0.9.0E";
 export const version_text = `欢迎使用无名氏服务器框架\n插件版本:${version_code}\n作者：EarthDLL(USFrameTeam)，感谢所有社区贡献者的贡献\n快速适配版本，如有Bug，及时反馈`;
 
 export var config = {};
+var systems = {};
 
 //设定插件是否进行初始化
 var reloaded = false;
@@ -66,3 +67,19 @@ logger.reporter_register((message , is_global) => {
   }
   mc.chat(message , report_goals , false)
 });
+
+//注册系统相关
+/*
+将各个功能的暴露函数封装到funcs里面
+*/
+export function register_system(system_id = "system", funcs = {}){
+    systems[system_id] = funcs;
+}
+
+export function has_system(system_id = ""){
+    return (!tool.un(systems[system_id]));
+}
+
+export function get_system(system_id = ""){
+    return systems[system_id];
+}

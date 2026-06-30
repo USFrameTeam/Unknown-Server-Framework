@@ -1,6 +1,29 @@
 import * as data from "./Data.js";
+import * as tool from "./Tool.js";
+import * as logger from "./Logger.js";
 import { get_text } from "./Text.js";
 import { btnBar, infoBar, arrayEditor } from "./ui.js";
+
+var global_ui = {};
+
+//注册、调动全局暴露的UI
+//调用时传入参数：player - 玩家 , options - 数据
+export function register_global_ui(ui_id , ui_func = function(player , options){}){
+    if(!tool.is_string(ui_id)){
+      logger.log(2,1,"试图注册一个未知全局UI时失败");
+      return;
+    }
+    global_ui[ui_id] = ui_func;
+}
+
+export function show_global_ui(player , ui_id , options = {}){
+    if(!tool.is_string(ui_id)){return;}
+    if(!tool.un(global_ui[ui_id])){
+        global_ui[ui_id](player,options);
+    }else{
+      logger.log(2,0,"玩家[0]试图打开不存在的全局ID:[1]",[player.name,ui_id]);
+    }
+}
 
 //text - 显示的文本 ,choice - 当前的选项
 export function add_pictures_choice(ui, text, choice = null) {
@@ -63,5 +86,57 @@ export function playerChooser(player, ranged_players, back = function (goal_play
       }
     }
     back(goal_players)
+  })
+}
+
+//显示提示
+export function tip(player, text = "", back = function () { }) {
+  var ui = new btnBar()
+  ui.title = "提示";
+  ui.body = text;
+  if (tool.is_function(back)) {
+    ui.cancel = back;
+    ui.btns.push({
+      text: "返回",
+      icon: ui_icon.back,
+      func: () => {
+        back()
+      }
+    });
+  }
+  ui.btns.push({
+    text: "关闭",
+    icon: ui_icon.delete,
+    func: () => {
+
+    }
+  });
+  ui.show(player);
+}
+
+//可多选的选择器
+//该函数返回的是选择的things的index(数组)
+export function chooseBar(player,title = "选择器" , things = [], back = function (choosed_things) { }) {
+  if (things.length <= 0) {
+    back([]);
+    return;
+  }
+  let ui = new infoBar();
+  ui.title = title;
+  for (let t = 0; t < things.length; t++) {
+    ui.toggle("things", things[t], false);
+  }
+
+  ui.show(player, (r) => {
+    if (!is_array(r.things)) {
+      r.things = [r.things];
+    }
+    let result = [];
+    for (let i = 0; i < r.things.length; i++) {
+      if (r.things[i]) {
+        result.push(i);
+      }
+    }
+    back(result);
   })
 }

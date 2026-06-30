@@ -3,8 +3,8 @@ import { get_id } from "./Player.js";
 import * as tool from "./Tool.js";
 
 export var has_owner = false;
-var owners = [];
-var ops = [];
+export var owners = [];
+export var ops = [];
 
 //在reload_all 里面get_owners()
 
@@ -52,4 +52,8 @@ export function load_ops(){
 
 export function save_ops() {
   data.save_data("op", to_json(ops))
+}
+
+export function save_owners(){
+  data.save_data("owners", tool.to_json(owners));
 }

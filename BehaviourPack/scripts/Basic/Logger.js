@@ -5,6 +5,7 @@ import * as tool from "./Tool.js";
 const hint_map = ["§f[信息]§r","§c[错误]§r","§e[警告]§r"];
 
 var log_reporters = [];
+export var history_logs = [];
 
 
 /*
@@ -34,7 +35,11 @@ export function log(type = 0, level = 0 ,text, replacer = []) {
         //func(文字,是否是全局广播)
       }
     }
-    console.warn(tool.clear_colour(finalText));
+    console.warn(tool.clear_colour(final_text));
+    history_logs.push(final_text);
+    if(history_logs.length > 50){
+      history_logs.shift();
+    }
   });
   
 }

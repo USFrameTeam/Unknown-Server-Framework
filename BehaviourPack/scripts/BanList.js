@@ -3,6 +3,7 @@ import * as logger from "./Basic/Logger.js";
 import * as tool from "./Basic/Tool.js";
 import * as event from "./Basic/Event.js";
 import * as mc from "./Basic/Mc.js";
+import { get_system } from "./Basic/Core.js";
 import { get_text } from "./Basic/Text.js";
 import { get_name_by_id , get_id } from "./Basic/Player.js";
 import { playerChooser , confirm } from "./Basic/UniversalUI.js";
@@ -105,3 +106,11 @@ export function banListCheck(player) {
 
   ui.show(player);
 }
+
+get_system("manager").register_manager_bar_btn({
+    text: "封禁列表管理",
+    icon: data.ui_icon.stop,
+    func: () => {
+      banListCheck(player);
+    }
+  });

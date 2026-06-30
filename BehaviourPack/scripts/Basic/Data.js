@@ -169,12 +169,20 @@ export const data_format = {
     hacker : [ "chest" ],
     commands : [ "cd" , "op" , "tpaccept" , "home" , "back" , "die" , "unsleep" , "land" , "tpr" , "unland"],
     logs : [
-        "chat" , "chat_" , "jl", //Join & Leave
-        "bb", "pb", //Break / Place Block
-        "di" , "kill" ,
-        "die" , "sign" ,
-        "lo"  , 
-        "chest" , "tp", "info","ib",
+        "chat",
+        "chat_",
+        "jl", //加入/退出游戏
+        "bb",//破坏方块
+        "pb", //放方块
+        "di",
+        "kill",
+        "die",
+        "sign" ,
+        "lo", 
+        "chest",
+        "tp",//传送
+        "info",
+        "ib",
     ],
     allow_blocks:[
         "minecraft:crafting_table",
@@ -187,11 +195,12 @@ export const data_format = {
     lock_item :{
         able : false,
     },
-    info :{
+    info :{ //玩家info
         join_times : 0,
         block : false,
         ban_time : 0,
         score : {},
+        manager : false,
     },
     config_file : {
         title : "",

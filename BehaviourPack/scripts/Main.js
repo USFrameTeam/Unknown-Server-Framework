@@ -1153,7 +1153,7 @@ function save_player_lands(player) {
 
 
 
-function tp_entity(entity, di, x, y, z, show = false, keep = false, back = false) {
+/* function tp_entity(entity, di, x, y, z, show = false, keep = false, back = false) {
   if (!entity) return;
 
   const shouldLog = is_player(entity) && array_has(config.log.allow, "tp");
@@ -1189,13 +1189,13 @@ function tp_entity(entity, di, x, y, z, show = false, keep = false, back = false
     });
     server_log(0, `TP:${blockPos}`, playerPath);
   }
-}
+} */
 
-function no_minecraft(text) {
+/* function no_minecraft(text) {
   if (!text) return text;
 
   return text.replaceAll("minecraft:", "mc:");
-}
+} */
 
 function show_title(player, text) {
   if (!player || !player.onScreenDisplay) return;
@@ -1213,7 +1213,7 @@ function show_title(player, text) {
   save_data("info", to_json(player.info), player);
 } */
 
-function get_string_length(str, charset) {
+/* function get_string_length(str, charset) {
   if (!str || str.length === 0) return 0;
 
   let total = 0;
@@ -1235,7 +1235,7 @@ function get_string_length(str, charset) {
   }
 
   return total;
-}
+} */
 
 /* function get_name_by_id(id) {
   if (!id) return "离线玩家";
@@ -3158,7 +3158,7 @@ function land_member_level(player, land) {
   return 0
 }
 
-function report_warn(type, op) {
+/* function report_warn(type, op) {
   if (config.hacker.kick) {
     kick(op.player, "游戏中作弊")
   }
@@ -3180,7 +3180,7 @@ function report_warn(type, op) {
 
 function get_reports() {
   return to_array(parse_json(get_data("reports")))
-}
+} */
 
 function afterPlayerInteractWithBlock(event) {
   var item = event.itemStack
@@ -3762,7 +3762,7 @@ function add_invite(player, id) {
   save_data("invites", to_json(invites), player)
 }
 
-//该函数返回的是选择的things的index
+/* //该函数返回的是选择的things的index
 function chooseBar(player, things = [], back = function () { }) {
   if (things.length <= 0) {
     back([])
@@ -3786,7 +3786,7 @@ function chooseBar(player, things = [], back = function () { }) {
     }
     back(result)
   })
-}
+} */
 
 /* function choosePlayer(player, ps, back = function () { }) {
   if (ps.length <= 0) {
@@ -7027,7 +7027,7 @@ function get_date_object_China_time() {
   return d
 } */
 
-function usfTickCheck(player) {
+/* function usfTickCheck(player) {
   chat("正在进行时长为5s的性能检测...", [player])
   const start_tick = system.currentTick
   const startTime = Date.now()
@@ -7067,7 +7067,7 @@ function usfTickCheck(player) {
     }]
     ui.show(player)
   }, 100)
-}
+} */
 
 /* function banListCheck(player) {
   var ui = new btnBar()
@@ -7598,7 +7598,7 @@ function reset_player_follow(player) {
   }
 }
 
-function followBar(player) {
+/* function followBar(player) {
   var text = get_text("follow.tip")
   var ui = new infoBar()
   var players = world.getAllPlayers()
@@ -7657,9 +7657,9 @@ function followBar(player) {
       })
     }, 8)
   })
-}
+} */
 
-function reportBar(player) {
+/* function reportBar(player) {
   var ui = new btnBar()
   ui.title = "管理员日志"
   ui.body = get_reports()
@@ -7686,7 +7686,7 @@ function reportBar(player) {
     }
   }]
   ui.show(player)
-}
+} */
 
 /* function lockRulesBar(player) {
   var ui = new infoBar()
@@ -7833,13 +7833,13 @@ function opBar(player) {
   if (is_object(player.follow)) {
     reset_player_follow(player)
   }
-  if (get_op_level(player) === 0) {
+  /* if (get_op_level(player) === 0) {
     return
-  }
-  var ui = new btnBar()
+  } */
+  /* var ui = new btnBar()
   ui.busy = null
   ui.title = "管理界面"
-  ui.body = "欢迎来到管理界面"
+  ui.body = "欢迎来到管理界面" */
   ui.btns = [{
     text: "重置我的今日签到",
     icon: pictures.gift,
@@ -7847,7 +7847,7 @@ function opBar(player) {
       player.info.daily = 0
     }
   },
-  {
+  /* {
     text: "复制物品栏物品",
     icon: ui_icon.copy,
     func: () => {
@@ -7877,7 +7877,7 @@ function opBar(player) {
         }
       })
     }
-  },
+  } */,
   {
     text: "锁定游戏规则",
     icon: ui_icon.lock,
@@ -7979,13 +7979,13 @@ function opBar(player) {
         }
       })
     }
-  }, {
+  }, /* {
     text: "性能检测",
     icon: ui_icon.info,
     func: () => {
       usfTickCheck(player)
     }
-  }, {
+  } *//* , {
     text: "管理模式 - " + ((player.info.manager === true) ? "开" : "关" + "\n可破坏领地、在领地界面做修改"),
     icon: ui_icon.manager,
     func: () => {
@@ -7997,7 +7997,7 @@ function opBar(player) {
         save_player_info(player)
       }
     }
-  }, {
+  } */, {
     text: "管理玩家领地",
     icon: ui_icon.land,
     func: () => {
@@ -8036,13 +8036,13 @@ function opBar(player) {
         }
       })
     }
-  }, {
+  }/* , {
     text: "视角跟踪",
     icon: ui_icon.eye,
     func: () => {
       followBar(player)
     }
-  }, {
+  } */, {
     text: "屏蔽/禁言玩家",
     icon: ui_icon.mute,
     func: () => {
@@ -8054,13 +8054,13 @@ function opBar(player) {
     func: () => {
       getPlayerItemsBar(player)
     }
-  }, {
+  }/* , {
     text: "封禁列表管理",
     icon: ui_icon.stop,
     func: () => {
       banListCheck(player)
     }
-  },
+  } */,
   {
     text: "头衔设置",
     icon: ui_icon.star,
@@ -8110,13 +8110,13 @@ function opBar(player) {
       }
       ui.show(player)
     }
-  }, {
+  }, /* {
     text: "管理日志",
     icon: ui_icon.share,
     func: () => {
       reportBar(player)
     }
-  }, {
+  }, */ /* {
     text: "调试输出js全局变量",
     icon: ui_icon.random,
     func: () => {
@@ -8124,7 +8124,7 @@ function opBar(player) {
       chat("IDs:" + to_json(ids), [player])
       chat("Names:" + to_json(id_names), [player])
     }
-  }, {
+  } */, {
     text: "管理悬浮字",
     icon: ui_icon.brush,
     func: () => {
@@ -8136,7 +8136,7 @@ function opBar(player) {
     func: () => {
       editItemEvents(player)
     }
-  }, {
+/*   }, {
     text: "插件设置",
     icon: ui_icon.setting,
     func: () => {
@@ -8151,7 +8151,7 @@ function opBar(player) {
     func: () => {
       setOpBar(player)
     }
-  })
+  }) */
   ui.show(player)
 }
 
@@ -8240,7 +8240,7 @@ function editFloat(player, bat, first) {
   })
 }
 
-function tip(player, text = "", back = function () { }) {
+/* function tip(player, text = "", back = function () { }) {
   var ui = new btnBar()
   ui.title = "提示"
   ui.body = text
@@ -8263,8 +8263,8 @@ function tip(player, text = "", back = function () { }) {
   })
   ui.show(player)
 }
-
-function setOpBar(player) {
+ */
+/* function setOpBar(player) {
   if (get_op_level(player) === 0) {
     return
   }
@@ -8375,7 +8375,7 @@ function setOpBar(player) {
     }]
   }
   ui.show(player)
-}
+} */
 
 /* function save_ops() {
   save_data("op", to_json(ops))

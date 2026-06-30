@@ -226,6 +226,30 @@ export function shorter_minecraft(text) {
   return text.replaceAll("minecraft:", "mc:");
 }
 
+export function get_string_length(str) {
+  if (!str || str.length === 0) return 0;
+
+  let total = 0;
+
+  const len = str.length;
+
+  for (let i = 0; i < len; i++) {
+    const charCode = str.charCodeAt(i);
+
+    if (charCode <= 0x007f) {
+      total += 1;
+    } else if (charCode <= 0x07ff) {
+      total += 2;
+    } else if (charCode <= 0xffff) {
+      total += 3;
+    } else {
+      total += 4;
+    }
+  }
+
+  return total;
+}
+
 //数学
 export function is_between(count, c1, c2) {
   if (c1 === c2) {
@@ -257,3 +281,4 @@ export function get_player_path(player) {
 
   return "Players/" + player.name;
 }
+

@@ -83,7 +83,7 @@ export function save_player_data(player){
     save_player_info(player);
 }
 
-function save_player_info(player) {
+export function save_player_info(player) {
     data.save_data("info", tool.to_json(player.info), player);
 }
 
