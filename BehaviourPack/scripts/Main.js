@@ -6,6 +6,7 @@ import { ui_icon, usf_config, data_format, pictures } from "./data.js";
 import { performTeleportAnimation } from "./TpAni.js";
 import { tpWithAnimation } from "./TpAni.js";
 import { ScoreBoardGUI } from "./ScoreBoard.js";
+import { get_text , push_text } from "./Basic/Text.js";
 
 //var config = {};
 //var dictionary = {};废弃
@@ -72,9 +73,9 @@ var global_goods = [];
 var groups = [];
 var group_mess = {};
 //var id_player = {};
-var public_pos = [];
+/* var public_pos = [];
 var share_pos = [];
-var world_pos = [];
+var world_pos = []; */
 var sign = {};
 var chest = {};
 //var white_words = [];
@@ -425,7 +426,7 @@ system_ids.tag = system.runInterval(() => {
   }
 }, 5 * 20);
 
-var follow_index = 0;
+/* var follow_index = 0;
 system_ids.follow = system.runInterval(() => {
   follow_index = (follow_index + 1) % 37;
   const shouldTeleport = follow_index === 0;
@@ -506,7 +507,7 @@ system_ids.follow = system.runInterval(() => {
       }
     }
   }
-}, 2);
+}, 2); */
 
 system_ids.second = system.runInterval(() => {
   const players = world.getAllPlayers();
@@ -514,6 +515,7 @@ system_ids.second = system.runInterval(() => {
     player.block_places = 0;
   }
 
+  //计分板剔除
   if (config.other.online !== "") {
     const ids = config.other.online.split(";").filter(id => id !== "");
 
@@ -543,7 +545,7 @@ system_ids.second = system.runInterval(() => {
     }
   }
 
-  const batQuery = {
+  /* const batQuery = {
     type: "bat",
     tags: ["Float"]
   };
@@ -576,7 +578,7 @@ system_ids.second = system.runInterval(() => {
         }
       }
     }
-  }
+  } */
 }, 20);
 
 var ids = [];
@@ -1408,8 +1410,8 @@ function reload_all() {
 
   groups = to_array(parse_json(get_data("group_ids")), []);
 
-  public_pos = get_public_pos();
-  world_pos = to_array(parse_json(get_data("world_pos")), []);
+  /* public_pos = get_public_pos();
+  world_pos = to_array(parse_json(get_data("world_pos")), []); */
 
   lock_config = to_array(parse_json(get_data("lock_items")));
 
@@ -1529,12 +1531,12 @@ function get_data(id, en = null) {
   // return player.usf_id;
 // }
 
-function get_block_pos(block) {
+/* function get_block_pos(block) {
   const { x, y, z } = block.location;
   return `(${Math.round(x)},${Math.round(y)},${Math.round(z)})`;
-}
+} */
 
-function get_block_pos_di(block) {
+/* function get_block_pos_di(block) {
   const dimensionId = block.dimension.id;
 
   let prefix = "0:";
@@ -1546,7 +1548,7 @@ function get_block_pos_di(block) {
 
   const { x, y, z } = block.location;
   return `(${prefix}${Math.round(x)},${Math.round(y)},${Math.round(z)})`;
-}
+} */
 
 function get_di_num(di) {
   const dimensionId = di.id;
@@ -1603,7 +1605,7 @@ function change_player_name(player) {
     points: [],
     mode: 0,
   };
-  player.pos = get_player_pos(player);
+  /* player.pos = get_player_pos(player); */
   player.talk = {
     mode: 0,
     id: ""
@@ -1673,15 +1675,15 @@ function save_store_record(player) {
   save_data("store_record", to_json(player.store_record), player);
 }
 
-function get_player_personal_pos(player) {
+/* function get_player_personal_pos(player) {
   return to_array(parse_json(get_data("pos", player)), []);
-}
+} */
 
-function get_public_pos() {
+/* function get_public_pos() {
   return to_array(parse_json(get_data("public_pos")), []);
-}
+} */
 
-function save_public_pos() {
+/* function save_public_pos() {
   const validPositions = public_pos.filter(p => typeof p.name === 'string');
   save_data("public_pos", to_json(validPositions));
   public_pos = validPositions;
@@ -1691,9 +1693,9 @@ function save_world_pos() {
   const validPositions = world_pos.filter(p => typeof p.name === 'string');
   save_data("world_pos", to_json(validPositions));
   world_pos = validPositions;
-}
+} */
 
-function get_mode(player) {
+/* function get_mode(player) {
   const gameMode = player.getGameMode();
 
   const modeMappings = {
@@ -1712,7 +1714,7 @@ function set_mode(player, mode) {
   if (gameMode) {
     player.setGameMode(gameMode);
   }
-}
+} */
 
 //事件
 
@@ -1726,7 +1728,7 @@ function afterEntityDie(event) {
   const cause = source.cause;
   const hurt_entity = source.damagingEntity;
 
-  if (entity.typeId === "minecraft:bat" && entity.hasTag("Float")) {
+  /* if (entity.typeId === "minecraft:bat" && entity.hasTag("Float")) {
     const bat = entity.dimension.spawnEntity("minecraft:bat", entity.location, {
     spawnEvent : "usf:text"
     }
@@ -1745,7 +1747,7 @@ function afterEntityDie(event) {
     if (!bat.hasTag("Float")) {
       bat.addTag("Float");
     }
-  }
+  } */
 
   if (is_player(entity)) {
     const location = {
@@ -1902,7 +1904,7 @@ function reset_lock_item(player) {
       chat(get_text("unsleep") + `${tran_info.unsleep}`, [player]);
     },
 
-    "home": () => {
+    /* "home": () => {
       const homes = player.pos.filter(pos => pos.home);
 
       if (homes.length === 0) {
@@ -1931,7 +1933,7 @@ function reset_lock_item(player) {
 
         ui.show(player);
       }
-    },
+    } */,
 
     "cd": () => {
       cdBar(player);
@@ -2850,9 +2852,9 @@ function playerSpawn(event) {
       }
     }
 
-    if (is_object(player.info.follow)) {
+    /* if (is_object(player.info.follow)) {
       reset_player_follow(player)
-    }
+    } */
     /* player.info.last_time = Date.now()
     player.info.join_times = to_number(player.info.join_times, 0) + 1
 
@@ -2987,7 +2989,7 @@ function beforeEntityRemove(event) {
   }
 }
 
-function worldInitializeEvent() {
+/* function worldInitializeEvent() {
   log("——USF加载中——", [], "info", 2)
   try {
     var time = Date.now()
@@ -3006,9 +3008,9 @@ function worldInitializeEvent() {
   } finally {
     log(`——USF加载结束——`, [], "info", 2)
   }
-}
+} */
 
-function afterWeatherChanged(event) {
+/* function afterWeatherChanged(event) {
   var weaText = "Wearther."
   if (event.raining) {
     weaText += "Rain"
@@ -3023,7 +3025,7 @@ function afterWeatherChanged(event) {
     }
   }
   tran_info.weather = weaText
-}
+} */
 
 function afterPlayerDimensionChange(event) {
   var player = event.player
@@ -4054,7 +4056,7 @@ function is_public_editable(player) {
   return false
 }
 
-function to_pos(player, pos) {
+/* function to_pos(player, pos) {
   if (Date.now() - player.last_tp < config.tp.down * 1000) {
     tip(player, "传送功能冷却中...请稍后尝试！", "");
     return;
@@ -4067,11 +4069,11 @@ function to_pos(player, pos) {
       emitEvent(player, "pos");
     }
   );
-}
+} */
 
-function get_pos_name(pos) {
+/* function get_pos_name(pos) {
   return `[${get_di(pos.di).name}]${pos.name}`
-}
+} */
 
 /*function editPosBar(player, pos, save = function () { }, back = function () { }) {
   var ui = new infoBar()
@@ -4137,7 +4139,7 @@ function get_pos_name(pos) {
     viewPosBar(player, pos, true, ui2, save, back)
   })
 }*/
-function editPosBar(player, pos, save = function () { }, back = function () { }) {
+/* function editPosBar(player, pos, save = function () { }, back = function () { }) {
   var ui = new infoBar()
   var poss = [null, null]
   var texts = ["保持位置", "当前位置"]
@@ -4283,7 +4285,7 @@ function save_player_pos(player) {
 
 function get_player_pos(player) {
   return to_array(parse_json(get_data("pos", player)))
-}
+} */
 
 function get_score(ob, player) {
   var s = 0
@@ -4356,7 +4358,7 @@ function tranBar(player) {
   })
 }
 
-function groupPosBar(player) {
+ function groupPosBar(player) {
   var ui = new btnBar()
   ui.title = "群组公共点"
   ui.body = "管理所有群组的传送点"
@@ -4449,7 +4451,7 @@ function groupPosBar(player) {
 }
 
 
-function worldPosBar(player, page = 0, reverseOrder = false) {
+/* function worldPosBar(player, page = 0, reverseOrder = false) {
   const PAGE_SIZE = 50;
   const MAX_POINTS = 200;
 
@@ -4533,10 +4535,10 @@ function worldPosBar(player, page = 0, reverseOrder = false) {
   }
 
   ui.show(player)
-}
+} */
 
 // 个人传送UI -调用者/被调用者-
-function personalPosBar(player, goal) {
+/* function personalPosBar(player, goal) {
   var ui = new btnBar()
   ui.title = "个人传送点"
   ui.body = "管理您的传送点"
@@ -4623,9 +4625,9 @@ function sharePosBar(player, pos) {
     }
     share_pos.push(p)
   })
-}
+} */
 
-function random_tp(player, now) {
+/* function random_tp(player, now) {
   tp_entity(player, player.dimension, player.location.x + get_random_tp_range(), 400, player.location.z + get_random_tp_range(), true)
   var id = system.runInterval(() => {
     var lo = player.location
@@ -4866,15 +4868,15 @@ func: () => {
   }]
   ui.busy = 0
   ui.show(goal)
-}
+} */
 
-function get_block(di, lo) {
+/* function get_block(di, lo) {
   var block = undefined
   try {
     block = di.getBlock(lo)
   } catch (err) { }
   return block
-}
+} */
 
 function landBar(player, goal) {
 
@@ -5141,9 +5143,9 @@ function viewLandBar(player, goal, id) {
   ui.show(player)
 }
 
-function get_random_tp_range() {
+/* function get_random_tp_range() {
   return random_int(config.tp.random_range * 2) - config.tp.random_range
-}
+} */
 
 function managerStoreGroupsBar(player, type) {
   var ui = new btnBar()
@@ -7572,7 +7574,7 @@ function getPlayerItemsBar(player) {
   }
 }
 
-function reset_player_follow(player) {
+/* function reset_player_follow(player) {
   delete player.follow
   player.camera.fade({
     fadeColor: {
@@ -7596,7 +7598,7 @@ function reset_player_follow(player) {
     delete player.info.follow
     save_player_info(player)
   }
-}
+} */
 
 /* function followBar(player) {
   var text = get_text("follow.tip")
@@ -7830,9 +7832,9 @@ function get_item_event(item) {
 }
 
 function opBar(player) {
-  if (is_object(player.follow)) {
+  /* if (is_object(player.follow)) {
     reset_player_follow(player)
-  }
+  } */
   /* if (get_op_level(player) === 0) {
     return
   } */
@@ -8124,13 +8126,13 @@ function opBar(player) {
       chat("IDs:" + to_json(ids), [player])
       chat("Names:" + to_json(id_names), [player])
     }
-  } */, {
+  } *//* , {
     text: "管理悬浮字",
     icon: ui_icon.brush,
     func: () => {
       managerFloat(player)
     }
-  }, {
+  }, */ {
     text: "编辑物品特殊效果",
     icon: ui_icon.sword,
     func: () => {
@@ -8152,10 +8154,10 @@ function opBar(player) {
       setOpBar(player)
     }
   }) */
-  ui.show(player)
+  //ui.show(player)
 }
 
-function managerFloat(player) {
+/* function managerFloat(player) {
   var ui = new btnBar()
   ui.title = "管理悬浮字"
   ui.body = [
@@ -8195,9 +8197,9 @@ function managerFloat(player) {
     }
   })
   ui.show(player)
-}
+} */
 
-function editFloat(player, bat, first) {
+/* function editFloat(player, bat, first) {
   var text = get_data("text", bat)
   var name = get_data("name", bat)
 
@@ -8238,7 +8240,7 @@ function editFloat(player, bat, first) {
     }
     managerFloat(player)
   })
-}
+} */
 
 /* function tip(player, text = "", back = function () { }) {
   var ui = new btnBar()

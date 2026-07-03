@@ -110,7 +110,7 @@ export function banListCheck(player) {
 get_system("manager").register_manager_bar_btn({
     text: "封禁列表管理",
     icon: data.ui_icon.stop,
-    func: () => {
-      banListCheck(player);
+    func: (op) => {
+      banListCheck(op.player);
     }
-  });
+});

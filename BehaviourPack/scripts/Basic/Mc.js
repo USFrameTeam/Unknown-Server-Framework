@@ -3,7 +3,11 @@ import * as logger from "./Logger.js";
 import * as tool from "./Tool.js";
 import * as text from "./Text.js";
 import * as permission from "./Permission.js";
-import { report_custom_event , emit_custom_event } from "./Event.js";
+import { report_custom_event , emit_custom_event , register_mc_event } from "./Event.js";
+
+text.register_symbol(false,"weather",(player)=>{
+    return text.tran_text("Weather." + world.getDimension("minecraft:overworld").getWeather());
+});
 
 export function is_entity_valid(entity){
     if(!tool.is_entity(entity)){
@@ -14,6 +18,14 @@ export function is_entity_valid(entity){
 
 export function get_all_players(){
     return world.getAllPlayers()
+}
+
+export function get_block(di, lo) {
+  var block = undefined
+  try {
+    block = di.getBlock(lo)
+  } catch (err) { }
+  return block
 }
 
 export function each_player(func = function(player){}){
@@ -72,16 +84,44 @@ export function run_timeout(func , time){
     system.runTimeout(func,time);
 }
 
+export function run_interval(func , time){
+    return system.runInterval(func,time);
+}
+
+export function clear_job(id){
+  system.clearRun(id);
+}
+
+
+export function get_game_mode(player) {
+  const modes = {
+    "Survival" : 0,
+    "Creative": 1,
+    "Adventure": 2,
+    "Spectator": 3
+  };
+
+  return modes[player.getGameMode()];
+}
+
+export function set_game_mode(player, mode) {
+  const modes = ["Survival", "Creative", "Adventure", "Spectator"];
+  const to_mode = modes[mode];
+
+  if (tool.is_string(to_mode)) {
+    player.setGameMode(to_mode);
+  }
+}
+
 /*
 options:
     show : bool 是否展示"正在传送"
-    anima : bool 是否使用动画传送(依赖外部实现)
     keep : bool 是否保持速度
-    back : bool 是否记为返回点(依赖外部实现)
+    back : bool 是否记为返回点
     log : bool 是否可记入日志(依赖外部实现)
     默认都为false
 */
-export function tp_entity(entity, di, x, y, z, options) {
+export function tp_entity(entity, di, x, y, z, options = {}) {
   if (!tool.is_entity(entity)){ return;}
 
   if(tool.is_player(entity)){
@@ -109,10 +149,6 @@ export function tp_entity(entity, di, x, y, z, options) {
         ];
     }
   }
-
-/*   const shouldLog = is_player(entity) && array_has(config.log.allow, "tp");
-  const playerPath = shouldLog ? get_player_path(entity) : null;
- */
   system.run(() => {
     const location = { x, y, z };
     const tp_options = {
@@ -122,15 +158,6 @@ export function tp_entity(entity, di, x, y, z, options) {
     entity.teleport(location, tp_options);
   });
 
-/*   if (shouldLog) {
-    const blockPos = get_block_pos_di({
-      dimension: di,
-      location: { x, y, z }
-    });
-    server_log(0, `TP:${blockPos}`, playerPath);
-  } */
-
-  options.is_player = tool.is_player(entity);
   options.entity = entity;
   options.x = x;
   options.y = y;

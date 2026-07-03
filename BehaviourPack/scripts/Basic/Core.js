@@ -5,6 +5,7 @@ import * as permission from "./Permission.js";
 import * as tool from "./Tool.js";
 import * as event from "./Event.js";
 import * as mc from "./Mc.js";
+import { reset_player_data } from "./Player.js";
 
 export const version_code = "0.9.0E";
 export const version_text = `欢迎使用无名氏服务器框架\n插件版本:${version_code}\n作者：EarthDLL(USFrameTeam)，感谢所有社区贡献者的贡献\n快速适配版本，如有Bug，及时反馈`;
@@ -18,7 +19,7 @@ var reloaded = false;
 var overworld;
 var end;
 var nether;
-var dimensions;
+export var dimensions;
 
 system.run(() => {
   overworld = world.getDimension("minecraft:overworld");
@@ -45,12 +46,21 @@ function reload_all() {
     permission.reset_owners();
     logger.log(0,2,"最高管理员已被重置!");
   }
+
+  logger.log(0,1,"——USF已被载入——");
+
   permission.get_owners();
   permission.load_ops();
   
   //配置内容
   config = parse_json(get_data("config"));
   tool.object_override(config, usf_config);
+
+  for(let player of mc.get_all_players()){
+    reset_player_data(player);
+  }
+
+  reloaded = true;
 
   event.emit_custom_event("world_load",{})
 }

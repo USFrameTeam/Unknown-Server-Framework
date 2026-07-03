@@ -21,7 +21,10 @@ function managerBar(player , _options){
     if (get_op_level(player) === 0) {
         return;
     }
-    var ui = new btnBar();
+    const ui = new btnBar();
+    let btn_options = {
+        player : player,
+    }
     ui.busy = null;
     ui.title = "管理员界面";
     ui.body = "欢迎使用管理员功能";
@@ -76,7 +79,10 @@ function managerBar(player , _options){
             }
         }
     ];
-    ui.btns = ui.btns.concat(external_btns);
+    for(let btn of external_btns){
+        btn.op = btn_options;
+        ui.btns.push(btn);
+    }
     ui.show(player);
 }
 

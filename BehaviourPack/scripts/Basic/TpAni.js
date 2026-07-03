@@ -25,12 +25,7 @@ function simpleTeleport(player, targetLocation, targetDimension, onDone) {
 }
 // 修改：根据配置决定使用哪种传送方式
 export function tpWithAnimation(player, loc, dim, onDone = () => {}) {
-    // 检查动画开关配置
-    if (config?.tp?.animation === true) {
-        performTeleportAnimation(player, loc, dim).then(onDone).catch(() => {});
-    } else {
-        simpleTeleport(player, loc, dim, onDone);
-    }
+    performTeleportAnimation(player, loc, dim).then(onDone).catch(() => {});
 }
 
 // 等待

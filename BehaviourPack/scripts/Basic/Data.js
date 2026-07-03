@@ -60,17 +60,19 @@ export const usf_config = {
     },
     "tp" : {
         "random_range":10000,
-        "per" : true,
+        "per" : true,//个人传送点
         "per_conut" : 50,
-        "die" : false,
-        "back" : false,
+        "world_count":200,//todo
+        "world_edit": false,//todo
+        "die" : false,//死亡
+        "back" : false,//返回
         "down" : 30,
-        "pp" : false,
-        "share" : true,
-        "world" : false,
-        "group" : false,
-        "random_end" : true,
-        "animation": false,
+        "pp" : false,//TPA
+        "share" : true,//分享传送点
+        "world" : false,//世界传送点
+        "group" : false, //群组传送点
+        "random_end" : true,//末地使用随机传送
+        "animation": false
     },
     "board" : {
         "able" : false,
@@ -235,6 +237,8 @@ export const data_format = {
         name : "",
         icon : "",
         home : false,
+        top : false,//是否置顶
+        //该数据结构在Pos.js中亦存在，请同步更改
     },
     land:{
         "id" : "",
@@ -292,6 +296,7 @@ export const data_format = {
 
 const ui_path = "textures/ui/"
 export const ui_icon = {
+    right : ui_path + "arrow_dark_right.png",
     star : ui_path + "permissions_member_star.png",
     sword : "textures/items/iron_sword.png",
     slow_ness : ui_path + "slowness_effect.png",

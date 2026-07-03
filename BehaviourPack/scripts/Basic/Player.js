@@ -90,3 +90,7 @@ export function save_player_info(player) {
 export function get_player_by_id(id) {
   return (id_players[id] === undefined) ? null : id_players[id];
 }
+
+export function is_in_manager_mode(player){
+    return tool.to_bool(player.info.manager,false);
+}

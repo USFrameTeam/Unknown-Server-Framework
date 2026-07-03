@@ -205,6 +205,11 @@ export function pos_string(vec) {
   return `(${Math.round(vec.x)},${Math.round(vec.y)},${Math.round(vec.z)})`
 }
 
+export function get_block_pos_text(block) {
+  const { x, y, z } = block.location;
+  return `(${Math.round(x)},${Math.round(y)},${Math.round(z)})`;
+}
+
 //DimendionPosition -> string
 export function dimension_pos_to_text(pos) {
   if (un(pos)) {

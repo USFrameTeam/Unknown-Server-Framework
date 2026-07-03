@@ -29,7 +29,7 @@ function return_empty(player){
     return "";
 }
 
-function tran_text(player, texts, keep_array = false) {
+export function tran_text(player, texts, keep_array = false) {
     //内部定义(转外部定义)(还有个计分板：things["board." + b.id + ".score"])
         // things = {
           // name: player.name,
