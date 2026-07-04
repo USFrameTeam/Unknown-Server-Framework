@@ -63,6 +63,8 @@ event.connect_custom_event("world_load",(things) => {
     event.register_mc_event(true,"playerPlaceBlock",{
         blockTypes : config.ban_block,
     },clear_ban_block);
+
+    logger.log(0,1,"————安全系统已加载————");
 });
 
 //is_place为true则为放置方块，否则则为破坏方块

@@ -16,6 +16,10 @@ export function get_data(id, en = null) {
   return typeof tool.is_string(data) ? data : "";
 }
 
+export function clear_data(id) {
+  world.setDynamicProperty(namespace + id);
+}
+
 export const usf_config = {
     "name":{
         "format" : "/name",
@@ -74,10 +78,10 @@ export const usf_config = {
         "random_end" : true,//末地使用随机传送
         "animation": false
     },
-    "board" : {
-        "able" : false,
-        "first" : "",
-        "_" : ""
+    "board" : { //公告(notification)
+        "able" : false,//启用
+        "first" : "",//发送给新成员
+        "_" : ""//默认公告
     },
     "hurt":{
         "able" : false,

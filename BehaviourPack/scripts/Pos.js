@@ -3,12 +3,13 @@ import * as tool from "./Basic/Tool.js";
 import { ui_icon , get_data , save_data , pictures} from "./Basic/Data.js";
 import * as command from "./Command.js";
 import * as mc from "./Basic/Mc.js";
-import { config , dimensions , has_system ,get_system} from "./Basic/Core.js";
+import { config , dimensions , has_system ,get_system , save_config} from "./Basic/Core.js";
 import { tpWithAnimation } from "./Basic/TpAni.js";
 import { btnBar , infoBar , add_pictures_choice} from "./Basic/ui.js";
-import { playerChooser , confirm , tip} from "./Basic/UniversalUI.js";
+import { playerChooser , confirm , tip , register_global_ui} from "./Basic/UniversalUI.js";
 import { get_name_by_id , get_id , get_op_level , is_in_manager_mode} from "./Basic/Player.js";
 import { get_text , push_text , format ,pictures , tran_text } from "./Basic/Text.js";
+import * as logger from "./Basic/Logger.js";
 
 /*Pos.js
 功能：传送系统
@@ -22,6 +23,13 @@ var world_pos = [];
 event.connect_custom_event("world_load",(things) => {
     public_pos = tool.to_array(tool.parse_json(get_data("public_pos")), []);
     world_pos = tool.to_array(tool.parse_json(get_data("world_pos")), []);
+
+    //注册设置
+    if(has_system("system")){
+      get_system("setting").register_setting("pos","传送系统设置",settingBar);
+    }
+
+    logger.log(0,1,"————传送系统已加载————");
 });
 
 event.connect_custom_event("player_join",(things) => {
@@ -477,7 +485,7 @@ function random_tp(player, now) {
   player.last_tp = now;
 }
 
-function posBar(player) {
+function posBar(player , _things = {}) {
   let now = Date.now()
   let ui = new btnBar();
   ui.title = "传送系统";
@@ -785,3 +793,41 @@ function searchResultBar(player,filtered_types , filtered_pos){
       }
 }
 
+function settingBar(player , back = false){
+    const ui = new infoBar();
+    ui.title = "传送系统设置";
+    ui.cancel = () => {
+      event.emit_custom_event("setting_changed",{ player : player , back : back});
+    }
+    ui.toggle("die", "返回死亡点[关闭 | 开启]", config.tp.die);
+    ui.toggle("per", "个人传送点[关闭 | 开启]", config.tp.per);
+    ui.toggle("pp", "玩家互传TPA[关闭 | 开启]", config.tp.pp);
+    ui.toggle("world", "世界共享点[关闭 | 开启]", config.tp.world);
+    ui.toggle("group", "群组共享点[关闭 | 开启]", config.tp.group);
+    ui.toggle("back", "传送返回[关闭 | 开启]", config.tp.back);
+    ui.toggle("share", "分享传送点[关闭 | 开启]", config.tp.share);
+    ui.toggle("animation", "传送动画（实验性玩法）[关闭 | 开启]", config.tp.animation);
+    ui.range("per_count", "个人传送点数量", 1, 55, 1, config.tp.per_count);
+    ui.range("random_range", "随机传送距离(为0时不显示)", 0, 50000, 1000, config.tp.random_range);
+    ui.toggle("random_end", "允许末地使用随机传送", config.tp.random_end);
+    ui.range("down", "TP冷却时间/s", 0, 600, 10, config.tp.down);
+
+    ui.show(player,(r) => {
+      config.tp.animation = r.animation;
+      config.tp.random_range = r.random_range;
+      config.tp.random_end = r.random_end;
+      config.tp.die = r.die;
+      config.tp.world = r.world;
+      config.tp.per = r.per;
+      config.tp.share = r.share;
+      config.tp.pp = r.pp;
+      config.tp.per_count = r.per_count;
+      config.tp.down = r.down;
+      config.tp.group = r.group;
+      config.tp.back = r.back;
+      save_config();
+      event.emit_custom_event("setting_changed",{ player : player , back : back});
+    })
+}
+
+register_global_ui("pos" , posBar);

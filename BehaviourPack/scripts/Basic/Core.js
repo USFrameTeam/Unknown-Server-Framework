@@ -47,7 +47,7 @@ function reload_all() {
     logger.log(0,2,"最高管理员已被重置!");
   }
 
-  logger.log(0,1,"——USF已被载入——");
+  logger.log(0,1,"————USF已被载入————");
 
   permission.get_owners();
   permission.load_ops();

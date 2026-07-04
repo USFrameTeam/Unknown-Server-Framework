@@ -139,7 +139,7 @@ export function infoBar(){
     this.things = []
     this.back = function(result){}
    
-   
+   //用于options , 使用match传入一个与options长度一样的数组，之后输出的结果不再是options的内容，而是match传入的内容
     this.match = function (array){
         if(is_array(array) && this.things.length > 0){
             this.things[this.things.length - 1].match = array

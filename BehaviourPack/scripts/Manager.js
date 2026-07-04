@@ -181,3 +181,5 @@ core.register_system("manager",{
     "register_manager_bar_btn" : register_manager_bar_btn,
 });
 register_global_ui("manager",managerBar);
+
+logger.log(0,1,"————管理系统已加载————");

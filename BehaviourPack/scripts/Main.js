@@ -1279,11 +1279,11 @@ function show_title(player, text) {
   save_data("config", to_json(config));
 } */
 
-function get_board_ids() {
+/* function get_board_ids() {
   return to_array(parse_json(get_data("board_ids")), [])
-}
+} */
 
-function get_boards() {
+/* function get_boards() {
   const boards = {};
   const ids = get_board_ids();
 
@@ -1294,7 +1294,7 @@ function get_boards() {
     }
   }
   return boards;
-}
+} */
 
 function is_group(v) {
   return v && typeof v === 'object' && Object.keys(v).length > 0;
@@ -1496,9 +1496,9 @@ function setActionBar(player, text, tran = false) {
   }
 }
 
-function clear_data(id) {
+/* function clear_data(id) {
   world.setDynamicProperty(namespace + id);
-}
+} */
 
 /*function save_data(id, content, en = null) {
   const target = en === null ? world : en;
@@ -8800,13 +8800,13 @@ function usfSettingBar(player) {
       usfFunctionBar(player, "cd_con")
     }
   },
-  {
+/*   {
     text: "传送点设置",
     icon: ui_icon.pos,
     func: () => {
       usfFunctionBar(player, "pos")
     }
-  },
+  }, */
   {
     text: "游戏辅助功能",
     icon: pictures.tnt,
@@ -8832,7 +8832,7 @@ function usfSettingBar(player) {
   ui.show(player)
 }
 
-function usfBoardBar(player) {
+/* function usfBoardBar(player) {
   var ui = new btnBar()
   ui.title = "公告设置"
   ui.body = ["此处管理服务器的公告板",
@@ -8928,7 +8928,7 @@ function editBoardBar(player, id) {
       }
     }
   })
-}
+} */
 
 function editLock(player, index, first) {
   var cf = lock_config[index]
@@ -9397,7 +9397,7 @@ function usfFunctionBar(player, type) {
       }
       editor.edit(player, menu)
       return
-    case "board":
+/*     case "board":
       var boards = get_boards()
       var names = ["无"]
       var ids = Object.keys(boards)
@@ -9413,7 +9413,7 @@ function usfFunctionBar(player, type) {
 
       ui.options("first", "发给新成员", names, array_index(ids, config.board.first))
       ui.match(ids)
-      break
+      break */
     case "hurttip":
       ui.title = "伤害血量功能设置"
       ui.toggle("able", "伤害血量提示[关闭 | 开启]", config.hurt.able)
@@ -9456,7 +9456,7 @@ function usfFunctionBar(player, type) {
       ui.toggle("able", "[禁用|启用]\n注意：与特殊命令name可能会冲突", config.name.able)
       ui.input("format", text, "输入内容", config.name.format)
       break
-    case "pos":
+    /* case "pos":
       ui.title = "传送页面设置"
       ui.toggle("die", "返回死亡点[关闭 | 开启]", config.tp.die)
       ui.toggle("per", "个人传送点[关闭 | 开启]", config.tp.per)
@@ -9470,7 +9470,7 @@ function usfFunctionBar(player, type) {
       ui.range("random_range", "随机传送距离(为0时不显示)", 0, 50000, 1000, config.tp.random_range)
       ui.toggle("random_end", "允许末地使用随机传送", config.tp.random_end)
       ui.range("down", "TP冷却时间/s", 0, 600, 10, config.tp.down)
-      break
+      break */
     case "game":
       ui.title = "游戏辅助设置"
       ui.toggle("kill", "主菜单显示自杀按钮", config.game.kill)
@@ -9497,13 +9497,13 @@ function usfFunctionBar(player, type) {
 
   ui.show(player, (r) => {
     switch (type) {
-      case "board":
+/*       case "board":
         config.board["_"] = r["_"]
         config.board["first"] = r["first"]
         config.board.able = r.able
         save_config()
         usfBoardBar(player)
-        break
+        break */
       case "online":
         config.other.online = r.online
         save_config()
@@ -9668,7 +9668,7 @@ function usfFunctionBar(player, type) {
   })
 }
 
-function show_board(player, id = null, show_cd = true) {
+/* function show_board(player, id = null, show_cd = true) {
   var boards = get_boards()
   if (config.board.able === false || boards.length === 0) {
     return
@@ -9739,7 +9739,7 @@ function show_board(player, id = null, show_cd = true) {
     })
   }
   ui.show(player)
-}
+} */
 
 // function show_board(player){
 // var content = get_data("board_content")
@@ -10081,4 +10081,4 @@ function show_board(player, id = null, show_cd = true) {
   })
 
 } */
-export { config, usfSettingBar };
+//export { config, usfSettingBar };
