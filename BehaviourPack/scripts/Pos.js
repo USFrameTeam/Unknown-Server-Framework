@@ -25,7 +25,7 @@ event.connect_custom_event("world_load",(things) => {
     world_pos = tool.to_array(tool.parse_json(get_data("world_pos")), []);
 
     //注册设置
-    if(has_system("system")){
+    if(has_system("setting")){
       get_system("setting").register_setting("pos","传送系统设置",settingBar);
     }
 

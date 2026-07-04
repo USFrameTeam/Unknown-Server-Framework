@@ -1,4 +1,4 @@
-import { ItemStack, world, system } from "@minecraft/server";
+import { ItemStack, world, system ,EntityTypes , ItemTypes , BlockTypes} from "@minecraft/server";
 import * as logger from "./Logger.js";
 import * as tool from "./Tool.js";
 import * as text from "./Text.js";
@@ -45,6 +45,16 @@ export function entity_run_command(entity, command) {
   } catch (err) { logger.log(0,1,"尝试在实体上执行指令失败:[0]",[command]) }
 }
 
+export function has_entity_type(id){
+  return !tool.un(EntityTypes.get(id));
+}
+export function has_item_type(id){
+  return !tool.un(ItemTypes.get(id));
+}
+export function has_block_type(id){
+  return !tool.un(BlockTypes.get(id));
+}
+
 //force = true时会无视权限踢出
 export function kick(player, reason = "", force = false) {
     if(!is_entity_valid(player)){return false;}
@@ -66,6 +76,17 @@ export function chat(message, targets = null, tran = true) {
             p.sendMessage(final_message);
         }
     }
+}
+
+export function set_ActionBar(player, message , tran = false) {
+  const content = tran ? text.tran_text(player, message) : message;
+  try {
+    player.onScreenDisplay.setActionBar(content);
+  } catch (err) {
+  system.run(()=>{
+    player.runCommand(`titleraw @s actionbar {"rawtext": [{"text":"${content}"}]}`);
+    });
+  }
 }
 
 export function change_gamerule(rule , value){

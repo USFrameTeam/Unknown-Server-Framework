@@ -1484,7 +1484,7 @@ function save_lock_config() {
   save_generic("lock_items", lock_config);
 }
 
-function setActionBar(player, text, tran = false) {
+/* function setActionBar(player, text, tran = false) {
   const content = tran ? tran_text(player, text) : text;
 
   try {
@@ -1494,7 +1494,7 @@ function setActionBar(player, text, tran = false) {
     player.runCommand(`titleraw @s actionbar {"rawtext": [{"text":"${content}"}]}`);
     })
   }
-}
+} */
 
 /* function clear_data(id) {
   world.setDynamicProperty(namespace + id);
@@ -1802,10 +1802,10 @@ function beforeExplosion(event) {
   const entity = event.source;
   let blocks = event.getImpactedBlocks();
 
-  if (entity && !un(entity) && config.game.creeper && entity.typeId === "minecraft:creeper") {
+/*   if (entity && !un(entity) && config.game.creeper && entity.typeId === "minecraft:creeper") {
     event.setImpactedBlocks([]);
     return;
-  }
+  } */
 
   if (config.land.able) {
     const filteredBlocks = [];
@@ -2412,7 +2412,7 @@ function beforePlayerInteractWithBlock(event) {
       } catch (err) { }
     }
 
-    if (block.hasTag("text_sign") && config.game.sign) {
+    /* if (block.hasTag("text_sign") && config.game.sign) {
       if (Date.now() - to_number(player.last_edit_sign) < 800) {
 
       } else {
@@ -2420,7 +2420,7 @@ function beforePlayerInteractWithBlock(event) {
         setActionBar(player, get_text("sign.tip"))
         event.cancel = true
       }
-    }
+    } */
   }
 }
 
@@ -2544,7 +2544,7 @@ function get_block_pos_id(block) {
   return `${block.dimension.id}.${block.x}.${block.y}.${block.z}`
 }
 
-function beforeItemUse(event) {
+/* function beforeItemUse(event) {
   var item = event.itemStack
   var player = event.source
 
@@ -2571,7 +2571,7 @@ function beforeItemUse(event) {
       })
     }
   }
-}
+} */
 
 function afterPlayerGameModeChange(event) {
   server_log(0, `GameMode changed:${event.toGameMode}`, get_player_path(event.player))
@@ -2880,23 +2880,23 @@ function playerSpawn(event) {
     show_board(player, null, false)
     //show_tips(player)
 
-    if (config.game.r_in > 0) {
+    /* if (config.game.r_in > 0) {
       player.addEffect("resistance", config.game.r_in * 20, {
         amplifier: 4,
         showParticles: false
       })
-    }
+    } */
     if (array_has(config.log.allow, "jl")) {
       server_log(0, `Join At ${get_block_pos_di(player)}`, get_player_path(player))
     }
 
   } else {
-    if (config.game.r_rs > 0) {
+    /* if (config.game.r_rs > 0) {
       player.addEffect("resistance", config.game.r_rs * 20, {
         amplifier: 4,
         showParticles: false
       })
-    }
+    } */
   }
 
   reset_lock_item(player)
@@ -2967,7 +2967,7 @@ function afteritemUse(event) {
   }
 }
 
-function beforeEntityRemove(event) {
+/* function beforeEntityRemove(event) {
   var entity = event.removedEntity
   if (entity.typeId === "minecraft:item") {
     item_count -= 1
@@ -2987,7 +2987,7 @@ function beforeEntityRemove(event) {
       })
     }
   }
-}
+} */
 
 /* function worldInitializeEvent() {
   log("——USF加载中——", [], "info", 2)
@@ -3038,12 +3038,12 @@ function afterPlayerDimensionChange(event) {
   if (array_has(config.log.allow, "di")) {
     server_log(0, `Dimension Change:${from.name} to ${to.name}`, get_player_path(player))
   }
-  if (config.game.r_di > 0) {
+  /* if (config.game.r_di > 0) {
     player.addEffect("resistance", config.game.r_di * 20, {
       amplifier: 4,
       showParticles: false
     })
-  }
+  } */
   player.landing.points = []
 }
 
@@ -3082,7 +3082,7 @@ function afterEntityHurt(event) {
 
       emitEvent(hurter, "attack")
 
-      if (hurt.hasComponent("minecraft:health")) {
+     /*  if (hurt.hasComponent("minecraft:health")) {
         var max = hurt.getComponent("minecraft:health").effectiveMax
         var now = hurt.getComponent("minecraft:health").currentValue
         if (config.hurt.able && now >= 0) {
@@ -3115,9 +3115,9 @@ function afterEntityHurt(event) {
             setActionBar(hurter, text)
           } catch (err) { }
         }
-      }
+      }*/
     }
-  }
+  } 
 }
 
 function get_player_hand_item(player) {
@@ -7908,7 +7908,7 @@ function opBar(player) {
     },
     icon: ui_icon.water
   },
-  {
+  /* {
     text: "封禁实体",
     icon: ui_icon.rubbish,
     func: () => {
@@ -7981,7 +7981,7 @@ function opBar(player) {
         }
       })
     }
-  }, /* {
+  } */, /* {
     text: "性能检测",
     icon: ui_icon.info,
     func: () => {
@@ -9414,11 +9414,11 @@ function usfFunctionBar(player, type) {
       ui.options("first", "发给新成员", names, array_index(ids, config.board.first))
       ui.match(ids)
       break */
-    case "hurttip":
+/*     case "hurttip":
       ui.title = "伤害血量功能设置"
       ui.toggle("able", "伤害血量提示[关闭 | 开启]", config.hurt.able)
       ui.options("type", "显示模式", ["条状", "心形"], config.hurt.type)
-      break
+      break */
     case "tran":
       ui.title = "转账机功能设置"
       ui.toggle("able", "转账机[关闭 | 开启]", config.tran.able)
@@ -9471,17 +9471,17 @@ function usfFunctionBar(player, type) {
       ui.toggle("random_end", "允许末地使用随机传送", config.tp.random_end)
       ui.range("down", "TP冷却时间/s", 0, 600, 10, config.tp.down)
       break */
-    case "game":
+    /* case "game":
       ui.title = "游戏辅助设置"
       ui.toggle("kill", "主菜单显示自杀按钮", config.game.kill)
       ui.toggle("creeper", "苦力怕爆炸不破坏地形", config.game.creeper)
       ui.toggle("sign", "编辑告示牌需要双击", config.game.sign)
-      ui.toggle("lock", "非op锁定生存模式", config.game.lock)
+      //ui.toggle("lock", "非op锁定生存模式", config.game.lock)
       ui.toggle("fb", "可发射火焰弹", config.game.fb)
       ui.range("r_in", "进入游戏给予抗性提升5的时间", 0, 30, 1, config.game.r_in)
       ui.range("r_di", "维度改变给予抗性提升5的时间", 0, 30, 1, config.game.r_di)
       ui.range("r_rs", "重生给予抗性提升5的时间", 0, 30, 1, config.game.r_rs)
-      break
+      break */
     case "mini":
       ui.title = "小游戏功能设置"
       ui.toggle("land_tag", "领地内赋予玩家§eland.领地ID§r的标签", config.mini.land_tag)
@@ -9553,12 +9553,12 @@ function usfFunctionBar(player, type) {
         save_config()
         usfSettingBar(player)
         break
-      case "hurttip":
+/*       case "hurttip":
         config.hurt.able = r.able
         config.hurt.type = r.type
         save_config()
         usfSettingBar(player)
-        break
+        break */
       case "land":
         config.land.able = r.able
         config.land.must = r.must
@@ -9652,18 +9652,18 @@ function usfFunctionBar(player, type) {
         save_config()
         usfSettingBar(player)
         break
-      case "game":
+/*       case "game":
         config.game.kill = r.kill
         config.game.creeper = r.creeper
         config.game.sign = r.sign
-        config.game.lock = r.lock
+        //config.game.lock = r.lock
         config.game.r_in = r.r_in
         config.game.r_di = r.r_di
         config.game.fb = r.fb
         config.game.r_rs = r.r_rs
         save_config()
         usfSettingBar(player)
-        break
+        break */
     }
   })
 }

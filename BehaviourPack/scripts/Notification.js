@@ -15,7 +15,7 @@ var notifications = [];
 
 event.connect_custom_event("world_load",(things) => {
     //注册设置
-    if(has_system("system")){
+    if(has_system("setting")){
       get_system("setting").register_setting("notification","公告设置",notificationManagerBar);
     }
 
