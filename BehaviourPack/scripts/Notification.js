@@ -1,7 +1,7 @@
 import { btnBar ,infoBar , arrayEditor} from "./Basic/ui.js";
 import { ui_icon , get_data , save_data , pictures ,clear_data} from "./Basic/Data.js";
 import * as tool from "./Basic/Tool.js";
-import { config ,has_system ,get_system , save_config} from "./Basic/Core.js";
+import { config ,has_system ,get_system , save_config , register_system} from "./Basic/Core.js";
 import * as event from "./Basic/Event.js";
 import { tran_text } from "./Basic/Text.js";
 import {register_global_ui, show_global_ui} from "./Basic/UniversalUI.js";
@@ -261,3 +261,4 @@ function get_notifications_ids() {
 }
 
 register_global_ui("notification" , notificationBar);
+register_system("notification",{});

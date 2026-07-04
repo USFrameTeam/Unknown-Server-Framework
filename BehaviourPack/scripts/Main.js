@@ -1199,13 +1199,13 @@ function save_player_lands(player) {
   return text.replaceAll("minecraft:", "mc:");
 } */
 
-function show_title(player, text) {
+/* function show_title(player, text) {
   if (!player || !player.onScreenDisplay) return;
 
   try {
     player.onScreenDisplay.setTitle(tran_text(player, text));
   } catch (err) { }
-}
+} */
 
 
 
@@ -1933,7 +1933,7 @@ function reset_lock_item(player) {
 
         ui.show(player);
       }
-    } */,
+    } ,*/
 
     "cd": () => {
       cdBar(player);
@@ -6869,7 +6869,7 @@ function editConfigSecondBar(player, slot, data) {
   ui.show(player)
 }
 
-function cdBar(player) {
+/* function cdBar(player) {
   if (Date.now() - to_number(player.last_cd) < 1000) {
     return
   } else {
@@ -7017,7 +7017,7 @@ function cdBar(player) {
     })
   }
   ui.show(player)
-}
+} */
 
 /* function get_date_now_China_time() {
   var d = new Date()
@@ -7142,7 +7142,7 @@ function get_date_object_China_time() {
   return Math.round(p.info.ban_time - Date.now())
 } */
 
-function stopPlayerBar(player) {
+/* function stopPlayerBar(player) {
   var ps = world.getAllPlayers()
   var texts = []
   var ui = new infoBar()
@@ -7173,7 +7173,7 @@ function stopPlayerBar(player) {
     opBar(player)
   })
 
-}
+} */
 
 function tagSetBar(player) {
   var ps = world.getAllPlayers()
@@ -8780,13 +8780,13 @@ function usfSettingBar(player) {
     func: () => {
       usfFunctionBar(player, "hacker")
     }
-  }, {
+  }, /* {
     text: "插件命令设置",
     icon: ui_icon.command,
     func: () => {
       usfFunctionBar(player, "com")
     }
-  },
+  }, */
   {
     text: "打开主菜单物品",
     icon: ui_icon.big,
@@ -8807,20 +8807,20 @@ function usfSettingBar(player) {
       usfFunctionBar(player, "pos")
     }
   }, */
-  {
+/*   {
     text: "游戏辅助功能",
     icon: pictures.tnt,
     func: () => {
       usfFunctionBar(player, "game")
     }
-  },
-  {
+  }, */
+/*   {
     text: "语言设置",
     icon: pictures.brush,
     func: () => {
       usfFunctionBar(player, "brush")
     }
-  },
+  }, */
   {
     text: "其他功能",
     icon: pictures.craft_table,
@@ -9365,10 +9365,10 @@ function usfFunctionBar(player, type) {
       editor.edit(player, config.cd_items)
       return
       break
-    case "brush":
+/*     case "brush":
       ui.title = "语言设置"
       ui.options("l", "语言", ["简体中文", "繁体中文"], config.language)
-      break
+      break */
     case "group":
       ui.title = "群组设置"
       ui.toggle("able", "[禁用 | 启用]", config.groups.able)
@@ -9487,12 +9487,12 @@ function usfFunctionBar(player, type) {
       ui.toggle("land_tag", "领地内赋予玩家§eland.领地ID§r的标签", config.mini.land_tag)
       ui.toggle("clear_tag", "玩家进入游戏清除_(下划线)开头的tag", config.mini.clear_tag)
       break
-    case "com":
+/*     case "com":
       ui.title = "插件命令设置"
       for (var key of data_format.commands) {
         ui.toggle(key, `+${key}(${get_text('commands.' + key)})`, array_has(config.commands, key))
       }
-      break
+      break */
   }
 
   ui.show(player, (r) => {
@@ -9548,11 +9548,11 @@ function usfFunctionBar(player, type) {
         save_config()
         usfSettingBar(player)
         break
-      case "brush":
+/*       case "brush":
         config.language = r.l
         save_config()
         usfSettingBar(player)
-        break
+        break */
 /*       case "hurttip":
         config.hurt.able = r.able
         config.hurt.type = r.type

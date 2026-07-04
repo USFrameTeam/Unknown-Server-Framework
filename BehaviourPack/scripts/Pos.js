@@ -485,12 +485,16 @@ function random_tp(player, now) {
   player.last_tp = now;
 }
 
-function posBar(player , _things = {}) {
+//options.cancel
+function posBar(player , options = {}) {
   let now = Date.now()
-  let ui = new btnBar();
+  const ui = new btnBar();
   ui.title = "传送系统";
   push_text("pos_bar_text","此处保存您的所有传送点/n您可以编辑、修改、分享传送点")
-  ui.body = tran_text(player );
+  ui.body = tran_text(player);
+  if(tool.is_function(options.cancel)){
+    ui.cancel = () => {options.cancel(player);}
+  }
 
   for (let pos of public_pos) {
     const options = {editable : false , shareable : true};

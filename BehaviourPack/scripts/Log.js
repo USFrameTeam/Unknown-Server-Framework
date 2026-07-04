@@ -37,7 +37,7 @@ export function is_log_type_allowed(type){
     return tool.array_has(config.log.allow,type);
 }
 
-//自动注册一些自带的日志
+//注册日志
 //传送
 event.connect_custom_event("tp",after_tp);
 event.connect_custom_event("anima_tp",after_tp);
@@ -51,6 +51,7 @@ function after_tp(options){
         push_log(0,`TP:${pos_text}`,tool.get_player_path(options.entity));
     }
 }
+
 
 //推送日志
 //type 0-日志 1-输出 2-日志+输出

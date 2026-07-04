@@ -89,6 +89,14 @@ export function set_ActionBar(player, message , tran = false) {
   }
 }
 
+export function set_title(player, message) {
+  if (!tool.is_player(player)) return;
+
+  try {
+    player.onScreenDisplay.setTitle(text.tran_text(player, message));
+  } catch (err) { }
+}
+
 export function change_gamerule(rule , value){
     world.gameRules[rule] = value;
 }

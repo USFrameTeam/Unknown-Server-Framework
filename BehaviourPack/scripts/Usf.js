@@ -6,6 +6,8 @@ import { format } from "./Basic/Text.js";
 import * as data from "./Basic/Data.js";
 import * as mc from "./Basic/Mc.js";
 import * as event from "./Basic/Event.js";
+import { register_system } from "./Basic/Core.js";
+import { is_function } from "./Basic/Tool.js";
 
 /*Usf.js
 功能：
@@ -13,13 +15,18 @@ import * as event from "./Basic/Event.js";
 2.管理OP权限
 */
 
-function usfBar(player , _options){
+function usfBar(player , options){
     if(get_op_level(player) === 0){return;}
 
     var ui = new btnBar();
     ui.busy = null;
     ui.title = "USF管理界面";
     ui.body = "欢迎使用USF管理功能";
+    if(is_function(options.cancel)){
+        ui.cancel = ()=>{
+            options.cancel();
+        }
+    }
     ui.btns = [{
         text: "管理员功能",
         icon: data.ui_icon.manager,
@@ -165,3 +172,4 @@ function opBar(player , _options){
 register_global_ui("usf" , usfBar);
 register_global_ui("op" , opBar);
 event.report_custom_event("usf_manager_bar_showed");
+register_system("usf_manager",{});

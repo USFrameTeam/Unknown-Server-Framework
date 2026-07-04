@@ -17,7 +17,7 @@ import * as tool from "./Basic/Tool.js";
 
 var external_btns = [];
 
-function managerBar(player , _options){
+function managerBar(player , options = {cancel = ()=>{show_global_ui(player,"usf");}}){
     if (get_op_level(player) === 0) {
         return;
     }
@@ -28,6 +28,9 @@ function managerBar(player , _options){
     ui.busy = null;
     ui.title = "管理员界面";
     ui.body = "欢迎使用管理员功能";
+    if(tool.is_function(options.cancel)){
+        ui.cancel = options.cancel;
+    }
     ui.btns = [
         {
             text: "查看历史日志",

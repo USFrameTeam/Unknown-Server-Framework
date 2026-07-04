@@ -132,7 +132,6 @@ export const usf_config = {
         "groups" : {}
     },
     "commands" : [ "cd" , "op" , "tpaccept" , "home"],
-    language : 0,
     "copy_boards" : "",
     "mini" : {
         land_tag : false,
@@ -221,7 +220,6 @@ export const data_format = {
         name : "",
         icon : null
     },
-    menu : ["欢迎来到主菜单！"],
     group :{
         creater : "",
         member : [],
