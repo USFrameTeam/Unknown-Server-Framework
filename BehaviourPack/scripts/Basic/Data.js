@@ -72,6 +72,7 @@ export const usf_config = {
         "back" : false,//返回
         "down" : 30,
         "pp" : false,//TPA
+        "tpa_popup" : true,//TPA弹窗
         "share" : true,//分享传送点
         "world" : false,//世界传送点
         "group" : false, //群组传送点

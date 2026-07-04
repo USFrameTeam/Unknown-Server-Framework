@@ -4831,7 +4831,9 @@ function tpPlayerBar(player) {
       time: Date.now() + 60 * 1000
     }
     chat(`§e[传送系统]玩家${player.name}向你发起传送请求\n方向：${r.mode === 0 ? "对方 > 你" : "你 > 对方"}\n一分钟内输入+tpaccept即可传送`, [goal])
-    tpaRequest(goal, player, r.mode)
+    if (config.tp.tpa_popup) {
+      tpaRequest(goal, player, r.mode)
+    }
   })
 }
 
@@ -9456,22 +9458,22 @@ function usfFunctionBar(player, type) {
       ui.toggle("able", "[禁用|启用]\n注意：与特殊命令name可能会冲突", config.name.able)
       ui.input("format", text, "输入内容", config.name.format)
       break
-    /* case "pos":
-      ui.title = "传送页面设置"
-      ui.toggle("die", "返回死亡点[关闭 | 开启]", config.tp.die)
-      ui.toggle("per", "个人传送点[关闭 | 开启]", config.tp.per)
-      ui.toggle("pp", "玩家互传TPA[关闭 | 开启]", config.tp.pp)
-      ui.toggle("world", "世界共享点[关闭 | 开启]", config.tp.world)
-      ui.toggle("group", "群组共享点[关闭 | 开启]", config.tp.group)
-      ui.toggle("back", "传送返回[关闭 | 开启]", config.tp.back)
-      ui.toggle("share", "分享传送点[关闭 | 开启]", config.tp.share)
-      ui.toggle("animation", "传送动画（实验性玩法）[关闭 | 开启]", config.tp.animation)
-      ui.range("per_count", "个人传送点数量", 1, 55, 1, config.tp.per_count)
-      ui.range("random_range", "随机传送距离(为0时不显示)", 0, 50000, 1000, config.tp.random_range)
-      ui.toggle("random_end", "允许末地使用随机传送", config.tp.random_end)
-      ui.range("down", "TP冷却时间/s", 0, 600, 10, config.tp.down)
-      break */
-    /* case "game":
+		case "pos":
+		  ui.title = "传送页面设置"
+		  ui.toggle("die", "返回死亡点[关闭 | 开启]", config.tp.die)
+		  ui.toggle("per", "个人传送点[关闭 | 开启]", config.tp.per)
+		  ui.toggle("pp", "玩家互传TPA[关闭 | 开启]", config.tp.pp)
+		  ui.toggle("tpa_popup", "TPA弹窗[关闭 | 开启]\n关闭后目标玩家不会收到弹窗，只能通过+tpaccept命令处理请求", config.tp.tpa_popup)
+		  ui.toggle("world", "世界共享点[关闭 | 开启]", config.tp.world)
+		  ui.toggle("group", "群组共享点[关闭 | 开启]", config.tp.group)
+		  ui.toggle("back", "传送返回[关闭 | 开启]", config.tp.back)
+		  ui.toggle("share", "分享传送点[关闭 | 开启]", config.tp.share)
+		  ui.toggle("animation", "传送动画（实验性玩法）[关闭 | 开启]", config.tp.animation)
+		  ui.range("per_count", "个人传送点数量", 1, 55, 1, config.tp.per_count)
+		  ui.range("random_range", "随机传送距离(为0时不显示)", 0, 50000, 1000, config.tp.random_range)
+		  ui.toggle("random_end", "允许末地使用随机传送", config.tp.random_end)
+		  break
+    case "game":
       ui.title = "游戏辅助设置"
       ui.toggle("kill", "主菜单显示自杀按钮", config.game.kill)
       ui.toggle("creeper", "苦力怕爆炸不破坏地形", config.game.creeper)
@@ -9638,6 +9640,7 @@ function usfFunctionBar(player, type) {
         config.tp.per = r.per
         config.tp.share = r.share
         config.tp.pp = r.pp
+        config.tp.tpa_popup = r.tpa_popup
         config.tp.per_count = r.per_count
         config.tp.down = r.down
         config.tp.group = r.group
