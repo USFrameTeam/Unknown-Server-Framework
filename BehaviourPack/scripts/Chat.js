@@ -28,6 +28,26 @@ event.connect_custom_event("world_load",function(_things){
 command.register_command("usf" , (player , args) => {
     chat(version_text, [player]);
 });
+command.register_mc_command({
+  description : "设置玩家的聊天头衔",
+  permissionLevel : "GameDirectors",
+  name : "usf:nametag",
+  mandatoryParameters : [{
+    name : "operation",
+    type : "Enum",
+    enumName : "nametag_operation"
+  }],
+},(a,b) => {chat(b[0]);});
+command.register_mc_command_enum("nametag_operation", ["set" , "clear"]);
+command.register_mc_command({
+  description : "设置玩家的聊天头衔",
+  permissionLevel : "GameDirectors",
+  name : "usf:nametag",
+  mandatoryParameters : [{
+    name : "id",
+    type : "String"
+  }],
+},(a,b) => {chat(b[0]);});
 
 function beforeChatSend(event){
     let sender = event.sender;

@@ -8044,13 +8044,13 @@ function opBar(player) {
     func: () => {
       followBar(player)
     }
-  } */, {
+  } *//* , {
     text: "屏蔽/禁言玩家",
     icon: ui_icon.mute,
     func: () => {
       stopPlayerBar(player)
     }
-  }, {
+  }, */ {
     text: "获取背包",
     icon: pictures.chest,
     func: () => {

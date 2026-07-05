@@ -1,4 +1,5 @@
 import { clear_bars, infoBar } from "./Basic/ui.js";
+import { system } from "@minecraft/server";
 import * as tool from "./Basic/Tool.js";
 import * as core from "./Basic/Core.js";
 import * as logger from "./Basic/Logger.js";
@@ -21,6 +22,31 @@ event.connect_custom_event("world_load",(things) => {
 
 //command_signals : { 命令id : { func : function(player,args) 注册函数 , description : string 命令描述} }
 var command_signals = {}
+var mc_command = [];
+var mc_command_enum = [];
+
+export function register_mc_command(command_data , func ){
+  mc_command.push({
+    data : command_data,
+    func : func
+  });
+}
+export function register_mc_command_enum(id , enums){
+  mc_command_enum.push({
+    id : id,
+    enums : enums,
+  });
+}
+
+system.beforeEvents.startup.subscribe((event) => {
+    const registry = event.customCommandRegistry;
+    for(let data of mc_command_enum){
+        registry.registerCommand(data.data , data.func);
+    }
+    for(let data of mc_command){
+        registry.registerEnum(data.id , data.enums);
+    }
+})
 
 export function register_command(command , description = "" , func = function(player , args){}){
     if(command_signals[command] === undefined || !tool.is_string(command)){
