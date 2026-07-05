@@ -5,6 +5,7 @@ import * as command from "./Command.js";
 import * as tool from "./Basic/Tool.js";
 import {is_entity_valid} from "./Basic/Mc.js";
 import * as text from "./Basic/Text.js";
+import * as data from "./Basic/Data.js";
 import { infoBar } from "./Basic/ui.js";
 import { register_global_ui , show_global_ui } from "./Basic/UniversalUI.js";
 
@@ -13,7 +14,7 @@ var white_words = [];
 
 event.register_mc_event(true , "chatSend" , undefined , beforeChatSend);
 event.connect_custom_event("world_load",function(_things){
-    white_words = toolbar.to_array(tool.parse_json(data.get_data("white_words")), []);
+    white_words = tool.to_array(tool.parse_json(data.get_data("white_words")), []);
 
     if(has_system("manager")){
       get_system("manager").register_manager_bar_btn({
@@ -25,29 +26,46 @@ event.connect_custom_event("world_load",function(_things){
       });
     }
 });
+//注册命令
 command.register_command("usf" , (player , args) => {
     chat(version_text, [player]);
 });
 command.register_mc_command({
   description : "设置玩家的聊天头衔",
-  permissionLevel : "GameDirectors",
+  permissionLevel : 1,
   name : "usf:nametag",
   mandatoryParameters : [{
-    name : "operation",
-    type : "Enum",
-    enumName : "nametag_operation"
+    name : "Player",
+    type : "PlayerSelector"
   }],
-},(a,b) => {chat(b[0]);});
-command.register_mc_command_enum("nametag_operation", ["set" , "clear"]);
-command.register_mc_command({
-  description : "设置玩家的聊天头衔",
-  permissionLevel : "GameDirectors",
-  name : "usf:nametag",
-  mandatoryParameters : [{
-    name : "id",
+  optionalParameters : [{
+    name : "Prefix",
     type : "String"
   }],
-},(a,b) => {chat(b[0]);});
+},(origin,args) => {
+    if(args.length === 1){
+      const player = args[0];
+      set_chat_tag(player);
+    }
+    if(args.length === 2){
+      const player = args[0];
+      const tag = args[1];
+      set_chat_tag(player,tag);
+    }
+});
+
+text.register_symbol(false,"list",true,"玩家列表",(_player) => {
+    let list = "";
+    for(let player of get_all_players()){
+      list += get_player_name(player);
+    }
+});
+
+function get_player_nametag(player){
+    if(tool.is_player(player)){
+//TODO
+    }return "";
+}
 
 function beforeChatSend(event){
     let sender = event.sender;
@@ -80,7 +98,6 @@ function beforeChatSend(event){
         message = tool.clear_color(message);
     }
     format = tran_text(sender, format);
-    format = format.replaceAll("/sender", sender.name);
     format = format.replaceAll("/text", message);
 
     event.cancel = true;
@@ -187,6 +204,18 @@ export function get_left_time(player) {
 
 function say_stop_talk(player) {
   chat(text.format("talk.stop", [String(Math.round(get_left_time(player) / 1000))]), [player]);
+}
+
+function set_chat_tag(player , tag = undefined) {
+  save_data("chat_tag", (tool.is_string(tag)) ? tag : "" , player);
+}
+
+function get_chat_tag(player) {
+  const tag = data.get_data("chat_tag", player);
+  if (tag === "") {
+    return config.chat.tag === "" ? player.dimension.name : config.chat.tag;
+  }
+  return tag + "§r";
 }
 
 register_global_ui("chat_setting" , setChatBar);

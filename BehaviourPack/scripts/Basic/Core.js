@@ -5,6 +5,7 @@ import * as permission from "./Permission.js";
 import * as tool from "./Tool.js";
 import * as event from "./Event.js";
 import * as mc from "./Mc.js";
+import * as data from "./Data.js";
 import { reset_player_data } from "./Player.js";
 
 export const version_code = "0.9.0E";
@@ -38,11 +39,14 @@ event.connect_custom_event("player_join",function(event){
   if (permission.get_owners().length === 0) {
       mc.chat(text.get_text("tip.init"), [player], false);
   }
-})
+});
+event.register_mc_event(false,"worldLoad",undefined,(event)=>{
+  reload_all();
+});
 
 function reload_all() {
   //初始化权限内容
-  if (Date.now() - parse_number(get_data("reset")) <= 30000) {
+  if (Date.now() - tool.parse_number(data.get_data("reset")) <= 30000) {
     permission.reset_owners();
     logger.log(0,2,"最高管理员已被重置!");
   }
@@ -53,8 +57,8 @@ function reload_all() {
   permission.load_ops();
   
   //配置内容
-  config = parse_json(get_data("config"));
-  tool.object_override(config, usf_config);
+  config = tool.parse_json(data.get_data("config"));
+  tool.object_override(config, data.usf_config);
 
   for(let player of mc.get_all_players()){
     reset_player_data(player);
@@ -62,7 +66,7 @@ function reload_all() {
 
   reloaded = true;
 
-  event.emit_custom_event("world_load",{})
+  event.emit_custom_event("world_load",{});
 }
 
 export function save_config() {

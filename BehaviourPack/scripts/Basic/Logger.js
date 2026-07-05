@@ -35,7 +35,7 @@ export function log(type = 0, level = 0 ,text, replacer = []) {
         //func(文字,是否是全局广播)
       }
     }
-    console.warn(tool.clear_colour(final_text));
+    console.warn(tool.clear_color(final_text));
     history_logs.push(final_text);
     if(history_logs.length > 50){
       history_logs.shift();

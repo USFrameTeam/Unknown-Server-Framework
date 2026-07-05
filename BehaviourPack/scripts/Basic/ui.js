@@ -10,7 +10,7 @@ import { ActionFormData,
     ActionFormResponse,
     uiManager
   } from "@minecraft/server-ui";
-import {get_text}  from "./text.js";
+import {get_text}  from "./Text.js";
 
 
 

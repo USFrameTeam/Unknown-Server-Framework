@@ -4,10 +4,35 @@ import * as tool from "./Tool.js";
 import * as text from "./Text.js";
 import * as permission from "./Permission.js";
 import { report_custom_event , emit_custom_event , register_mc_event } from "./Event.js";
+import { forEach } from "core-js/core/array";
 
-text.register_symbol(false,"weather",(player)=>{
+//注册一些转义
+text.register_symbol(false,"weather",true,"当前天气",(player)=>{
     return text.tran_text("Weather." + world.getDimension("minecraft:overworld").getWeather());
 });
+text.register_symbol(false,"name",false,"玩家id",(player)=>{
+    return tool.to_string(tool.to_object(player).name);
+});
+text.register_symbol(false,"all_time",true,"游戏已运行的时间/s",(player)=>{
+    return `${Math.round(system.currentTick / 20)}s`;
+});
+text.register_symbol(false,"worldspawn",true,"世界出生点",(player)=>{
+    return tool.pos_string(world.getDefaultSpawnLocation());
+});
+text.register_symbol(false,"date",true,"日期",(player)=>{
+    const d = tool.get_date_object();
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const date = d.getDate().toString().padStart(2, '0');
+    return `${d.getFullYear()}.${month}.${date}`;
+});
+text.register_symbol(false,"time",true,"时间",(player)=>{
+    const d = tool.get_date_object();
+    const hours = d.getHours().toString().padStart(2, '0');
+    const minutes = d.getMinutes().toString().padStart(2, '0');
+    const seconds = d.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+});
+
 
 export function is_entity_valid(entity){
     if(!tool.is_entity(entity)){
@@ -69,7 +94,7 @@ export function kick(player, reason = "", force = false) {
 }
 
 export function chat(message, targets = null, tran = true) {
-    const players = is_array(targets) ? targets : get_all_players();
+    const players = tool.is_array(targets) ? targets : get_all_players();
     for (const p of players) {
         let final_message = (tran) ? text.tran_text(p,message) : message;
         if (tool.is_player(p)) {

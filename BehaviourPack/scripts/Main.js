@@ -241,10 +241,10 @@ system.tag_groups = system.runInterval(() => {
 }, 8);
 
 // tran_text的全局内容更新(每2s)
-var system_ids = system_ids || {};
+/* var system_ids = system_ids || {};
 system_ids.tran = system.runInterval(() => {
-  try {
-    const playerNames = [];
+  try { */
+/*     const playerNames = [];
     const unsleepingPlayers = [];
     const players = world.getAllPlayers();
 
@@ -257,17 +257,17 @@ system_ids.tran = system.runInterval(() => {
       if (!player.isSleeping) {
         unsleepingPlayers.push(playerName);
       }
-    }
+    } */
 
-    tran_info.list = playerNames.join(',');
-    tran_info.unsleep = unsleepingPlayers.join(',');
+    /* tran_info.list = playerNames.join(',');
+    tran_info.unsleep = unsleepingPlayers.join(','); */
 
-    tran_info.alltime = `${Math.round(system.currentTick / 20)}s`;
-    tran_info.worldspawn = pos_string(world.getDefaultSpawnLocation());
-    tran_info.count = String(playerCount);
-    tran_info.items = String(item_count);
+   //tran_info.alltime = `${Math.round(system.currentTick / 20)}s`;
+    //tran_info.worldspawn = pos_string(world.getDefaultSpawnLocation());
+/*     tran_info.count = String(playerCount);
+    tran_info.items = String(item_count); */
 
-    const d = get_date_object_China_time();
+/*     const d = get_date_object_China_time();
     const month = (d.getMonth() + 1).toString().padStart(2, '0');
     const date = d.getDate().toString().padStart(2, '0');
     const hours = d.getHours().toString().padStart(2, '0');
@@ -276,8 +276,8 @@ system_ids.tran = system.runInterval(() => {
 
     tran_info.date = `${d.getFullYear()}.${month}.${date}`;
     tran_info.time = `${hours}:${minutes}:${seconds}`;
-
-    try {
+ */
+/*     try {
       let scoreBoardDL = JSON.parse(mc.world.getDynamicProperty("usf:scoreboardDefaultValue"));
     	for (let sb_defaultValue of scoreBoardDL) {
       	let scoreBoard = mc.world.scoreboard.getObjective(sb_defaultValue.id);
@@ -298,8 +298,8 @@ system_ids.tran = system.runInterval(() => {
       	}
     	}
     } catch (err) { console.log(err)}
-  } catch (err) { }
-}, 40);
+  } catch (err) { } */
+//}, 40);
 
 system_ids.board = system.runInterval(() => {
   if (!config.copy_boards || config.copy_boards === "") {
@@ -391,7 +391,7 @@ system_ids.lo = system.runInterval(() => {
   }
 }, 20 * 60);
 
-system_ids.tag = system.runInterval(() => {
+/* system_ids.tag = system.runInterval(() => {
   const PREFIX = "usf.";
   const PREFIX_LENGTH = PREFIX.length;
 
@@ -424,7 +424,7 @@ system_ids.tag = system.runInterval(() => {
       player.removeTag(tagToRemove);
     }
   }
-}, 5 * 20);
+}, 5 * 20); */
 
 /* var follow_index = 0;
 system_ids.follow = system.runInterval(() => {
@@ -687,12 +687,12 @@ system_ids.land_test = system.runInterval(() => {
   }
 }, 5);
 
-system_ids.name = system.runInterval(() => {
+/* system_ids.name = system.runInterval(() => {
   const players = world.getAllPlayers();
   for (const player of players) {
     change_player_name(player);
   }
-}, 40);
+}, 40); */
 
 system_ids.chest_log = system.runInterval(() => {
   const signPositions = Object.keys(sign);
@@ -1566,7 +1566,7 @@ function get_di_num(di) {
   return id_player[id] === undefined ? null : id_player[id];
 } */
 
-function change_player_name(player) {
+/* function change_player_name(player) {
   const infoName = to_string(player.info.name);
 
   if (infoName !== "") {
@@ -1577,7 +1577,7 @@ function change_player_name(player) {
   if (config.name.able) {
     player.nameTag = tran_text(player, config.name.format);
   }
-}
+} */
 
  function reset_player_data(player) {
   c/* onst playerId = get_id(player);
@@ -1634,7 +1634,7 @@ function change_player_name(player) {
     }
   }
 
-  change_player_name(player);
+  //change_player_name(player);
   return;
 } 
 
@@ -1659,17 +1659,17 @@ function run_text_commands(player, text) {
   }
 }
 
-function get_chat_tag(player) {
+/* function get_chat_tag(player) {
   const data = get_data("chat_tag", player);
   if (data === "") {
     return config.chat.tag === "" ? player.dimension.name : config.chat.tag;
   }
   return data + "§r";
-}
+} */
 
-function set_chat_tag(p, tag) {
+/* function set_chat_tag(p, tag) {
   save_data("chat_tag", tag === "Reset" ? "" : tag, p);
-}
+} */
 
 function save_store_record(player) {
   save_data("store_record", to_json(player.store_record), player);
@@ -7175,7 +7175,7 @@ function get_date_object_China_time() {
 
 } */
 
-function tagSetBar(player) {
+/* function tagSetBar(player) {
   var ps = world.getAllPlayers()
   var names = []
   for (var p of ps) {
@@ -7191,7 +7191,7 @@ function tagSetBar(player) {
     set_chat_tag(p, r.tag)
     opBar(player)
   })
-}
+} */
 
 function two_find_min(array, count) {
   var goal = -1
@@ -8063,13 +8063,13 @@ function opBar(player) {
       banListCheck(player)
     }
   } */,
-  {
+  /* {
     text: "头衔设置",
     icon: ui_icon.star,
     func: () => {
       tagSetBar(player)
     }
-  },
+  }, */
   {
     text: "查看所有群组",
     icon: ui_icon.group,
@@ -8768,13 +8768,13 @@ function usfSettingBar(player) {
     func: () => {
       usfFunctionBar(player, "chat")
     }
-  }, {
+  }/* , {
     text: "玩家名格式",
     icon: ui_icon.player,
     func: () => {
       usfFunctionBar(player, "name")
     }
-  }, {
+  } */, {
     text: "反作弊设置",
     icon: ui_icon.stop,
     func: () => {
@@ -9450,12 +9450,12 @@ function usfFunctionBar(player, type) {
       ui.input("tag", "玩家默认头衔(无则显示为维度)", "输入头衔", config.chat.tag)
       ui.toggle("disable", "§e强行禁用USF聊天系统§r(+命令仍能使用)", to_bool(config.chat.disable))
       break
-    case "name":
+/*     case "name":
       ui.title = "玩家名格式设置"
       var text = get_text("tran_text") + "\n\n玩家名格式设置"
       ui.toggle("able", "[禁用|启用]\n注意：与特殊命令name可能会冲突", config.name.able)
       ui.input("format", text, "输入内容", config.name.format)
-      break
+      break */
     /* case "pos":
       ui.title = "传送页面设置"
       ui.toggle("die", "返回死亡点[关闭 | 开启]", config.tp.die)
@@ -9613,12 +9613,12 @@ function usfFunctionBar(player, type) {
         save_config()
         usfSettingBar(player)
         break
-      case "name":
+/*       case "name":
         config.name.format = r.format
         config.name.able = r.able
         save_config()
         usfSettingBar(player)
-        break
+        break */
       case "com":
         config.commands = []
         for (var key of Object.keys(r)) {

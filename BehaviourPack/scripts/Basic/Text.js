@@ -2,21 +2,42 @@ import * as tool from "./Tool.js";
 
 
 var trans_info = {};
-var tran_standard_symbol_functions = {};
-var tran_standard_symbols = [];
-var tran_special_symbol_functions = {};
-var tran_special_symbols = [];
+var tran_standard_symbols = {};
+var tran_special_symbols = {};
 
 //文本格式化
-
-export function register_symbol(is_special = false , symbol = "symbol" , func = return_empty){
+//注意判断传入的玩家是否存在，部分情况不会传入玩家(传入null)
+//is_global => true表明这个转义与玩家无关
+export function register_symbol(is_special = false , symbol = "symbol" , is_gloabl = false , description = "", func = return_empty){
     if(is_special){
-        tran_special_symbol_functions[symbol] = func;
-        tran_special_symbols.push(symbol);
+        tran_special_symbols.push({
+          id : symbol,
+          is_gloabl : is_gloabl,
+          description : description,
+          func : func,
+        });
         return;
     }
-    tran_standard_symbol_functions[symbol] = func;
-    tran_standard_symbols.push(symbol);
+    tran_standard_symbols.push({
+      id : symbol,
+      is_gloabl : is_gloabl,
+      description : description,
+      func : func,
+    });
+}
+
+export function get_symbol_description(is_gloabl = false){
+    let text = "\n此内容启用了转义，输入以下内容会自动转换";
+    for(let symbol of tran_standard_symbols){
+      if(symbol.is_gloabl || !is_gloabl){
+        text += "\n" + "/" + symbol.id + ">>" + symbol.description;
+      }
+    }
+    for(let symbol of tran_special_symbols){
+      if(symbol.is_gloabl || !is_gloabl){
+        text += "\n" + symbol.id + "()>>" + symbol.description;
+      }
+    } 
 }
 
 export function get_time_text(date){
@@ -29,7 +50,7 @@ function return_empty(player){
     return "";
 }
 
-export function tran_text(player, texts, keep_array = false) {
+export function tran_text(player = null, texts, keep_array = false) {
     //内部定义(转外部定义)(还有个计分板：things["board." + b.id + ".score"])
         // things = {
           // name: player.name,
@@ -236,7 +257,7 @@ export var texts = {
     "data/health_listen" : "生命值监听",
     
     
-    "tran_text" : "\n此内容启用了转义，输入以下内容会自动转换\n/worldspawn >> 世界出生点\n/pos >>玩家当前位置\n/§rlist >>玩家列表\n/§rname >>玩家名称\n/§ralltime >>世界运行总时间(秒)\n/§rboard.记分版ID.score >>玩家记分版分数\n/§rdimension >>玩家所在维度\n/tag >>聊天头衔\n/health >>玩家生命值\n/n >> 换行\n/unsleep >>未入睡玩家\n/worldspawn >>世界出生点\n/respawn >> 玩家出生点\n/join >>玩家进入游戏次数\n/items >> 掉落物数量\n/date >>年.月.日\n/time >>时.分.秒\n/level >>等级\nvar()>>显示全局变量，括号内输入变量名",
+    "tran_text" : "\n/worldspawn >> 世界出生点\n/pos >>玩家当前位置\n/§rlist >>玩家列表\n/§rname >>玩家名称\n/§ralltime >>世界运行总时间(秒)\n/§rboard.记分版ID.score >>玩家记分版分数\n/§rdimension >>玩家所在维度\n/tag >>聊天头衔\n/health >>玩家生命值\n/n >> 换行\n/unsleep >>未入睡玩家\n/worldspawn >>世界出生点\n/respawn >> 玩家出生点\n/join >>玩家进入游戏次数\n/items >> 掉落物数量\n/date >>年.月.日\n/time >>时.分.秒\n/level >>等级\nvar()>>显示全局变量，括号内输入变量名",
     "tran_text_" : "\n此内容启用了转义，输入以下内容会自动转换\n/worldspawn >> 世界出生点\n/§rlist >>玩家列表\n/§ralltime >>世界运行总时间(秒)\n/n >> 换行\n/unsleep >>未入睡玩家\n/worldspawn >>世界出生点\n/items >> 掉落物数量\n/date >>年.月.日\n/time >>时.分.秒\nvar()>>显示全局变量，括号内输入变量名",
     "tran_mess" : "\n/§rsender >>发送者名称\n/§rtag >>聊天头衔/§rtext >>聊天内容",
     

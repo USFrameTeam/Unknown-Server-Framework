@@ -1,6 +1,3 @@
-import { format } from "core-js/core/date"
-
-
 export function clear_color(text) {
   return text.replace(/§./g, "")
 }

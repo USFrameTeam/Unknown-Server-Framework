@@ -13,8 +13,8 @@ Command.js
 
 event.connect_custom_event("world_load",(things) => {
     //注册设置
-    if(has_system("setting")){
-          get_system("setting").register_setting("command","命令设置",settingBar);
+    if(core.has_system("setting")){
+          core.get_system("setting").register_setting("command","命令设置",settingBar);
     }
 
     logger.log(0,1,"————命令系统已加载————");
@@ -41,10 +41,10 @@ export function register_mc_command_enum(id , enums){
 system.beforeEvents.startup.subscribe((event) => {
     const registry = event.customCommandRegistry;
     for(let data of mc_command_enum){
-        registry.registerCommand(data.data , data.func);
+        registry.registerEnum(data.id , data.enums);
     }
     for(let data of mc_command){
-        registry.registerEnum(data.id , data.enums);
+        registry.registerCommand(data.data , data.func);
     }
 })
 

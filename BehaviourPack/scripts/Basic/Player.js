@@ -11,7 +11,7 @@ var id_players = {};
 event.report_custom_event("player_join");
 event.report_custom_event("new_player");
 
-event.register_mc_event(false,"WorldLoad",undefined,function(event){
+event.register_mc_event(false,"worldLoad",undefined,function(event){
     id_names = tool.to_object(tool.parse_json(data.get_data("id_names")), {});
     ids = tool.to_array(tool.parse_json(data.get_data("ids")), []);
 });
@@ -24,26 +24,26 @@ function playerSpawn(event){
         data.save_data("id_names", tool.to_json(id_names))
         data.save_data("ids", tool.to_json(ids));
 
-        array_clear(ids, get_id(player));
+        tool.array_clear(ids, get_id(player));
         ids.push(get_id(player));
         if (ids.length > 300) {
             ids.shift();
         }
 
-        if (un(player.info.last_time)){
+        if (tool.un(player.info.last_time)){
             event.emit_custom_event("new_player",{"player" : player});
         }
 
         player.info.last_time = Date.now();
-        player.info.join_times = to_number(player.info.join_times, 0) + 1;
-        object_override(player.info, data_format.info);
+        player.info.join_times = tool.to_number(player.info.join_times, 0) + 1;
+        tool.object_override(player.info, data.data_format.info);
         save_player_info(player);
     }
 }
 
 export function get_id(player) {
     if (!tool.is_string(player.usf_id)) {
-        const id = tool.get_data("id", player);
+        const id = data.get_data("id", player);
         if (id === "") {
             const new_id = String(last_id);
             data.save_data("id", new_id, player);
@@ -69,7 +69,7 @@ export function reset_player_data(player) {
     player.health = player.getComponent("minecraft:health");
     player.info = tool.to_object(tool.parse_json(data.get_data("info", player)));
 
-    id_players[playerId] = player;
+    id_players[id] = player;
 
     event.emit_custom_event("player_join",{"player" : player});
     return;
