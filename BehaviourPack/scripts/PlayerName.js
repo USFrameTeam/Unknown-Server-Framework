@@ -27,13 +27,6 @@ text.register_symbol(false,"unsleep",true,"未睡觉的玩家列表",(_player) =
     }
     return list.slice(1);
 });
-text.register_symbol(false,"nametag",true,"玩家游戏内名称",(_player) => {
-    let list = "";
-    for(let player of mc.get_all_players()){
-      list += "," + get_player_nametag(player);
-    }
-    return list;
-});
 
 event.register_mc_event(false,"playerSpawn",undefined,(event) =>{
     const player = event.player;
@@ -121,3 +114,7 @@ function refresh_player_nametag(player) {
         player.nameTag = text.tran_text(player, config.name.format);
     }
 }
+
+core.register_system("player_name" , {
+    get_player_nametag : get_player_nametag,
+})

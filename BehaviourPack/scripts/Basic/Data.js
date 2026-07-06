@@ -96,7 +96,7 @@ export const usf_config = {
         "able" : false
     },
     "chat" : {
-        "format" : "[/name] /text",
+        "format" : "[/sender] /text",
         "tag" : "",//默认头衔
         "clear" : false,
         "length" : 1024,

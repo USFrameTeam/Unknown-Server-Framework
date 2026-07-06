@@ -97,8 +97,15 @@ function beforeChatSend(event){
     if (config.chat.clear) {
         message = tool.clear_color(message);
     }
+    
+    let sender_name = sender.name;
+    if(has_system("player_name")){
+        sender_name = get_system("player_name").get_player_nametag(player);
+    }
+    
     format = tran_text(sender, format);
     format = format.replaceAll("/text", message);
+    format = format.replaceAll("/sender", sender_name);
 
     event.cancel = true;
 
