@@ -27,6 +27,10 @@
         "version": "beta"
       },
       {
+        "module_name": "@minecraft/debug-utilities",
+        "version": "beta"
+      },
+      {
         "module_name": "@minecraft/server-net",
         "version": "beta"
       }

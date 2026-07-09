@@ -61,3 +61,8 @@ export function register_mc_event(is_before , event_id , option , func = functio
     }
     return true;
 }
+
+report_custom_event("shut_down");
+system.beforeEvents.shutdown.subscribe(() => {
+    emit_custom_event("shut_down");
+})

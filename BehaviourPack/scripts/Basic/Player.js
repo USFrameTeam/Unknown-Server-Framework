@@ -38,6 +38,7 @@ function playerSpawn(event){
         player.info.join_times = tool.to_number(player.info.join_times, 0) + 1;
         tool.object_override(player.info, data.data_format.info);
         save_player_info(player);
+        event.emit_custom_event("player_load",{"player" : player});
     }
 }
 

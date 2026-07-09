@@ -125,6 +125,14 @@ export function array2string(array = [], none = "", clear_color = false) {
   return none
 }
 
+export function array2line(array){
+  let text = "";
+  for(let element of array){
+    text += "," + String(element);
+  }
+  return text.slice(1);
+}
+
 //其他变量类型
 
 export function parse_number(text, none = 0) {

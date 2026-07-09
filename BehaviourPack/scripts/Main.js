@@ -56,11 +56,11 @@ var command_set = [];
 //var reloaded = false;
 var item_count = 0;
 //var id_names = {};
-var lands = {
+/* var lands = {
   min: [],
   max: [],
   ids: []
-};
+}; */
 /* var logs = []; */
 /* var log_config = {
   able: false,
@@ -1120,7 +1120,7 @@ function player_add_group(player, id) {
   return text;
 } */
 
-function get_land(id) {
+/* function get_land(id) {
   const data = get_data(`land.${id}`);
 
   if (!data || data === "") {
@@ -1132,13 +1132,13 @@ function get_land(id) {
   } catch (e) {
     return {};
   }
-}
+} */
 
-function save_player_lands(player) {
+/* function save_player_lands(player) {
   if (!player || !player.lands) return;
 
   save_data("lands", to_json(player.lands), player);
-}
+} */
 
 /* function is_between(count, c1, c2) {
   if (c1 === c2) {
@@ -1332,7 +1332,7 @@ function get_random_group_id() {
   return id;
 }
 
-function get_random_land_id() {
+/* function get_random_land_id() {
   const min = 100000;
   const max = 999999;
   let id;
@@ -1349,7 +1349,7 @@ function get_random_land_id() {
   } while (array_has(lands.ids, id));
 
   return id;
-}
+} */
 
 const _playerGroupsCache = {};
 
@@ -1419,9 +1419,9 @@ function reload_all() {
 
   reset_boards = to_array(parse_json(get_data("reset_boards")), []);
 
-  lands.min = to_array(parse_json(get_data("lands_min")), []);
+  /* lands.min = to_array(parse_json(get_data("lands_min")), []);
   lands.max = to_array(parse_json(get_data("lands_max")), []);
-  lands.ids = to_array(parse_json(get_data("lands_ids")), []);
+  lands.ids = to_array(parse_json(get_data("lands_ids")), []); */
 
   /* config = parse_json(get_data("config")); */
   //object_override
@@ -1550,7 +1550,7 @@ function get_data(id, en = null) {
   return `(${prefix}${Math.round(x)},${Math.round(y)},${Math.round(z)})`;
 } */
 
-function get_di_num(di) {
+/* function get_di_num(di) {
   const dimensionId = di.id;
 
   if (dimensionId === "minecraft:nether") {
@@ -1560,7 +1560,7 @@ function get_di_num(di) {
   }
 
   return "0";
-}
+} */
 
 /* function get_player_by_id(id) {
   return id_player[id] === undefined ? null : id_player[id];
@@ -1592,12 +1592,12 @@ function get_di_num(di) {
   const healthComponent = player.getComponent("minecraft:health");
 
   const playerInfo = parse_json(get_data("info", player)); */
-  const playerLandsData = to_array(parse_json(get_data("lands", player)));
+  //const playerLandsData = to_array(parse_json(get_data("lands", player)));
   const storeRecord = parse_json(get_data("store_record", player));
 
   //player.info = playerInfo;
   //player.slots = inventoryComponent.container;
-  player.lands = [];
+  //player.lands = [];
   player.store_record = to_object(storeRecord);
   //player.health = healthComponent;
   player.last_tp = 0;
@@ -1611,8 +1611,8 @@ function get_di_num(di) {
     id: ""
   };
 
-  const landsIds = lands.ids;
-  player.lands = playerLandsData.filter(id => landsIds.includes(id));
+  //const landsIds = lands.ids;
+  //player.lands = playerLandsData.filter(id => landsIds.includes(id));
 
   save_player_lands(player);
 
@@ -6205,9 +6205,9 @@ function board_reduce(goal, board, score, force = false) {
   return false
 }
 
-function board_add(goal, board, score) {
+/* function board_add(goal, board, score) {
   board.setScore(goal, get_score(board, goal) + score)
-}
+} */
 
 function container_remove(con, id, count) {
   var total = 0
@@ -7193,7 +7193,7 @@ function get_date_object_China_time() {
   })
 } */
 
-function two_find_min(array, count) {
+/* function two_find_min(array, count) {
   var goal = -1
   var from = 0
   var to = array.length - 1
@@ -7213,15 +7213,15 @@ function two_find_min(array, count) {
 
 function find_min_in_lands(dis) {
   return two_find_min(lands.min, dis)
-}
+} */
 
-function save_lands() {
+/* function save_lands() {
   save_data("lands_ids", to_json(lands.ids))
   save_data("lands_min", to_json(lands.min))
   save_data("lands_max", to_json(lands.max))
-}
+} */
 
-function add_land(player, land) {
+/* function add_land(player, land) {
   var index = find_min_in_lands(Math.max(land.distance - 65, 0))
   if (index === -1) {
     lands.ids.unshift(land.id)
@@ -7270,9 +7270,9 @@ function is_land_in_other(di, lo1, lo2) {
     }
   }
   return true
-}
+} */
 
-function createLandBar(player) {
+/* function createLandBar(player) {
   var ui = new infoBar()
   ui.busy = null
   var points = player.landing.points
@@ -7395,16 +7395,16 @@ function createLandBar(player) {
     player.landing.mode = 0
     player.landing.points = []
   })
-}
+} */
 
-function small_to_big(c1, c2) {
+/* function small_to_big(c1, c2) {
   if (c1 < c2) {
     return [c1, c2]
   }
   return [c2, c1]
-}
+} */
 
-function get_edge_from_block(start, end) {
+/* function get_edge_from_block(start, end) {
   var tallest = small_to_big(start.y, end.y)[1] + 1
   var shortest = small_to_big(start.y, end.y)[0]
   var new_start = {
@@ -7418,9 +7418,9 @@ function get_edge_from_block(start, end) {
     z: small_to_big(start.z, end.z)[1] + 1
   }
   return [new_start, new_end]
-}
+} */
 
-function show_range(start, end, di, co = {
+/* function show_range(start, end, di, co = {
   red: 0.0,
   green: 1.0,
   blue: 1.0,
@@ -7524,7 +7524,7 @@ function show_range(start, end, di, co = {
       }, molang)
     }
   } catch (err) { }
-}
+} */
 
 function getPlayerItemsBar(player) {
   var block = player.dimension.getBlock(player.location)
@@ -9374,7 +9374,7 @@ function usfFunctionBar(player, type) {
       ui.toggle("able", "[禁用 | 启用]", config.groups.able)
       ui.range("max", "可创建群组数量(管理员可无限创建)", 0, 100, 1, config.groups.max)
       break
-    case "land":
+/*     case "land":
       ui.title = "领地设置"
       ui.toggle("able", "[禁用 | 启用]", config.land.able)
       ui.range("max", "可创建领地数量(管理员可无限创建)", 0, 100, 1, config.land.max)
@@ -9383,7 +9383,7 @@ function usfFunctionBar(player, type) {
       ui.toggle("must", "金额必须足够(若关闭，则记分板可能会被扣费成负数)", config.land.must)
       ui.input("show", "领地提示语(/name转换为领地主名字)", "输入提示语", config.land.show)
       ui.toggle("mode", "进入领地强制冒险模式(管理员不受限)", config.land.mode)
-      break
+      break */
     case "cd_con":
       var menu = to_array(parse_json(get_data("menu_text")), data_format.menu)
       var editor = new arrayEditor()
@@ -9559,7 +9559,7 @@ function usfFunctionBar(player, type) {
         save_config()
         usfSettingBar(player)
         break */
-      case "land":
+/*       case "land":
         config.land.able = r.able
         config.land.must = r.must
         config.land.price = r.price
@@ -9575,7 +9575,7 @@ function usfFunctionBar(player, type) {
         } else {
           usfSettingBar(player)
         }
-        break
+        break */
       case "time":
         config.time.able = r.able
         config.time.type = r.type

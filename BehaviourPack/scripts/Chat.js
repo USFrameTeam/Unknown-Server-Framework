@@ -11,7 +11,6 @@ import { register_global_ui , show_global_ui } from "./Basic/UniversalUI.js";
 
 var white_words = [];
 
-
 event.register_mc_event(true , "chatSend" , undefined , beforeChatSend);
 event.connect_custom_event("world_load",function(_things){
     white_words = tool.to_array(tool.parse_json(data.get_data("white_words")), []);

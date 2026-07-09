@@ -48,13 +48,18 @@ export const usf_config = {
     },
     "land":{
         "able":false,
-        "max":2,
-        "board" : "",
-        "price" : 0,
-        "must" : false,
+        "max":2,//没人最大领地数
+        "board" : "",//扣费计分板
+        "var_money" : "",//TODO
+        "price" : 0,//价格
+        "must" : true,//不允许欠费
         "show" : "§e你已进入/name的领地！",
         "view" : false,
-        "mode" : false
+        "mode" : false,//锁定冒险模式
+        "2d" : 0,
+        //0-禁用 1-可选 2-强制
+        "radius" : 512,
+        //最大半径 TODO
     },
     "log" : {
         "able" : true,
@@ -142,6 +147,9 @@ export const usf_config = {
     "daily":{
         able : false,
         command : ""
+    },
+    "var" : {
+        "save" : 60,//自动保存时隔
     }
 }
 
@@ -170,7 +178,12 @@ export const data_format = {
     item_events : ["knock","runner","tp"],
     score : ["die","di","bb","pb","damage","health","kill","join","buy","earn","hurt","hurt_time","kill_monster"],
     events : ["join","die","pos","chat","di","bb","pb","attack","sleep","kill"],
-    land_permission : ["bb","ib","ie","pb"],
+    land_permission : [
+        "bb",//放置方块
+        "ib",//方块交互
+        "ie",//实体交互
+        "pb"//放置方块
+    ],
     hacker : [ "chest" ],
     commands : [ "cd" , "op" , "tpaccept" , "home" , "back" , "die" , "unsleep" , "land" , "tpr" , "unland"],
     logs : [
@@ -242,23 +255,28 @@ export const data_format = {
         top : false,//是否置顶
         //该数据结构在Pos.js中亦存在，请同步更改
     },
-    land:{
+    land:{//Land.js同步
         "id" : "",
         "di" : "minecraft:overworld",
-        "distance" : 0,
+        "distance" : 0, //中心点离(0,0)的距离
+        //Box
         "from" : {
             x: 0, y: 0, z:0
         },
         "to" : {
             x: 0, y: 0, z:0
         },
+        //Cylinder
+        "radius": 10 , //半径
+        //原点使用from
         "creater": "",
-        "group" : [],
+        "group" : [], //开放的群组(权限为成员)
         "member":[],
-        "wel" : "",
+        "op" : [],//管理员
+        "wel" : "", //欢迎语
         "name" : "",
-        "mem_per" : [],
-        "other_per" : []
+        "mem_per" : [],//成员权限
+        "other_per" : []//访客权限
     },
     lock_config : {
         able : false,

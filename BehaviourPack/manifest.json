@@ -25,6 +25,10 @@
       {
         "module_name": "@minecraft/server-ui",
         "version": "beta"
+      },
+      {
+        "module_name": "@minecraft/debug-utilities",
+        "version": "beta"
       }
     ]
 }

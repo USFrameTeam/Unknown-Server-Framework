@@ -1,4 +1,5 @@
 import { ItemStack, world, system ,EntityTypes , ItemTypes , BlockTypes} from "@minecraft/server";
+import { debugDrawer , DebugBox , DebugCylinder }from "@minecraft/debug-utilities";
 import * as logger from "./Logger.js";
 import * as tool from "./Tool.js";
 import * as text from "./Text.js";
@@ -42,7 +43,7 @@ export function is_entity_valid(entity){
 }
 
 export function get_all_players(){
-    return world.getAllPlayers()
+    return world.getAllPlayers().filter((p) => { return tool.un(p.headRotation);});
 }
 
 export function get_block(di, lo) {
@@ -78,6 +79,18 @@ export function has_item_type(id){
 }
 export function has_block_type(id){
   return !tool.un(BlockTypes.get(id));
+}
+
+export function has_score_board(scoreboard_id){
+  return !tool.un(world.scoreboard.getObjective(scoreboard_id));
+}
+
+export function scoreboard_set(entity , scoreboard_id, score) {
+  if(!has_score_board(scoreboard_id)){return false;}
+  try{
+    world.scoreboard.getObjective(scoreboard_id).setScore(entity, score);
+  }catch(e){}
+  return false;
 }
 
 //force = true时会无视权限踢出
@@ -165,6 +178,50 @@ export function set_game_mode(player, mode) {
   if (tool.is_string(to_mode)) {
     player.setGameMode(to_mode);
   }
+}
+
+export function create_box_shape( di , from , to , goals = [] , color = {
+  red : 0,
+  green : 0.9333,
+  blue : 1.0,
+  alpha : 0.19,
+}){
+    let center = {
+      dimension : di,
+      x : (from.x + to.x) / 2,
+      y : (from.y + to.y) / 2,
+      z : (from.z + to.z) / 2,
+    }
+    let shape = new DebugBox(center);
+    shape.bound = {
+      x : Math.abs(from.x - to.x) + 1,
+      y : Math.abs(from.y - to.y) + 1,
+      z : Math.abs(from.z - to.z) + 1,
+    }
+    shape.color = color;
+    shape.visibleTo = goals;
+    debugDrawer.addShape(shape , di);
+    return shape;
+}
+
+export function create_cylinder_shape( di , center , raduis , high ,  goals = [] , color = {
+  red : 0,
+  green : 0.9333,
+  blue : 1.0,
+  alpha : 0.19
+}){
+    let shape = new DebugCylinder(center);
+    shape.height = high;
+    shape.radii = { x : raduis , y : raduis};
+    shape.numSegments = 64;
+    shape.color = color;
+    shape.visibleTo = goals;
+    debugDrawer.addShape(shape , di);
+    return shape;
+}
+
+export function remove_shape(shape){
+    debugDrawer.removeShape(shape);
 }
 
 /*
