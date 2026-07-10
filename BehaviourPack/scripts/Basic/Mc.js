@@ -89,8 +89,27 @@ export function scoreboard_set(entity , scoreboard_id, score) {
   if(!has_score_board(scoreboard_id)){return false;}
   try{
     world.scoreboard.getObjective(scoreboard_id).setScore(entity, score);
+    return true;
   }catch(e){}
   return false;
+}
+
+export function scoreboard_add(entity , scoreboard_id, score) {
+  if(!has_score_board(scoreboard_id)){return false;}
+  try{
+    world.scoreboard.getObjective(scoreboard_id).setScore(entity, Math.floor(scoreboard_get(entity , scoreboard_id) + score));
+    return true;
+  }catch(e){}
+  return false;
+}
+
+export function scoreboard_get(entity , scoreboard_id) {
+  if(!has_score_board(scoreboard_id)){return false;}
+  let score = 0;
+  try {
+    score = world.scoreboard.getObjective(scoreboard_id).getScore(player);
+  } catch (err) { }
+  return tool.to_number(score);
 }
 
 //force = true时会无视权限踢出

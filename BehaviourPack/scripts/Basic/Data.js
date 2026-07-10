@@ -116,10 +116,11 @@ export const usf_config = {
         "able" :false,
         "id" : ""
     },
-    "tran" : {
+    "bank" : {
         able : false,
-        board : "",
-        free : 0 
+        allow_transfer : [],//允许玩家转账的货币
+        tranform : [],//可转账的货币
+        tip : 0, //手续费(百分比)
     },
     "game":{
         "kill" : false,
@@ -329,6 +330,7 @@ export const ui_icon = {
     scoreboard : ui_path + "subscription_glyph_color.png",
     chat : ui_path + "comment.png",
     ok : ui_path + "confirm.png",
+    x : ui_path + "crossout.png",
     craft_table : ui_path + "icon_crafting.png",
     rubbish : ui_path + "trash_default.png",
     op : ui_path + "op.png",

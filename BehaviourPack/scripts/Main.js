@@ -47,7 +47,7 @@ var cache = {
 var limit = {};
 var events = {};
 var score_config = {};
-var tag_groups = [];
+//var tag_groups = [];
 var tran_info = {
   weather: "",
 };
@@ -200,11 +200,11 @@ system.tag_groups = system.runInterval(() => {
       }
     }
 
-    const currentTagLength = player.getTags().length;
+/*     const currentTagLength = player.getTags().length;
     if (to_number(player.tag_length, 0) !== currentTagLength) {
-      player.tag_length = currentTagLength;
+      player.tag_length = currentTagLength; */
 
-      for (const tagGroup of tag_groups) {
+      /* for (const tagGroup of tag_groups) {
         const tagOptions = tagGroup.split(";");
 
         const hasCurrentTag = un(player.current_tag);
@@ -235,7 +235,7 @@ system.tag_groups = system.runInterval(() => {
             player.current_tag = nextTag;
           }
         }
-      }
+      } */
     }
   }
 }, 8);
@@ -1019,7 +1019,7 @@ system_ids.time = system.runInterval(() => {
   }
 } */
 
-function score_event(player, id, data, count = 1, type = 0) {
+/* function score_event(player, id, data, count = 1, type = 0) {
   const cmdType = type === 0 ? "add" : "set";
   const countStr = String(count);
 
@@ -1047,7 +1047,7 @@ function score_event(player, id, data, count = 1, type = 0) {
       }
     }
   }
-}
+} */
 
 /* function get_player_path(player) {
   if (!player || !player.name) return "Players/unknown";
@@ -1432,7 +1432,7 @@ function reload_all() {
 
   chests = to_array(parse_json(get_data("chests")), []);
   global_goods = to_array(parse_json(get_data("global_goods")), []);
-  tag_groups = to_array(parse_json(get_data("tag_groups")));
+  //tag_groups = to_array(parse_json(get_data("tag_groups")));
   events = to_object(parse_json(get_data("events")));
   command_set = to_array(parse_json(get_data("command_set")));
   score_config = to_object(parse_json(get_data("score_config2")));
@@ -1465,12 +1465,12 @@ function save_command_set() {
   save_generic("command_set", command_set);
 }
 
-function save_tag_groups() {
+/* function save_tag_groups() {
   save_generic("tag_groups", tag_groups);
   for (const p of world.getAllPlayers()) {
     p.current_tag = undefined;
   }
-}
+} */
 
 function save_global_goods() {
   save_generic("global_goods", global_goods);
@@ -1618,9 +1618,9 @@ function get_data(id, en = null) {
 
   //id_player[playerId] = player;
 
-  if (config.tip.able) {
+/*   if (config.tip.able) {
     chat(get_data("tip"), [player], true);
-  }
+  } */
 
   emitEvent(player, "join");
 
@@ -1774,17 +1774,17 @@ function afterEntityDie(event) {
     }
 
     emitEvent(entity, "die");
-    score_event(entity, "die", "");
+    //score_event(entity, "die", "");
   }
 
   if (hurt_entity && !un(hurt_entity) && is_player(hurt_entity)) {
     emitEvent(hurt_entity, "kill");
-    score_event(hurt_entity, "kill", entity.typeId);
+    //score_event(hurt_entity, "kill", entity.typeId);
 
     if (entity.matches({
       families: ["monster"]
     })) {
-      score_event(hurt_entity, "kill_monster", entity.typeId);
+      ///score_event(hurt_entity, "kill_monster", entity.typeId);
     }
 
     const logConfig = config.log.allow;
@@ -2762,7 +2762,7 @@ function afterBlockPlace(event) {
     chat(`§e[管理系统]已退出录入！`, [player])
   }
   player.limiting = ""
-  score_event(player, "pb", block.typeId)
+  //score_event(player, "pb", block.typeId)
   player.block_places = to_number(player.block_places) + 1
   if (array_has(config.log.allow, "pb")) {
     log_info.pb[player.name] = to_object(log_info.pb[player.name])
@@ -2820,7 +2820,7 @@ function afterBlockBreak(event) {
   var block = event.block
   var broken = event.brokenBlockPermutation
   var id = no_minecraft(broken.type.id)
-  score_event(player, "bb", broken.type.id)
+  ///vent(player, "bb", broken.type.id)
   emitEvent(player, "bb")
 
   if (array_has(config.log.allow, "bb")) {
@@ -2900,7 +2900,7 @@ function playerSpawn(event) {
   }
 
   reset_lock_item(player)
-  score_event(player, "health", "", Math.round(get_health(player)), 1)
+  //score_event(player, "health", "", Math.round(get_health(player)), 1)
 
   if (array_has(config.log.allow, "info")) {
     server_log(2, {
@@ -3033,7 +3033,7 @@ function afterPlayerDimensionChange(event) {
   var from = event.fromDimension
 
   emitEvent(player, "di")
-  score_event(player, "di", to.id)
+  //score_event(player, "di", to.id)
 
   if (array_has(config.log.allow, "di")) {
     server_log(0, `Dimension Change:${from.name} to ${to.name}`, get_player_path(player))
@@ -3056,16 +3056,16 @@ function afterEntityHurt(event) {
   var hurter = event.damageSource.damagingEntity
   var damage = event.damage
 
-  if (is_player(hurt)) {
+/*   if (is_player(hurt)) {
     score_event(hurt, "health", "", Math.round(get_health(hurt)), 1)
     score_event(hurt, "hurt", "", Math.round(damage))
     score_event(hurt, "hurt_time", "", 1)
-  }
+  } */
 
   if (typeof (hurter) === "object") {
     if (hurter.typeId == "minecraft:player") {
       if (is_player(hurter)) {
-        score_event(hurter, "damage", hurt.typeId, Math.ceil(damage))
+        //score_event(hurter, "damage", hurt.typeId, Math.ceil(damage))
       }
 
       var event = get_item_event(get_player_hand_item(hurter))
@@ -4287,15 +4287,15 @@ function get_player_pos(player) {
   return to_array(parse_json(get_data("pos", player)))
 } */
 
-function get_score(ob, player) {
+/* function get_score(ob, player) {
   var s = 0
   try {
     s = ob.getScore(player)
   } catch (err) { }
   return to_number(s)
-}
+} */
 
-function tranBar(player) {
+/* function tranBar(player) {
   var board = config.tran.board
   board = board.split(";")
 
@@ -4356,7 +4356,7 @@ function tranBar(player) {
       chat("§e[转账机]无法识别您输入的款数！", [player])
     }
   })
-}
+} */
 
  function groupPosBar(player) {
   var ui = new btnBar()
@@ -6074,7 +6074,7 @@ function dealOrderBar(player, good, data = {
       if (container_remove(con, good.item, data.count)) {
         var board = world.scoreboard.getObjective(good.money)
         board_add(player, board, good.price * data.count)
-        score_event(player, "earn", "", good.price * data.count)
+        //score_event(player, "earn", "", good.price * data.count)
       } else {
         chat("§e[商店系统]物品不足,收购失败！", [player])
       }
@@ -6085,7 +6085,7 @@ function dealOrderBar(player, good, data = {
         c = data.count * good.price
       }
       if (deal_money(player, good, c)) {
-        score_event(player, "buy", "", good.price * data.count)
+        //score_event(player, "buy", "", good.price * data.count)
         if (good.code !== "") {
           for (var i = 0; i < data.count; i++) {
             run_code(player, good.code)
@@ -8662,7 +8662,7 @@ function usfSettingBar(player) {
       })
     }
   },
-  {
+  /* {
     text: "标签组设置",
     icon: ui_icon.brush,
     func: () => {
@@ -8687,7 +8687,7 @@ function usfSettingBar(player) {
         }
       })
     }
-  },
+  }, */
   {
     text: "全局商店设置",
     icon: ui_icon.villager,
@@ -8726,13 +8726,13 @@ function usfSettingBar(player) {
     func: () => {
       usfFunctionBar(player, "log")
     }
-  }, {
+  },/*  {
     text: "数据统计(原积分功能)",
     icon: ui_icon.online,
     func: () => {
       usfFunctionBar(player, "score")
     }
-  }, {
+  }, */ {
     text: "领地功能设置",
     icon: ui_icon.land,
     func: () => {
@@ -8756,13 +8756,13 @@ function usfSettingBar(player) {
     func: () => {
       setLockBar(player)
     }
-  }, {
+  }, /* {
     text: "进服欢迎提示设置",
     icon: ui_icon.tip,
     func: () => {
       usfFunctionBar(player, "tip")
     }
-  }, {
+  }, */ {
     text: "聊天信息格式",
     icon: ui_icon.chat,
     func: () => {
@@ -9173,7 +9173,7 @@ function editConfigItemDetailBar(player, id) {
   })
 }
 
-function setScoreBar(player) {
+/* function setScoreBar(player) {
   var ui = new btnBar()
   ui.cancel = () => {
     usfSettingBar(player)
@@ -9237,9 +9237,9 @@ function setScoreBar(player) {
   }
 
   ui.show(player)
-}
+} */
 
-function setScorePages(player, cf) {
+/* function setScorePages(player, cf) {
   var ui = new btnBar()
   ui.title = "设置方案"
   ui.body = ["配置方案", "方案Tag:" + cf]
@@ -9263,9 +9263,9 @@ function setScorePages(player, cf) {
     })
   }
   ui.show(player)
-}
+} */
 
-function editScorePage(player, tag, page, first = false) {
+/* function editScorePage(player, tag, page, first = false) {
   if (first) {
     page = {
       type: "",
@@ -9273,7 +9273,7 @@ function editScorePage(player, tag, page, first = false) {
       name: "",
       board: ""
     }
-  }
+  } 
   
   var text = "切换维度-输入目标维度ID\n破坏方块-破坏的方块ID\n放置方块-放置的方块ID\n造成伤害-伤害的实体ID\n杀死实体-杀死的实体ID\n其他不用填"
   var ui = new infoBar()
@@ -9309,7 +9309,7 @@ function editScorePage(player, tag, page, first = false) {
     save_score_config()
     setScorePages(player, tag)
   })
-}
+}*/
 
 //插件设置界面
 function usfFunctionBar(player, type) {
@@ -9436,11 +9436,11 @@ function usfFunctionBar(player, type) {
       ui.options("type", "统计时间", ["每秒", "每分钟"], config.time.type)
       ui.toggle("show", "显示时间并锁定在玩家列表", config.time.show)
       break
-    case "tip":
+/*     case "tip":
       ui.title = "进服欢迎提示"
       ui.toggle("able", "进服欢迎提示[关闭 | 开启]", config.tip.able)
       ui.input("content", "内容" + get_text("tran_text"), "输入内容", get_data("tip"))
-      break
+      break */
     case "chat":
       ui.title = "聊天格式"
       var text = get_text("tran_text") + "\n\n聊天格式设置(以下内容会被特殊转义)：\n/sender >>发送者名称\n/tag >>聊天头衔\n/text >>聊天内容"
@@ -9584,11 +9584,11 @@ function usfFunctionBar(player, type) {
         usfSettingBar(player)
         break
       case "tip":
-        config.tip.able = r.able
+/*         config.tip.able = r.able
         save_data("tip", r.content)
         save_config()
         usfSettingBar(player)
-        break
+        break */
       case "log":
         config.log.able = r.able
         config.log.down = r.down

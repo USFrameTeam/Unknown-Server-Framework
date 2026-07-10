@@ -6,6 +6,11 @@ import * as mc from "./Basic/Mc.js";
 import { infoBar , btnBar } from "./Basic/ui.js";
 import { format } from "./Basic/Text.js";
 
+/*
+Var.js
+功能：自定义变量系统
+*/
+
 //TODO命令
 const var_config_format = {
     global : {
