@@ -39,7 +39,7 @@ event.connect_custom_event("world_load",(things) => {
     logger.log(0,1,"————领地系统已加载————");
 });
 
-event.connect_custom_event("player_load" , (options) => {
+event.connect_custom_event("player_join" , (options) => {
   if(!loaded){return;}
   const player = options.player;
   if(tool.un(player.lands)){
@@ -129,10 +129,6 @@ function createLandBar(player) {
     }
   }
 
-  if (is_preland_in_lands(player)) {
-    mc.set_title(player, "领地重叠！无法创建！");
-    return;
-  }
   //TODO玩家切换维度后清空landings
 
   let size = 0;
@@ -181,15 +177,9 @@ function createLandBar(player) {
   }
 
   text += format("价格:[0]\n总方块量:[1]\n领地名:",[price , size]);
-
-  /* if (tool.to_number(board.getScore(player)) - price < 0 && config.land.must && !is_in_manager_mode(player)) {
-    mc.show_title(player, "金额不足！无法创建！");
-    return;
-  } */
   
   ui.title = "新建领地";
   ui.input("name", text , "领地名", "");
-  ////////////////////////////////////
  
 
   if (get_op_level(player) > 0) {
@@ -204,101 +194,123 @@ function createLandBar(player) {
       return;
     }
 
-    if (r.type === 0) {
-      switch (type){
-        case "box":
-          try {
-            let b = player.dimension.getBlock({
-              x: points[0].location.x,
-              y: (use_2d) ? player.dimension.heightRange.max : r.y1,
-              z: points[0].location.z,
-            })
-            if (!un(b)) {
-              points[0] = {
-                location: b.location,
-                x: b.x,
-                y: b.y,
-                z: b.z
-              }
+    switch (type){
+      case "box":
+        try {
+          let b = player.dimension.getBlock({
+            x: points[0].location.x,
+            y: (use_2d) ? player.dimension.heightRange.max : r.y1,
+            z: points[0].location.z,
+          })
+          if (!un(b)) {
+            points[0] = {
+              location: b.location,
+              x: b.x,
+              y: b.y,
+              z: b.z
             }
-
-            b = player.dimension.getBlock({
-              x: points[1].location.x,
-              y: (use_2d) ? player.dimension.heightRange.min : r.y2,
-              z: points[1].location.z
-            })
-            if (!un(b)) {
-              points[1] = {
-                location: b.location,
-                x: b.x,
-                y: b.y,
-                z: b.z
-              }
-            }
-          } catch (err) { }
-          if(player.landing.points.length === 2){
-            if(tool.is_object(player.landing.shape)){
-              mc.remove_shape(player.landing.shape);
-            }
-            mc.create_box_shape(player.dimension , player.landing.points[0] , player.landing.points[1] , [player]);
           }
-        return;
-      case "circle":
-        if(player.landing.points.length === 1){
-          player.landing.radius = r.r;
-          player.landing.high_max = use_2d ? player.dimension.heightRange.max : Math.max(r.y1,r.y2);
-          player.landing.high_min = use_2d ? player.dimension.heightRange.min : Math.min(r.y1,r.y2);
+
+          b = player.dimension.getBlock({
+            x: points[1].location.x,
+            y: (use_2d) ? player.dimension.heightRange.min : r.y2,
+            z: points[1].location.z
+          })
+          if (!un(b)) {
+            points[1] = {
+              location: b.location,
+              x: b.x,
+              y: b.y,
+              z: b.z
+            }
+          }
+        } catch (err) { }
+        if(player.landing.points.length === 2){
           if(tool.is_object(player.landing.shape)){
             mc.remove_shape(player.landing.shape);
           }
-          mc.create_cylinder_shape(player.dimension , {
-            x : player.landing.points[0].x,
-            y : (player.landing.high_max + player.landing.high_min)/2,
-            z : player.landing.points[0].z,
-          },player.landing.radius,player.landing.high_max - player.landing.high_min + 1 , [player]);
+          mc.create_box_shape(player.dimension , player.landing.points[0] , player.landing.points[1] , [player]);
         }
-        return;
+    case "circle":
+      if(player.landing.points.length === 1){
+        player.landing.radius = r.r;
+        player.landing.high_max = use_2d ? player.dimension.heightRange.max : Math.max(r.y1,r.y2);
+        player.landing.high_min = use_2d ? player.dimension.heightRange.min : Math.min(r.y1,r.y2);
+        if(tool.is_object(player.landing.shape)){
+          mc.remove_shape(player.landing.shape);
+        }
+        mc.create_cylinder_shape(player.dimension , {
+          x : player.landing.points[0].x,
+          y : (player.landing.high_max + player.landing.high_min)/2 + 0.5,
+          z : player.landing.points[0].z,
+        },player.landing.radius,(player.landing.high_max - player.landing.high_min + 1 )/2, [player]);
       }
     }
 
+    if (r.type === 0) {
+      return;
+    }
+
+    if (is_preland_in_other(player , type , points[0] , (type === "box") ? points[1] : radius , (type === "box") ? 0 : (player.landing.high_max - player.landing.high_min + 1 )/2)){
+      mc.set_title(player, "领地重叠！无法创建！");
+      return;
+    }
+
     //创建领地
-    let land = tool.object_override({} , data_format.land);
-    switch(type){
-      case "box":
-        const ps = get_edge_from_block(points[0].location, points[1].location);
-        points[0] = ps[0];
-        points[1] = ps[1];
-        land.di = player.dimension.id;
-        land.id = get_random_land_id(player.dimension);
-        land.from = points[0];
-        land.to = points[1];
-        land.creater = get_id(player);
-        land.name = r.name;
-        land.price = price;
-        const center = {
-          x : (points[0].x + points[1].x)/2,
-          z : (points[0].z + points[1].z)/2,
-        }
-        land.distance = Math.round(Math.sqrt(Math.pow(Math.abs(center.x), 2) + Math.pow(Math.abs(center.z), 2)));
-    }
+    get_system("pay").pay(player , [config.land.currency] , [(tool.to_bool(r.public) === true) ? 0 : price] , "购买领地" , "" , (result) => {
+      if(!result){return;}
+      let land = tool.object_override({} , data_format.land);
+      switch(type){
+        case "box":
+          const ps = get_edge_from_block(points[0].location, points[1].location);
+          points[0] = ps[0];
+          points[1] = ps[1];
+          land.di = player.dimension.id;
+          land.id = get_random_land_id(player.dimension);
+          land.from = points[0];
+          land.to = points[1];
+          land.creater = get_id(player);
+          land.name = r.name;
+          land.price = price;
+          land.type = "box";
+          const center = {
+            x : (points[0].x + points[1].x)/2,
+            z : (points[0].z + points[1].z)/2,
+          }
+          land.distance = Math.round(Math.sqrt(Math.pow(Math.abs(center.x), 2) + Math.pow(Math.abs(center.z), 2)));
+          break;
+        case "circle":
+          land.di = player.dimension.id;
+          land.id = get_random_land_id(player.dimension);
+          land.from = {
+            x : points[0].x,
+            z : points[0].z,
+            y : (player.landing.high_max + player.landing.high_min)/2 + 0.5,
+          };
+          land.height = (player.landing.high_max - player.landing.high_min + 1 )/2;
+          land.creater = get_id(player);
+          land.name = r.name;
+          land.type = "circle";
+          land.price = price;
+          land.distance = Math.round(Math.sqrt(Math.pow(Math.abs(land.from.x), 2) + Math.pow(Math.abs(land.from.z), 2)));
+          break;
+      }
 
-    if (r.public === true) {
-      land.public = r.public
-    } else {
-      board.setScore(player, to_number(board.getScore(player)) - price)
-    }
+      if (r.public === true) {
+        land.public = r.public;
+      }
 
-    var center = {
-      x: (points[1].x + points[0].x) / 2,
-      z: (points[1].z + points[0].z) / 2
-    }
-
+      if(tool.is_object(player.landing.shape)){
+        mc.remove_shape(player.landing.shape);
+      }
+      
+      add_land(player, land);
+      save_land(land);
+      player.landing.able = false;
+      player.landing.points = [];
+    })
+    });
     
-    add_land(player, land)
-    save_land(land)
-    player.landing.mode = 0
-    player.landing.points = []
-  })
 }
 
 function get_di_num(di) {
@@ -337,54 +349,144 @@ function small_to_big(c1, c2) {
 
 
 function add_land(player, land) {
-  var index = find_min_in_lands(Math.max(land.distance - max_radius, 0))
+  let index = find_min_in_lands(Math.max(land.distance - max_radius, 0));
   if (index === -1) {
     lands.ids.unshift(land.id);
-    lands.min.unshift(Math.max(land.distance - 65, 0))
-    lands.max.unshift(land.distance + 65)
+    lands.min.unshift(Math.max(land.distance - max_radius, 0));
+    lands.max.unshift(land.distance + max_radius);
   } else {
     lands.ids.splice(index + 1, 0, land.id)
-    lands.min.splice(index + 1, 0, Math.max(land.distance - 65, 0))
-    lands.max.splice(index + 1, 0, land.distance + 65)
+    lands.min.splice(index + 1, 0, Math.max(land.distance - max_radius, 0))
+    lands.max.splice(index + 1, 0, land.distance + max_radius);
   }
-  save_lands()
-  player.lands.push(land.id)
-  save_player_lands(player)
+  save_lands();
+  player.lands.push(land.id);
+  save_player_lands(player);
 }
 
 function save_land(land) {
-  save_data(`land.${land.id}`, to_json(land))
+  save_data(`land.${land.id}`, tool.to_json(land));
 }
 
-function is_land_in_other(di, lo1, lo2) {
-  const center = {
-    x: (lo1.location.x + lo2.location.x) / 2,
-    y: (lo1.location.y + lo2.location.y) / 2,
-    z: (lo1.location.z + lo2.location.z) / 2
+function is_preland_in_other(di, type , lo1 , lo2 , lo3 = 0) {
+  const center ;
+  switch(type){
+    case "box":
+      center = {
+        x: (lo1.location.x + lo2.location.x) / 2,
+        y: (lo1.location.y + lo2.location.y) / 2,
+        z: (lo1.location.z + lo2.location.z) / 2
+      };
+      break;
+    case "circle":
+      center = lo1;
+      break;
   }
-  var dis = Math.round(Math.sqrt(Math.pow(Math.abs(center.x), 2) + Math.pow(Math.abs(center.z), 2)));
-  var i = two_find_min(lands.min, dis);
-  if (i === -1) {
-    return true
+  
+  let dis = Math.round(Math.sqrt(Math.pow(Math.abs(center.x), 2) + Math.pow(Math.abs(center.z), 2)));
+  let index = two_find_min(lands.max, dis - max_radius);
+  if (index === -1) {
+    return false;
   }
-  for (i >= 0; i--;) {
-    if (lands.max[i] < dis) {
-      return true
+
+  for (index >= 0; index--;) {
+    if (lands.min[index] > dis + max_radius) {
+      return false;
     }
-    var land = get_land(lands.ids[i])
-    if (is_string(land.name)) {
-      if (land.di === di.id) {
-        if (
-          ((lo1.x < land.from.x && lo2.x < land.from.x && lo1.x < land.to.x && lo2.x < land.to.x) || (lo1.x > land.from.x && lo2.x > land.from.x && lo1.x > land.to.x && lo2.x > land.to.x)) ||
-          ((lo1.y < land.from.y && lo2.y < land.from.y && lo1.y < land.to.y && lo2.y < land.to.y) || (lo1.y > land.from.y && lo2.y > land.from.y && lo1.y > land.to.y && lo2.y > land.to.y)) ||
-          ((lo1.z < land.from.z && lo2.z < land.from.z && lo1.z < land.to.z && lo2.z < land.to.z) || (lo1.z > land.from.z && lo2.z > land.from.z && lo1.z > land.to.z && lo2.z > land.to.z))
-        ) { } else {
-          return false
+    if(lands.ids[index][0] !== get_di_num(player.dimension)){
+      continue;
+    }
+    let land = get_land(lands.ids[index]);
+    if (tool.is_string(land.name)) {
+      switch(type + land.type){
+        case "boxbox":
+          if (
+            ((lo1.x < land.from.x && lo2.x < land.from.x && lo1.x < land.to.x && lo2.x < land.to.x) || (lo1.x > land.from.x && lo2.x > land.from.x && lo1.x > land.to.x && lo2.x > land.to.x)) ||
+            ((lo1.y < land.from.y && lo2.y < land.from.y && lo1.y < land.to.y && lo2.y < land.to.y) || (lo1.y > land.from.y && lo2.y > land.from.y && lo1.y > land.to.y && lo2.y > land.to.y)) ||
+            ((lo1.z < land.from.z && lo2.z < land.from.z && lo1.z < land.to.z && lo2.z < land.to.z) || (lo1.z > land.from.z && lo2.z > land.from.z && lo1.z > land.to.z && lo2.z > land.to.z))
+          ){}else {
+            return true;
+          }
+          break;
+        case "circlecircle":
+          //lo2为半径 lo3为高度半径
+          let dis2 = Math.pow(Math.abs(land.from.x - lo1.x), 2) + Math.pow(Math.abs(land.from.z - lo1.z), 2);
+          if(dis2 < Math.pow(land.radius + lo2 , 2)){
+            if(lo1.y - lo3 < land.from - land.height && lo1.y + lo3 > land.from + land.height){
+              return true;
+            }
+            if((lo1.y - lo3 < land.from + land.height && lo1.y - lo3 > land.from - land.height) || (lo1.y + lo3 < land.from + land.height && lo1.y + lo3 > land.from - land.height) ){
+              return true;
+            }
+          }
+          break;
+        case "circlebox":
+          let closestX = Math.max(Math.min(land.from.x, land.to.x), Math.min(lo1.x, Math.max(land.from.x, land.to.x)));
+          let closestZ = Math.max(Math.min(land.from.z, land.to.z), Math.min(lo1.z, Math.max(land.from.z,land.to.z)));
+          if(Math.pow(Math.abs(lo1.x - closestX), 2) + Math.pow(Math.abs(lo1.z - closestZ), 2) < lo3 * lo3){
+            let heights = small_to_big(land.from.y ,land.to.y);
+            if(heights[0] < lo1.y - lo3 && heights[1] > lo1.y + lo3){
+              return true;
+            }
+            if((heights[0] < lo1.y + lo3 && heights[0] > lo1.y - lo3) || (heights[1] < lo1.y + lo3 && heights[1] > lo1.y - lo3)){
+              return true;
+            }
+          }
+          break;
+        case "boxcircle":
+          let closestX = Math.max(Math.min(lo1.x, lo2.x), Math.min(land.from.x, Math.max(lo1.x, lo2.x)));
+          let closestZ = Math.max(Math.min(lo1.z, lo2.z), Math.min(land.from.z, Math.max(lo1.z, lo2.z)));
+          if(Math.pow(Math.abs(land.from.x - closestX), 2) + Math.pow(Math.abs(land.from.z - closestZ), 2) <  land.radius * land.radius){
+            let heights = small_to_big(lo1.y ,lo2.y);
+            if(heights[0] < land.from.y - land.radius && heights[1] > land.from.y + land.radius){
+              return true;
+            }
+            if((heights[0] < land.from.y + land.radius && heights[0] > land.from.y - land.radius) || (heights[1] < land.from.y + land.radius && heights[1] > land.from.y - land.radius)){
+              return true;
+            }
+          }
+          break;
+      }
+        
+    }
+  }
+  return false;
+}
+
+function is_point_in_land(di , pos){
+    let dis = Math.sqrt(Math.pow(Math.abs(pos.x), 2) + Math.pow(Math.abs(pos.z), 2));
+    let index = two_find_min(lands.max, dis);
+    if (index === -1) {
+      return false;
+    }
+
+    for (index >= 0; index--;) {
+      if (lands.min[index] > dis) {
+        return false;
+      }
+      if(lands.ids[index][0] !== get_di_num(player.dimension)){
+        continue;
+      }
+
+      let land = get_land(lands.ids[index]);
+      if (tool.is_string(land.name)) {
+        if(land.type === "box"){
+          if(((pos.x < land.from.x && pos.x < land.to.x) || (pos.x > land.from.x && pos.x > land.to.x)) ||
+          ((pos.y < land.from.y && pos.y < land.to.y) || (pos.y > land.from.y && pos.y > land.to.y)) || 
+          ((pos.z < land.from.z && pos.z < land.to.z) || (pos.z > land.from.z && pos.z > land.to.z))){}
+          else{
+            return lands.ids[index];
+          }
+        }else{
+          if( pos.y > land.from.y - land.radius && pos.y < land.from.y + land.radius){
+            if(Math.pow(Math.abs(pos.x - land.from.x), 2) + Math.pow(Math.abs(pos.z - land.from.z)) < Math.pow(land.radius , 2)){
+              return lands.ids[index];
+            }
+          }
         }
       }
     }
-  }
-  return true
+    return -1;
 }
 
 //使用二分法寻找 <= count的最大值
@@ -440,8 +542,7 @@ function settingBar(player,back = false){
     }
     ui.toggle("able", "[禁用 | 启用]", config.land.able);
     ui.range("max", "可创建领地数量(管理员可无限创建)", 0, 100, 1, config.land.max);
-    ui.input("board", "领地扣费记分板id", "输入id", config.land.board);
-    ui.input("var", "领地扣费自定义变量id(优先级大于计分板)", "输入id", config.land.var_money);
+    ui.input("currency", "领地扣费记分板id", "输入id", config.land.currency);
     ui.range("price", "领地价格/每方块(最后价格约成整数)", 0, 10, 1, config.land.price);
     ui.toggle("must", "金额必须足够(若关闭，则记分板可能会被扣费成负数)", config.land.must);
     ui.input("show", "领地提示语(/name转换为领地主名字)", "输入提示语", config.land.show);
@@ -451,7 +552,7 @@ function settingBar(player,back = false){
         config.land.able = r.able;
         config.land.must = r.must;
         config.land.price = r.price;
-        config.land.board = r.board;
+        config.land.currency = r.currency;
         config.land.max = r.max;
         config.land.show = r.show;
         config.land.mode = r.mode;

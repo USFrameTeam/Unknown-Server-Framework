@@ -49,8 +49,7 @@ export const usf_config = {
     "land":{
         "able":false,
         "max":2,//没人最大领地数
-        "board" : "",//扣费计分板
-        "var_money" : "",//TODO
+        "currency" : "",
         "price" : 0,//价格
         "must" : true,//不允许欠费
         "show" : "§e你已进入/name的领地！",
@@ -260,6 +259,7 @@ export const data_format = {
         "id" : "",
         "di" : "minecraft:overworld",
         "distance" : 0, //中心点离(0,0)的距离
+        "type" : "box",//box / circle
         //Box
         "from" : {
             x: 0, y: 0, z:0
@@ -269,6 +269,7 @@ export const data_format = {
         },
         //Cylinder
         "radius": 10 , //半径
+        "height" : 10,//高度半径
         //原点使用from
         "creater": "",
         "group" : [], //开放的群组(权限为成员)
