@@ -52,13 +52,11 @@ export const usf_config = {
         "currency" : "",
         "price" : 0,//价格
         "must" : true,//不允许欠费
-        "show" : "§e你已进入/name的领地！",
-        "view" : false,
         "mode" : false,//锁定冒险模式
         "2d" : 0,
         //0-禁用 1-可选 2-强制
         "radius" : 512,
-        //最大半径 TODO
+        "var" : "",
     },
     "log" : {
         "able" : true,
@@ -201,6 +199,7 @@ export const data_format = {
         "tp",//传送
         "info",
         "ib",
+        "land", //领地
     ],
     allow_blocks:[
         "minecraft:crafting_table",

@@ -1,7 +1,7 @@
 import * as logger from "./Basic/Logger.js";
 import * as tool from "./Basic/Tool.js";
 import * as text from "./Basic/Text.js";
-import { config } from "./Basic/Core.js";
+import { config , register_system } from "./Basic/Core.js";
 import { system } from "@minecraft/server";
 import { data_format } from "./Basic/Data.js";
 import * as event from "./Basic/Event.js";
@@ -148,3 +148,8 @@ function commit_long_log(){
     }
     long_logs = {...long_log_format};
 }
+
+register_system("log" , {
+    push_log : push_log,
+    is_log_type_allowed : is_log_type_allowed,
+})

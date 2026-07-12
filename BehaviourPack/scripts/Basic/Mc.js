@@ -65,7 +65,7 @@ export function get_di(id) {
 }
 
 export function entity_run_command(entity, command) {
-  if (!entity) return;
+  if (!tool.is_entity(entity)){ return;}
   try {
     entity.runCommand(command);
   } catch (err) { logger.log(0,1,"尝试在实体上执行指令失败:[0]",[command]) }

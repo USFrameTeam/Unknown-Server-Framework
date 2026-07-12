@@ -193,7 +193,7 @@ export var texts = {
 
     "follow.tip" : "跟踪开始后，你可以使用+op命令退出跟踪.",
 
-    "action.land" : "空手[点击]/[右键]方块以选取坐标点\n输入+land 或 打开主菜单创建领地\n潜行时输入+land 或 打开主菜单取消创建",
+    "action.land" : "空手[点击]/[右键]方块以选取坐标点\n选取一个点时创建圆形领地，两个点时创建方形领地\n输入+land打开领地创建界面\n输入+unland取消领地创建",
 
     "commands.cd" : "打开主菜单",
     "commands.op" : "打开管理界面",
@@ -229,12 +229,12 @@ export var texts = {
     "Log/reload_all": "USF加载完成！",
     "Log/watchdog" : "性能监视器：@0",
 
-    "land.4" : "§e[管理员]§r",
-    "land.3" : "§e[领地主]§r",
-    "land.2" : "§e[领地成员]§r",
+    "land.4" : "§e[创建者]§r",
+    "land.3" : "§e[管理员]§r",
+    "land.2" : "§e[成员]§r",
     "land.1" : "§e[群组成员]§r",
     "land.0" : "§e[访客]§r",
-    "land.two" : "未选择两个坐标点",
+    "land.zero" : "请先选择坐标点",
     "about" : ["服务器信息§?Something about the Server"],
     "board_text" : ["欢迎来到服务器§?Welcome to this Server!"],
     "menu": ["欢迎来到主菜单§?Welcome to the Menu"],

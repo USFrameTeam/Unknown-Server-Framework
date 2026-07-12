@@ -184,7 +184,7 @@ system.tag_groups = system.runInterval(() => {
     }
     player.last_sleep = isSleeping;
 
-    if (config.mini.land_tag && is_string(player.in_land)) {
+/*     if (config.mini.land_tag && is_string(player.in_land)) {
       const playerInLand = player.in_land;
       const isInLand = playerInLand !== "";
 
@@ -198,7 +198,7 @@ system.tag_groups = system.runInterval(() => {
       if (isInLand) {
         player.addTag("land." + playerInLand);
       }
-    }
+    } */
 
 /*     const currentTagLength = player.getTags().length;
     if (to_number(player.tag_length, 0) !== currentTagLength) {
@@ -356,8 +356,8 @@ system_ids.particle = system.runInterval(() => {
       }
     }
 
-    const playerLanding = player.landing;
-    if (playerLanding && playerLanding.mode === 1) {
+    //const playerLanding = player.landing;
+    /* if (playerLanding && playerLanding.mode === 1) {
       setActionBar(player, get_text("action.land"));
 
       const landingPoints = playerLanding.points;
@@ -366,7 +366,7 @@ system_ids.particle = system.runInterval(() => {
         landingPoints[0].location && landingPoints[1].location) {
         show_range(landingPoints[0].location, landingPoints[1].location, player.dimension);
       }
-    }
+    } */
   }
 }, 35);
 
@@ -616,7 +616,7 @@ system_ids.timer = system.runInterval(() => {
   } catch (err) { }
 }, 20);
 
-system_ids.land_test = system.runInterval(() => {
+/* system_ids.land_test = system.runInterval(() => {
   const players = world.getAllPlayers();
 
   for (const player of players) {
@@ -685,7 +685,7 @@ system_ids.land_test = system.runInterval(() => {
       setActionBar(player, ` `);
     }
   }
-}, 5);
+}, 5); */
 
 /* system_ids.name = system.runInterval(() => {
   const players = world.getAllPlayers();
@@ -1601,10 +1601,10 @@ function get_data(id, en = null) {
   player.store_record = to_object(storeRecord);
   //player.health = healthComponent;
   player.last_tp = 0;
-  player.landing = {
+/*   player.landing = {
     points: [],
     mode: 0,
-  };
+  }; */
   /* player.pos = get_player_pos(player); */
   player.talk = {
     mode: 0,
@@ -1614,7 +1614,7 @@ function get_data(id, en = null) {
   //const landsIds = lands.ids;
   //player.lands = playerLandsData.filter(id => landsIds.includes(id));
 
-  save_player_lands(player);
+  //save_player_lands(player);
 
   //id_player[playerId] = player;
 
@@ -1624,7 +1624,7 @@ function get_data(id, en = null) {
 
   emitEvent(player, "join");
 
-  if (config.mini.clear_tag) {
+/*   if (config.mini.clear_tag) {
     const playerTags = player.getTags();
     for (let i = 0; i < playerTags.length; i++) {
       const tag = playerTags[i];
@@ -1632,7 +1632,7 @@ function get_data(id, en = null) {
         player.removeTag(tag);
       }
     }
-  }
+  } */
 
   //change_player_name(player);
   return;
@@ -1798,14 +1798,14 @@ function afterEntityDie(event) {
   }
 }
 
-function beforeExplosion(event) {
+/* function beforeExplosion(event) {
   const entity = event.source;
   let blocks = event.getImpactedBlocks();
 
-/*   if (entity && !un(entity) && config.game.creeper && entity.typeId === "minecraft:creeper") {
+  if (entity && !un(entity) && config.game.creeper && entity.typeId === "minecraft:creeper") {
     event.setImpactedBlocks([]);
     return;
-  } */
+  } 
 
   if (config.land.able) {
     const filteredBlocks = [];
@@ -1825,7 +1825,7 @@ function beforeExplosion(event) {
   }
 
   event.setImpactedBlocks(blocks);
-}
+} */
 
 function reset_lock_item(player) {
   try {
@@ -1886,19 +1886,19 @@ function reset_lock_item(player) {
   } */
 
   const commandHandlers = {
-    "unland": () => {
+    /* "unland": () => {
       player.landing.mode = 0;
       player.landing.points = [];
       chat("§e[领地系统]已取消创建领地！", [player]);
-    },
+    }, */
 
-    "land": () => {
+/*     "land": () => {
       if (player.landing.points.length === 2) {
         createLandBar(player);
       } else {
         show_title(player, get_text("land.two"));
       }
-    },
+    }, */
 
     "unsleep": () => {
       chat(get_text("unsleep") + `${tran_info.unsleep}`, [player]);
@@ -2148,7 +2148,7 @@ function chatBoardBar(player, block, creater) {
 // 先这样吧，后面的以后再优化
 
 function beforePlayerInteractWithEntity(event) {
-  var player = event.player
+  /* var player = event.player
   var entity = event.target
   var item = event.itemStack
 
@@ -2156,15 +2156,15 @@ function beforePlayerInteractWithEntity(event) {
     var land = get_land_by_pos(player.dimension, entity.location)
     if (is_string(land.name)) {
       if (land_member_level(player, land) === 0 && !array_has(to_array(land.other_per), "ie")) {
-        event.cancel = true
+        event.cancel = true;
         land_unable_tip(player)
       }
       if ((land_member_level(player, land) === 1 || land_member_level(player, land) === 2) && !array_has(to_array(land.mem_per), "ie")) {
-        event.cancel = true
+        event.cancel = true;
         land_unable_tip(player)
       }
     }
-  }
+  } */
 
   if (entity.typeId === "minecraft:npc") {
     var item = get_player_hand_item(player)
@@ -2191,12 +2191,12 @@ function beforePlayerInteractWithEntity(event) {
   }
 }
 
-function land_unable_tip(player) {
+/* function land_unable_tip(player) {
   system.run(() => {
     setActionBar(player, "§e你无权在领地内操作")
   })
   player.last_warn = Date.now()
-}
+} */
 
 function beforePlayerInteractWithBlock(event) {
   var player = event.player
@@ -3137,7 +3137,7 @@ function get_player_offhand_slot(player) {
   return slot
 }
 
-function land_member_level(player, land) {
+/* function land_member_level(player, land) {
   if (is_bool(land.public)) {
     if (get_op_level(player) > 0) {
       return 3
@@ -3158,7 +3158,7 @@ function land_member_level(player, land) {
     }
   }
   return 0
-}
+} */
 
 /* function report_warn(type, op) {
   if (config.hacker.kick) {
@@ -8738,13 +8738,13 @@ function usfSettingBar(player) {
     func: () => {
       usfFunctionBar(player, "land")
     }
-  }, {
+  }, /* {
     text: "小游戏功能设置",
     icon: ui_icon.map,
     func: () => {
       usfFunctionBar(player, "mini")
     }
-  }, {
+  }, */ {
     text: "游戏时间统计",
     icon: ui_icon.clock,
     func: () => {
@@ -9482,11 +9482,11 @@ function usfFunctionBar(player, type) {
       ui.range("r_di", "维度改变给予抗性提升5的时间", 0, 30, 1, config.game.r_di)
       ui.range("r_rs", "重生给予抗性提升5的时间", 0, 30, 1, config.game.r_rs)
       break */
-    case "mini":
+/*     case "mini":
       ui.title = "小游戏功能设置"
       ui.toggle("land_tag", "领地内赋予玩家§eland.领地ID§r的标签", config.mini.land_tag)
       ui.toggle("clear_tag", "玩家进入游戏清除_(下划线)开头的tag", config.mini.clear_tag)
-      break
+      break */
 /*     case "com":
       ui.title = "插件命令设置"
       for (var key of data_format.commands) {
@@ -9521,12 +9521,12 @@ function usfFunctionBar(player, type) {
         save_config()
         usfSettingBar(player)
         break
-      case "mini":
+/*       case "mini":
         config.mini.land_tag = r.land_tag
         config.mini.clear_tag = r.clear_tag
         save_config()
         usfSettingBar(player)
-        break
+        break */
       case "group":
         config.groups.able = r.able
         config.groups.max = r.max

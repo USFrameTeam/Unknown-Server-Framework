@@ -2,9 +2,10 @@ import { clear_bars, infoBar } from "./Basic/ui.js";
 import { system } from "@minecraft/server";
 import * as tool from "./Basic/Tool.js";
 import * as core from "./Basic/Core.js";
+import {entity_run_command} from "./Basic/Mc.js";
 import * as logger from "./Basic/Logger.js";
 import * as event from "./Basic/Event.js";
-import { format } from "./Basic/Text.js";
+import { format , tran_text} from "./Basic/Text.js";
 
 /*
 Command.js
@@ -134,3 +135,27 @@ core.register_system("command", {
   "egister_command" : register_command,
   "run_command" : run_command,
 })
+
+command.register_mc_command({
+  description : "运行含转义的命令",
+  permissionLevel : 1,
+  name : "usf:tran_command",
+  mandatoryParameters : [{
+    name : "Entity",
+    type : "EntitySelector",
+  },{
+    name : "Command",
+    type : "String"
+  }],
+},(origin,args) => {
+  let command = args[1];
+  if(command[0] === "/"){
+    command = command.slice(1);
+  }
+  let entity = args[0];
+  if(tool.is_player(entity)){
+    entity_run_command(entity , tran_text(entity , command , false));
+  }else{
+    entity_run_command(entity , command);
+  }
+});

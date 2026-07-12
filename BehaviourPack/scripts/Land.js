@@ -4,9 +4,10 @@ import * as tool from "./Basic/Tool.js";
 import * as event from "./Basic/Event.js";
 import { infoBar , btnBar } from "./Basic/ui.js";
 import * as mc from "./Basic/Mc.js";
-import { format } from "./Basic/Text.js";
+import { format , get_text, push_text} from "./Basic/Text.js";
 import { get_op_level } from "./Basic/Permission.js";
-import { is_in_manager_mode } from "./Basic/Player.js";
+import { is_in_manager_mode , get_name_by_id , get_id} from "./Basic/Player.js";
+import * as command from "./Command.js";
 
 
 /*
@@ -44,8 +45,116 @@ event.connect_custom_event("player_join" , (options) => {
   const player = options.player;
   if(tool.un(player.lands)){
     load_player_lands(player);
+    player.in_land = {
+      id : "",
+      mode : 0,
+    };
   }
 });
+
+//显示创建领地的ActionBar
+mc.run_interval(() => {
+  for(let player of mc.get_all_players()){
+    if (!tool.un(player.landing) && player.landing.able) {
+      mc.set_ActionBar(player, get_text("action.land"));
+    }
+  }
+  
+} , 1.5 * 20);
+
+mc.run_interval(() => {
+  const players = mc.get_all_players();
+
+  for (const player of players) {
+    const di = player.dimension;
+    const loc = player.location;
+
+    if(tool.un(player.in_land)){
+        player.in_land = {
+        id : "",
+        mode : 0,
+      };
+    }
+
+    const land_id = is_point_in_land(di , loc);
+
+    if(land_id === ""){ //不在领地中
+      if(player.in_land.id !== ""){
+        set_land_id(player , "");
+        if (config.land.mode && mc.get_game_mode(player) !== player.in_land.mode && get_op_level(player) == 0) {
+          mc.set_game_mode(player , player.in_land.mode);
+          player.in_land.mode = mc.get_game_mode(player);
+        }
+        mc.set_ActionBar(player, ` `);
+      }
+      return;
+    }
+
+    //在领地中
+    const land = get_land(land_id);
+    const level = get_land_member_level(player,land);
+    //加日志
+    if(player.in_land.id !== land_id){
+      if(has_system("log") && get_system("log").is_log_type_allowed("land")){
+        get_system("log").push_log(format("In Land:[0](ID:[1])(Owner:[2])",[land.name , land.id , get_name_by_id(land.creater)]));
+      }
+
+      if(config.land.mode && player.in_land.id === "" && level === 0){
+        player.in_land.mode = mc.get_game_mode(player);
+        mc.set_game_mode(player , 2);
+      }
+
+      if(config.land.mode && level > 0 && mc.get_game_mode(player) !== player.in_land.mode){
+        mc.set_game_mode(player , player.in_land.mode);
+          player.in_land.mode = mc.get_game_mode(player);
+      }
+
+      set_land_id(player,land_id);
+    
+      //显示ActionBar
+      push_text("land.show" , "您已进入领地:[0]\n领地创建者:[1]\n您的身份是:[2]")
+      let text = format(get_text("land.show"),[land.name , (tool.to_bool(land.public) ? "公共领地" : get_name_by_id(land.creater)) , get_text("land." + String(level))]);
+      text += "\n§r" + land.wel;
+      if(Date.now() - to_number(player.last_warn, 0) > 1500){
+        mc.set_ActionBar(player , text);
+      }
+    }
+  }
+}, 5);
+
+function set_land_id(player , id){
+  player.in_land.id = id;
+  if(config.land.var !== "" && has_system("var")){
+    get_system("var").set_personal_var(player,config.land.var , 0 , id);
+  }
+}
+
+//4-创建者或OP 3-管理员 2-成员 1-群组成员 0-访客
+function get_land_member_level(player, land) {
+  if (player.info.manager === true && get_op_level(player) > 0) {
+    return 4
+  }
+  if (tool.to_bool(land.public)) {
+    if (get_op_level(player) > 0) {
+      return 4;
+    }
+  }
+  if (land.creater === get_id(player)) {
+    return 4;
+  }
+  if(tool.array_has(tool.to_array(land.op),get_id(player))){
+    return 3;
+  }
+  if (array_has(land.member, player.name) || tool.array_has(land.member , get_id(player))) {
+    return 2;
+  }
+  /* for (var g of get_player_groups(player)) {
+    if (array_has(land.group, String(g.id))) {
+      return 1;
+    }TODO
+  } */
+  return 0;
+}
 
 function load_lands(){
   let need_continue = false;
@@ -92,6 +201,7 @@ function save_player_lands(player) {
 function load_player_lands(player) {
   let player_lands = tool.to_array(tool.parse_json(get_data("lands", player)));
   player.lands = player_lands.filter((land_id) => {return tool.array_has(lands.ids,land_id);});
+  save_player_lands(player);
 }
 
 /*
@@ -457,12 +567,12 @@ function is_point_in_land(di , pos){
     let dis = Math.sqrt(Math.pow(Math.abs(pos.x), 2) + Math.pow(Math.abs(pos.z), 2));
     let index = two_find_min(lands.max, dis);
     if (index === -1) {
-      return false;
+      return "";
     }
 
     for (index >= 0; index--;) {
       if (lands.min[index] > dis) {
-        return false;
+        return "";
       }
       if(lands.ids[index][0] !== get_di_num(player.dimension)){
         continue;
@@ -486,7 +596,7 @@ function is_point_in_land(di , pos){
         }
       }
     }
-    return -1;
+    return "";
 }
 
 //使用二分法寻找 <= count的最大值
@@ -542,11 +652,13 @@ function settingBar(player,back = false){
     }
     ui.toggle("able", "[禁用 | 启用]", config.land.able);
     ui.range("max", "可创建领地数量(管理员可无限创建)", 0, 100, 1, config.land.max);
-    ui.input("currency", "领地扣费记分板id", "输入id", config.land.currency);
+    ui.input("currency", "领地扣费货币ID", "输入id", config.land.currency);
     ui.range("price", "领地价格/每方块(最后价格约成整数)", 0, 10, 1, config.land.price);
     ui.toggle("must", "金额必须足够(若关闭，则记分板可能会被扣费成负数)", config.land.must);
-    ui.input("show", "领地提示语(/name转换为领地主名字)", "输入提示语", config.land.show);
     ui.toggle("mode", "进入领地强制冒险模式(管理员不受限)", config.land.mode);
+    ui.options("2d" , "2D模式" , ["禁用" , "可选" , "强制"] , config.land["2d"]);
+    ui.range("radius" , "圆形领地最大半径(方形领地最大边长为圆形领地半径*1.4)" , 64 , 512 , 1 , config.land.radius);
+    ui.input("var" , "映射到自定义变量的ID(设置后，玩家进入领地，对应的自定义变量赋值为领地ID)","输入变量ID" , config.land.var);
 
     ui.show(player,(r) => {
         config.land.able = r.able;
@@ -554,10 +666,77 @@ function settingBar(player,back = false){
         config.land.price = r.price;
         config.land.currency = r.currency;
         config.land.max = r.max;
-        config.land.show = r.show;
         config.land.mode = r.mode;
-        config.land.var_money = r.var;
+        config.land["2d"] = r["2d"];
+        config.land.radius = r.radius;
+        config.land.var = r.var;
         save_config();
         event.emit_custom_event("setting_changed",{player : player , back : back});
     });
+}
+
+command.register_command("land" , "打开领地创建界面" , (player ,args) => {
+  if (player.landing.points.length !== 0) {
+    createLandBar(player);
+  } else {
+    mc.set_title(player, get_text("land.zero"));
+  }
+});
+
+command.register_command("unland" , "取消领地创建" , (player ,args) => {
+  player.landing.able = false;
+  player.landing.points = [];
+  if(tool.is_object(player.landing.shape)){
+    mc.remove_shape(player.landing.shape);
+  }
+  chat("§e[领地系统]已取消创建领地！", [player]);
+});
+
+event.register_mc_event(true , "explosion" , undefined , (event) => {
+  if (config.land.able) {
+    const entity = event.source;
+    const blocks = event.getImpactedBlocks();
+    const filtered_blocks = [];
+
+    for(let block of blocks){
+      if(is_point_in_land(block.dimension , block.center()) !== ""){
+        filtered_blocks.push(block);
+      }
+    }
+    event.setImpactedBlocks(blocks);
+  }
+});
+
+event.register_mc_event(true , "playerInteractWithEntity" , undefined , (event) => {
+  if (config.land.able) {
+    const player = event.player;
+    const entity = event.target;
+    let id = is_point_in_land(player.dimension, entity.location);
+    if (id !== "") {
+      let land = get_land(id);
+      switch(get_land_member_level(player,land)){
+        case 1:
+        case 2:
+          if(!tool.array_has(tool.to_array(land.mem_per),"ie")){
+            event.cancel = true;
+            land_unable_tip(player);
+          }
+          break;
+        case 0:
+          if(!tool.array_has(tool.to_array(land.other_per),"ie")){
+            event.cancel = true;
+            land_unable_tip(player);
+          }
+          break;
+      }
+    }
+  }
+});
+//2200
+
+function land_unable_tip(player) {
+  mc.run(() => {
+    mc.set_ActionBar(player, "§e你无权在领地内操作");
+  })
+  player.last_warn = Date.now();
 }
