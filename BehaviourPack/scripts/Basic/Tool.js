@@ -211,8 +211,7 @@ export function pos_string(vec) {
 }
 
 export function get_block_pos_text(block) {
-  const { x, y, z } = block.location;
-  return `(${Math.round(x)},${Math.round(y)},${Math.round(z)})`;
+  return `(${Math.round(block.x)},${Math.round(block.y)},${Math.round(block.z)})`;
 }
 
 //DimendionPosition -> string

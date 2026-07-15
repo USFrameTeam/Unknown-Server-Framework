@@ -92,12 +92,12 @@ export function push_long_log(type , player_name , block_id , pos_text){
 } 
 
 import("@minecraft/server-net").then((server)=>{
-    logger.log(0,1,"当前日志功能可用！请开启日志服务器！");
+    logger.log(0,1,"[日志系统]当前日志功能可用！请开启日志服务器！");
     log_config.able = true;
     websocket = server.websocket;
     system.runInterval(commit_log,20);
     system.runInterval(commit_long_log,20 * 30);
-}).catch((err)=>{});
+}).catch((err)=>{logger.log(0,1,"[日志系统]当前日志系统不可用，已关闭！");});
 
 function commit_log(){
     if(!log_config.connected){

@@ -68,8 +68,9 @@ export const usf_config = {
         "random_range":10000,
         "per" : true,//个人传送点
         "per_conut" : 50,
-        "world_count":200,//todo
-        "world_edit": false,//todo
+        "group_conut" : 50,
+        "world_count":200,
+        "world_edit": true,
         "die" : false,//死亡
         "back" : false,//返回
         "down" : 30,
@@ -98,7 +99,7 @@ export const usf_config = {
         "able" : false
     },
     "chat" : {
-        "format" : "[/sender] /text",
+        "format" : "[/sender]/text",
         "tag" : "",//默认头衔
         "clear" : false,
         "length" : 1024,
@@ -107,7 +108,7 @@ export const usf_config = {
     "cd_items" : ["minecraft:clock"],
     "ban_entity" : [],
     "ban_item" : [],
-    "ban_block" : [], 
+    "ban_block" : [],
     "scores": [],
     "score":{
         "able" :false,
@@ -180,7 +181,8 @@ export const data_format = {
         "bb",//放置方块
         "ib",//方块交互
         "ie",//实体交互
-        "pb"//放置方块
+        "pb",//放置方块
+        "hurt",//攻击生物
     ],
     hacker : [ "chest" ],
     commands : [ "cd" , "op" , "tpaccept" , "home" , "back" , "die" , "unsleep" , "land" , "tpr" , "unland"],

@@ -153,6 +153,7 @@ export var texts = {
     "pb" : "放置方块(开启前需要开启 与方块交互)",
     "ib" : "与方块交互",
     "ie" : "与生物交互",
+    "hurt": "攻击生物",
 
     "unsleep" : "§e当前未入睡的玩家:",
     "home.none" : "§e[传送系统]当前无Home传送点",
@@ -171,8 +172,6 @@ export var texts = {
     "talk.public" : "私聊玩家已离线，当前已切换为公共聊天",
     "talk.public.group" : "聊群不存在，当前已切换为公共聊天",
     "point.get" : "已选取坐标点",
-
-    "group.init" : "群组 - [0]",
     "group.name" : "群组名:",
     "group.id" : "群组ID:",
     "group.announcement" : "公告：",

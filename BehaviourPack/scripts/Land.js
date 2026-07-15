@@ -1,5 +1,5 @@
-import { has_system , get_system , config ,save_config } from "./Basic/Core.js";
-import { data_format, get_data , save_data } from "./Basic/Data.js";
+import { has_system , get_system , config ,save_config, register_system } from "./Basic/Core.js";
+import { data_format, get_data , pictures, save_data, ui_icon } from "./Basic/Data.js";
 import * as tool from "./Basic/Tool.js";
 import * as event from "./Basic/Event.js";
 import { infoBar , btnBar } from "./Basic/ui.js";
@@ -8,6 +8,8 @@ import { format , get_text, push_text} from "./Basic/Text.js";
 import { get_op_level } from "./Basic/Permission.js";
 import { is_in_manager_mode , get_name_by_id , get_id} from "./Basic/Player.js";
 import * as command from "./Command.js";
+import { register_global_ui , confirm , tip, playerChooser} from "./Basic/UniversalUI.js";
+import * as logger from "./Basic/Logger.js";
 
 
 /*
@@ -28,13 +30,17 @@ event.connect_custom_event("world_load",(things) => {
     //注册设置
     if(has_system("setting")){
       get_system("setting").register_setting("land","领地设置",settingBar);
-    }//TODO
+    }
 
     load_lands();
     loaded = true;
     
     for(let player of mc.get_all_players()){
       load_player_lands(player);
+    }
+
+    if(!has_system("pay")){
+      logger.log(2,1,"————支付系统未加载，领地系统无法使用————");
     }
 
     logger.log(0,1,"————领地系统已加载————");
@@ -193,6 +199,10 @@ function get_land(id) {
   return tool.to_object(tool.parse_json(data),{});
 }
 
+function is_land_id_valid(id){
+  return tool.array_has(lands.ids,id);
+}
+
 function save_player_lands(player) {
   if (!tool.is_player(player) || tool.un(player.lands)){ return;}
   save_data("lands", tool.to_json(player.lands), player);
@@ -296,7 +306,7 @@ function createLandBar(player) {
     ui.toggle("public", "公共领地(管理均可编辑)", false);
   }
 
-  ui.options("type", "操作", ["更新预览范围", "取消创建", "确认创建"], 0);
+  ui.options("type", "操作", ["更新并预览范围", "取消创建", "确认创建"], 0);
   ui.show(player, (r) => {
     if (r.type === 1) {
       player.landing.able = false;
@@ -644,6 +654,347 @@ function get_random_land_id(di) {
   return id;
 }
 
+register_global_ui("land" , landBar);
+
+function landBar(player, options ) {
+  if(!config.land.able){return;}
+
+  const ui = new btnBar();
+  ui.title = "我的领地";
+  if(tool.is_function(options.cancel)){
+    ui.cancel = options.cancel();
+  }
+
+  if (!has_system("pay") || !get_system("pay").is_currency_valid(config.land.currency)) {
+    tip(player , "货币配置错误！领地功能无法使用！" , () => {});
+    return;
+  }
+
+  let length = player.lands.length;
+  player.lands = player.lands.filter((id) => {return is_land_id_valid(id) && get_land(id).creater === get_id(player)});
+  if(player.lands.length !== length){save_player_lands(player);}
+
+  let text = "";
+  let current_land_id = is_point_in_land(player.dimension, player.location);
+  if (current_land_id !== "") {
+    const land = get_land(current_land_id);
+    text += `当前领地：${land.name}(ID:${land.id})\n`;
+  }
+
+  push_text("land" , "欢迎使用领地系统！\n此处管理您的所有领地\n您的领地数量:[0]");
+  ui.body = text + format(get_text("land") , [player.lands.length]);
+  if (player.lands.length < config.land.max || get_op_level(player) > 0) {
+    ui.btns.push({
+      text: "添加领地",
+      icon: ui_icon.add,
+      func: () => {
+        player.landing.able = true;
+        tip(player, array2string([
+          "领地设置方法:",
+          "空手选取方块点",
+          "输入+land命令即可进入创建页面",
+          "输入+unland命令即可取消创建领地",
+          "创建页面可更改Y轴",
+          "创建页面选择 更新并预览范围 模式可以继续修改坐标点",
+        ]));
+      }
+    });
+  }
+
+  for (let land_id of player.lands) {
+    let land = get_land(land_id);
+    ui.btns.push({
+      text: `[${mc.get_di(land.di).name}]${land.name}`,
+      op: {
+        id: land.id,
+      },
+      func: (op) => {
+        viewLandBar(player , op.id , false);
+      }
+    });
+  }
+
+  ui.show(player);
+}
+
+//direct => 为true时，不会返回landBar
+function viewLandBar(player , id , direct = false) {
+  if(!is_land_id_valid(id)){
+    return;
+  }
+
+  let land = get_land(id);
+  const ui = new btnBar();
+  ui.title = format("领地 - [0]" , [land.name]);
+  if(!direct){
+    ui.cancel = () => {
+      landBar(player);
+    }
+  }
+
+  let land_range_text = (tool.to_string(land.type , "box") === "box") ? `范围:${tool.get_block_pos_text(land.from)} 到 ${tool.get_block_pos_text(land.to)}` : format("原点:[0];高度:[1];半径[2]",[tool.get_block_pos_text(land.from) , land.height*2, land.radius]);
+  ui.body = [
+    `领地名:${land.name}`,
+    `领地ID:${land.id}`,
+    `领地所在维度:${mc.get_di(land.di).name}`,
+    land_range_text,
+    `领地创建者:${(tool.to_bool(land.public) ? "公共领地" : get_name_by_id(land.creater))}`,
+    `管理员:${tool.array2line(land.op)}`,
+    `成员:${tool.array2line(land.member.map((p_id) => {return get_name_by_id(p_id);}))}`,
+    //TODO `开放队伍:${tool.array2line(land.group)}`,
+  ];
+  if (tool.is_number(land.price)) {
+    ui.body.push(`价格:${land.price}`);
+  }
+
+  ui.btns = [{
+    text : "查看权限",
+    icon : pictures.pickaxe,
+    func : () => {
+      const ui2 = new btnBar();
+      ui2.title = "查看我的权限";
+      ui2.cancel = () => {
+        viewLandBar(player , id);
+      }
+      let text = `你的身份:${get_text("land." + String(get_land_member_level(player, land)))}`;
+      let level = get_land_member_level(player,land);
+      let per_array = (level >= 3) ? data_format.land_permission : (level === 2 || level === 1) ? land.mem_per : land.other_per;
+      for(let per of data_format.land_permission){
+        text += format("\n[0]:[1]",[get_text(per) , tool.array_has(per_array , per)]);
+      }
+      ui2.body = text;
+      ui2.btns = [{
+        text : "返回",
+        icon : ui_icon.back,
+        func : ()=>{
+          viewLandBar(player , id);
+        }
+      }];
+      ui2.show(player);
+    }
+  }];
+
+  let level = get_land_member_level(player, land);
+  if (level >= 3) {
+    ui.btns.push({
+      text: "编辑领地名",
+      icon: ui_icon.edit,
+      func: () => {
+        const ui2 = new infoBar();
+        ui2.title = "编辑领地名";
+        ui2.cancel = () => {
+          viewLandBar(player, id);
+        }
+        ui2.input("name", "领地名", "输入领地名", land.name);
+        ui2.show(player, (r) => {
+          land.name = r.name;
+          save_land(land);
+          viewLandBar(player, id)
+        })
+      }
+    });
+
+    ui.btns.push({
+      text: "编辑欢迎语",
+      icon: ui_icon.content,
+      func: () => {
+        const ui2 = new infoBar();
+        ui2.title = "编辑欢迎语";
+        ui2.cancel = () => {
+          viewLandBar(player , id);
+        }
+        ui2.input("wel", "欢迎语", "输入欢迎语", land.wel);
+        ui2.show(player, (r) => {
+          land.wel = r.wel;
+          save_land(land);
+          viewLandBar(player, id);
+        });
+      }
+    });
+
+    ui.btns.push({
+      text: "编辑成员权限",
+      func: () => {
+        editLandPermissionBar(player, land, 0)
+      }
+    }, {
+      text: "编辑访客权限",
+      func: () => {
+        editLandPermissionBar(player, land, 1)
+      }
+    })
+
+    ui.btns.push({
+      text: "编辑开放队伍",
+      icon: ui_icon.group,
+      func: () => {
+        const ui2 = new infoBar();
+        ui2.title = "编辑开放队伍";
+        ui2.cancel = () => {
+          viewLandBar(player , id);
+        }
+        //TODO 显示您的所有队伍
+        ui2.input("group", "开放队伍(多个队伍间用英文,间隔)", "如:58965,695632,256699", array2line(land.group));
+        ui2.show(player, (r) => {
+          let groups = r.group.split(",");
+          tool.array_clear(groups, "");
+          land.group = groups;
+          save_land(land);
+          viewLandBar(player, id);
+        });
+      }
+    });
+
+    if(land.member.length > 0 || land.op.length > 0){
+      ui.btns.push({
+      text: "编辑管理员",
+      icon: ui_icon.op,
+      func: () => {
+        const ui2 = new infoBar();
+        ui2.title = "编辑管理员";
+        ui2.cancel = () => {
+          viewLandBar(player , id , direct);
+        }
+        for(let id of land.op){
+          ui2.toggle(id , get_name_by_id(id) , true);
+        }
+        for(let id of land.member){
+          ui2.toggle(id , get_name_by_id(id) , false);
+        }
+        ui2.show(player , (r) => {
+          let op = [];
+          let member = [];
+          for(let id of Object.keys(r)){
+            if(r[id]){
+              op.push(id);
+            }else{
+              member.push(id);
+            }
+          }
+          land.member = member;
+          land.op = op;
+          save_land(land);
+          viewLandBar(player,land.id);
+        })
+      }
+    });
+    }
+
+    ui.btns.push({
+      text: "添加成员",
+      icon: ui_icon.add,
+      func: () => {
+        const players = []
+        for (var p of mc.get_all_players()) {
+          if (!tool.array_has(land.member, p.name) && !tool.array_has(land.op, p.name) && get_id(p) !== land.creater) {
+            players.push(p);
+          }
+        }
+        playerChooser(player, players, (ps) => {
+          for (var p of ps) {
+            if(mc.is_entity_valid(p)){
+              land.member.push(get_id(player));
+            }
+          }
+          save_land(land);
+          viewLandBar(player, id);
+        })
+      }
+    });
+
+    if (land.member.length > 0) {
+      ui.btns.push({
+        text: "移除成员",
+        icon: ui_icon.rubbish,
+        func: () => {
+          var ui2 = new infoBar();
+          ui2.title = "移除成员";
+          ui2.cancel = () => {
+            viewLandBar(player, id);
+          }
+          ui2.options("id", "移除成员", land.member.map((p_id) => {return get_name_by_id(p_id);}), 0);
+          ui2.show(player, (r) => {
+            land.member.splice(r.id, 1);
+            save_land(land);
+            viewLandBar(player, id);
+          })
+        }
+      });
+    }
+  }
+
+  if(level === 4){
+    ui.btns.push({
+      text: "删除领地",
+      icon: ui_icon.delete,
+      func: () => {
+        confirm(player, "确认删除领地？", (r) => {
+          if(r){
+            let count = tool.to_number(land.price);
+            delete_land(land.id);
+            if(count > 0 && has_system("pay") && get_id(player) === land.creater){
+              get_system("pay").add_money(player , config.land.currency , count)
+            }
+            if(!direct){
+              landBar(player);
+            }
+          }else {
+            viewLandBar(player, id);
+          }
+        });
+      }
+    });
+  }
+  ui.show(player);
+}
+
+function editLandPermissionBar(player, land, type = 0) {
+  land.mem_per = tool.to_array(land.mem_per);
+  land.other_per = tool.to_array(land.other_per);
+
+  const ui = new infoBar();
+  if (type === 0) {
+    ui.title = "编辑成员权限"
+  } else {
+    ui.title = "编辑访客权限"
+  }
+
+  for (var per of data_format.land_permission) {
+    if (type === 0) {
+      ui.toggle(per, get_text(per), tool.array_has(land.mem_per, per));
+    } else {
+      ui.toggle(per, get_text(per), tool.array_has(land.other_per, per));
+    }
+  }
+
+  ui.show(player, (r) => {
+    var result = [];
+    for (var k in r) {
+      if (r[k] === true) {
+        result.push(k);
+      }
+    }
+    if (type === 0) {
+      land.mem_per = result;
+    } else {
+      land.other_per = result;
+    }
+
+    save_land(land);
+    viewLandBar(player, land.id);
+  })
+}
+
+function delete_land(id){
+  if(is_land_id_valid(id)){
+    const index = lands.ids.indexOf(id);
+    lands.ids.splice(index, 1);
+    lands.min.splice(index, 1);
+    lands.max.splice(index, 1);
+    save_lands();
+  }
+}
+
 function settingBar(player,back = false){
     const ui = new infoBar();
     ui.title = "领地设置";
@@ -651,7 +1002,7 @@ function settingBar(player,back = false){
         event.emit_custom_event("setting_changed",{player : player , back : back});
     }
     ui.toggle("able", "[禁用 | 启用]", config.land.able);
-    ui.range("max", "可创建领地数量(管理员可无限创建)", 0, 100, 1, config.land.max);
+    ui.range("max", "可创建领地数量(管理员可无限创建)", 1, 100, 1, config.land.max);
     ui.input("currency", "领地扣费货币ID", "输入id", config.land.currency);
     ui.range("price", "领地价格/每方块(最后价格约成整数)", 0, 10, 1, config.land.price);
     ui.toggle("must", "金额必须足够(若关闭，则记分板可能会被扣费成负数)", config.land.must);
@@ -732,7 +1083,140 @@ event.register_mc_event(true , "playerInteractWithEntity" , undefined , (event) 
     }
   }
 });
-//2200
+
+event.register_mc_event(true , "playerInteractWithBlock" , undefined , (event) => {
+  if (!config.land.able) {
+    return;
+  }
+
+  let player = event.player;
+  let block = event.block;
+  let item = event.itemStack;
+  if (tool.un(item)){
+    if (tool.to_bool(tool.to_object(player.landing).able)) {
+      if(player.landing.points.length === 0 || 
+        (player.landing.points.length > 0 && tool.get_block_pos_text(block) !== tool.get_block_pos_text(player.landing.points[player.landing.points.length - 1]))){
+          if(player.landing.points.length === 2){
+            player.landing.points.splice(1,1);
+          }
+          player.landing.points.push({
+            x: block.x,
+            y: block.y,
+            z: block.z,
+          });
+        }
+    }
+
+    event.cancel = true;
+    return;
+  }
+
+  let id = is_point_in_land(player.dimension, block.location);
+  if (id !== "") {
+    let land = get_land(id);
+    switch(get_land_member_level(player,land)){
+      case 1:
+      case 2:
+        if(!tool.array_has(tool.to_array(land.mem_per),"ib")){
+          event.cancel = true;
+          land_unable_tip(player);
+        }
+        break;
+      case 0:
+        if(!tool.array_has(tool.to_array(land.other_per),"ib")){
+          event.cancel = true;
+          land_unable_tip(player);
+        }
+        break;
+    }
+  }
+
+});
+
+event.register_mc_event(true , "playerPlaceBlock" , undefined , (event) => {
+  if (config.land.able) {
+    const player = event.player;
+    const block = event.block;
+    let id = is_point_in_land(player.dimension, block.location);
+    if (id !== "") {
+      let land = get_land(id);
+      switch(get_land_member_level(player,land)){
+        case 1:
+        case 2:
+          if(!tool.array_has(tool.to_array(land.mem_per),"pb")){
+            event.cancel = true;
+            land_unable_tip(player);
+          }
+          break;
+        case 0:
+          if(!tool.array_has(tool.to_array(land.other_per),"pb")){
+            event.cancel = true;
+            land_unable_tip(player);
+          }
+          break;
+      }
+    }
+  }
+});
+
+event.register_mc_event(false , "playerDimensionChange" , undefined , (event) => {
+  if(tool.is_object(player.landing)){
+    player.landing.points = [];
+  }
+});
+
+event.register_mc_event(true , "entityHurt" , undefined , (event) => {
+  let player = event.damageSource.damagingEntity;
+  if(tool.is_player(player)){
+    let entity = event.hurtEntity;
+    let id = is_point_in_land(entity.dimension, entity.location);
+    if (id !== "") {
+      let land = get_land(id);
+      switch(get_land_member_level(player,land)){
+        case 1:
+        case 2:
+          if(!tool.array_has(tool.to_array(land.mem_per),"hurt")){
+            event.cancel = true;
+            land_unable_tip(player);
+          }
+          break;
+        case 0:
+          if(!tool.array_has(tool.to_array(land.other_per),"hurt")){
+            event.cancel = true;
+            land_unable_tip(player);
+          }
+          break;
+      }
+    }
+  }
+});
+
+event.register_mc_event(true , "playerBreakBlock" , undefined , (event) => {
+  if (config.land.able) {
+    const player = event.player;
+    const block = event.block;
+    let id = is_point_in_land(player.dimension, block.location);
+    if (id !== "") {
+      let land = get_land(id);
+      switch(get_land_member_level(player,land)){
+        case 1:
+        case 2:
+          if(!tool.array_has(tool.to_array(land.mem_per),"bb")){
+            event.cancel = true;
+            land_unable_tip(player);
+          }
+          break;
+        case 0:
+          if(!tool.array_has(tool.to_array(land.other_per),"bb")){
+            event.cancel = true;
+            land_unable_tip(player);
+          }
+          break;
+      }
+    }
+  }
+});
+
 
 function land_unable_tip(player) {
   mc.run(() => {
@@ -740,3 +1224,8 @@ function land_unable_tip(player) {
   })
   player.last_warn = Date.now();
 }
+
+register_system("land" , {
+  get_land : get_land,
+  is_land_id_valid : is_land_id_valid,
+})

@@ -403,6 +403,46 @@ function worldPosBar(player) {
     });
 }
 
+function groupPosBar(player) {
+    let ids = get_system("group").get_player_groups(player);
+    if(ids.length === 0){
+      tip(player , "您未加入任何群组!" , () => {
+        posBar(player);
+      });
+      return;
+    }
+
+    const ui = new infoBar();
+    ui.cancel = () => {
+      posBar(player);
+    }
+    ui.title = "选择群组";
+    ui.options("id" , "群组" ,  ids.map((id) => {return get_system("group").get_group(id).name}) , 0);
+    ui.show(player , (r) => {
+      let group = get_system("group").get_group(ids[r.id]);
+      let options = {editable : group.creater === get_id(player) , shareable : true};
+      if(is_in_manager_mode(player)){
+          options = {
+              editable : true,
+              shareable : true,
+          }
+      }
+      typedPosBar(player,"群组传送点",group.pos,0,{
+          cancel : () => {
+              posBar(player);
+          },
+          save : () => {
+              get_system("group").save_group(group);
+          },
+          addable : true,
+          options : options,
+          max : config.tp.group_conut,
+      });
+    });
+
+    
+}
+
 function sharePosBar(player, pos) {
   const ui = new infoBar();
   ui.title = "分享坐标点";
@@ -597,7 +637,7 @@ function posBar(player , options = {}) {
       text: "群组公共点",
       icon: ui_icon.group,
       func: () => {
-        //TODO
+        groupPosBar(player);
       }
     })
   }
@@ -727,7 +767,15 @@ function searchPosBar(player){
       types.push("分享传送点");
       pos_set_array.push(share_pos);
     }
-    //TODO:群组传送点
+    if(config.group.able && has_system("group")){
+      for(let id of get_system("group").get_player_groups(player)){
+        let group = get_system("group").get_group(id);
+        if(group.pos.length > 0){
+          types.push("群组传送点" + " - " + group.name);
+          pos_set_array.push(group.pos);
+        }
+      }
+    }
 
     const ui = new infoBar();
     ui.title = "搜索传送点";
@@ -811,7 +859,10 @@ function settingBar(player , back = false){
     ui.toggle("back", "传送返回[关闭 | 开启]", config.tp.back);
     ui.toggle("share", "分享传送点[关闭 | 开启]", config.tp.share);
     ui.toggle("animation", "传送动画（实验性玩法）[关闭 | 开启]", config.tp.animation);
-    ui.range("per_count", "个人传送点数量", 1, 55, 1, config.tp.per_count);
+    ui.range("per_count", "个人传送点数量", 1, 200, 1, config.tp.per_count);
+    ui.range("group_count", "群组传送点数量", 1, 200, 1, config.tp.group_count);
+    ui.range("world_count", "世界传送点数量", 1, 200, 1, config.tp.world_count);
+    ui.toggle("world_edit", "允许所有人修改世界传送点(关闭后仅创建者/管理员可修改)", config.tp.world_edit);
     ui.range("random_range", "随机传送距离(为0时不显示)", 0, 50000, 1000, config.tp.random_range);
     ui.toggle("random_end", "允许末地使用随机传送", config.tp.random_end);
     ui.range("down", "TP冷却时间/s", 0, 600, 10, config.tp.down);
@@ -821,6 +872,9 @@ function settingBar(player , back = false){
       config.tp.random_range = r.random_range;
       config.tp.random_end = r.random_end;
       config.tp.die = r.die;
+      config.tp.group_count = r. group_count;
+      config.tp.world_count = r. world_count;
+      config.tp.world_edit = r.world_edit;
       config.tp.world = r.world;
       config.tp.per = r.per;
       config.tp.share = r.share;
@@ -831,7 +885,7 @@ function settingBar(player , back = false){
       config.tp.back = r.back;
       save_config();
       event.emit_custom_event("setting_changed",{ player : player , back : back});
-    })
+    });
 }
 
 register_global_ui("pos" , posBar);

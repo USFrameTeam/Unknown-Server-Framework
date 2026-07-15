@@ -25,6 +25,10 @@ export function show_global_ui(player , ui_id , options = {}){
     }
 }
 
+export function has_global_ui(ui_id){
+  return !tool.un(global_ui[ui_id]);
+}
+
 //text - 显示的文本 ,choice - 当前的选项
 export function add_pictures_choice(ui, text, choice = null) {
   var texts = ["无"]

@@ -1,4 +1,4 @@
-import { register_global_ui , show_global_ui , tip , chooseBar} from "./Basic/UniversalUI.js";
+import { register_global_ui , show_global_ui , tip , chooseBar , has_global_ui} from "./Basic/UniversalUI.js";
 import { btnBar , infoBar } from "./Basic/ui.js";
 import { get_id , get_name_by_id} from "./Basic/Player.js";
 import { get_op_level , ops , owners , save_ops , save_owners} from "./Basic/Permission.js";
@@ -37,7 +37,7 @@ function usfBar(player , options){
         text: "插件设置",
         icon: data.ui_icon.setting,
         func: () => {
-            show_global_ui("setting",player);
+            show_global_ui(player , "setting");
         }
     },{
         text: "OP管理",
@@ -46,6 +46,17 @@ function usfBar(player , options){
             opBar(player);
         }
     }];
+
+    if(has_global_ui("whitelist")){
+        ui.btns.push({
+            text: "白名单管理",
+            icon: data.pictures.pickaxe,
+            func: () => {
+                show_global_ui(player , "whitelist");
+            }
+        })
+    }
+
     ui.show(player);
     event.emit_custom_event("usf_manager_bar_showed",{"player" : player});
 }

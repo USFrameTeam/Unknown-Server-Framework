@@ -186,6 +186,7 @@ function pay_money(player , currency_id , count){
             mc.scoreboard_add(player , currency.goal , -count);
             break;
     }
+    mc.chat(format("[支付系统]支付成功！货币余额:[0]" , [get_currency_balance(player,currency_id)]) , [player]);
 }
 
 function add_money(player , currency_id , count){
@@ -204,6 +205,7 @@ function add_money(player , currency_id , count){
             mc.scoreboard_add(player , currency.goal , count);
             break;
     }
+    mc.chat(format("[支付系统]您的货币[0]收到一笔转账，货币余额:[1]" , [get_currency_name(currency_id) , get_currency_balance(player,currency_id)]) , [player]);
 }
 
 function get_currency_counts(){

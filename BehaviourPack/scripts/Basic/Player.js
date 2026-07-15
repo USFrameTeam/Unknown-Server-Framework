@@ -1,6 +1,7 @@
 import * as data from "./Data.js";
 import * as tool from "./Tool.js";
 import * as event from "./Event.js";
+import { register_symbol } from "./Text.js";
 
 var last_id = Date.now();
 //id_name : { USFID : 玩家ID}
@@ -10,6 +11,22 @@ var id_players = {};
 
 event.report_custom_event("player_join");
 event.report_custom_event("new_player");
+
+//ping
+register_symbol(false , "ping" , false , "获取玩家延迟" , (player) => {
+    return String(player.getPing()) + "ms";
+});
+
+register_symbol(false , "platform" , false , "获取玩家平台" , (player) => {
+    switch(player.clientSystemInfo.platformType){
+        case "Desktop":
+            return "PC";
+        case "Mobile":
+            return "移动";
+    }
+    return "未知";
+});
+
 
 event.register_mc_event(false,"worldLoad",undefined,function(event){
     id_names = tool.to_object(tool.parse_json(data.get_data("id_names")), {});

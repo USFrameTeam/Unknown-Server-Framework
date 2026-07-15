@@ -70,8 +70,8 @@ var item_count = 0;
 //var ids = [];
 var chests = [];
 var global_goods = [];
-var groups = [];
-var group_mess = {};
+/* var groups = [];
+var group_mess = {}; */
 //var id_player = {};
 /* var public_pos = [];
 var share_pos = [];
@@ -842,7 +842,7 @@ system_ids.chest_log = system.runInterval(() => {
   };
 }, 30 * 20); */
 
-system.group_mess = system.runInterval(() => {
+/* system.group_mess = system.runInterval(() => {
   const groupIds = Object.keys(group_mess);
 
   if (groupIds.length === 0) {
@@ -879,7 +879,7 @@ system.group_mess = system.runInterval(() => {
     }
   }
   group_mess = {};
-}, 20 * 30);
+}, 20 * 30); */
 
 system_ids.time = system.runInterval(() => {
   if (!config.time.able) {
@@ -1082,7 +1082,7 @@ system_ids.time = system.runInterval(() => {
   // return os;
 // }
 
-function player_add_group(player, id) {
+/* function player_add_group(player, id) {
   if (!player || !id) return;
 
   const groupsData = get_data("groups", player);
@@ -1092,7 +1092,7 @@ function player_add_group(player, id) {
     group_ids.push(id);
     save_data("groups", to_json(group_ids), player);
   }
-}
+} */
 
 // function is_owner(player) {
   // if (!player) return false;
@@ -1296,7 +1296,7 @@ function player_add_group(player, id) {
   return boards;
 } */
 
-function is_group(v) {
+/* function is_group(v) {
   return v && typeof v === 'object' && Object.keys(v).length > 0;
 }
 
@@ -1330,7 +1330,7 @@ function get_random_group_id() {
   } while (is_group(get_group(id)));
 
   return id;
-}
+} */
 
 /* function get_random_land_id() {
   const min = 100000;
@@ -1351,7 +1351,7 @@ function get_random_group_id() {
   return id;
 } */
 
-const _playerGroupsCache = {};
+/* const _playerGroupsCache = {};
 
 function get_player_groups(player) {
   const playerId = get_id(player);
@@ -1385,7 +1385,7 @@ function get_player_groups(player) {
   _playerGroupsCache[playerId] = validGroups;
 
   return validGroups;
-}
+} */
 
 function arraysEqual(a, b) {
   if (a.length !== b.length) return false;
@@ -1408,7 +1408,7 @@ function reload_all() {
 
   //dictionary = to_object(parse_json(get_data("dictionary")), {});
 
-  groups = to_array(parse_json(get_data("group_ids")), []);
+  /* groups = to_array(parse_json(get_data("group_ids")), []); */
 
   /* public_pos = get_public_pos();
   world_pos = to_array(parse_json(get_data("world_pos")), []); */
@@ -2199,7 +2199,7 @@ function beforePlayerInteractWithEntity(event) {
 } */
 
 function beforePlayerInteractWithBlock(event) {
-  var player = event.player
+  /* var player = event.player
   var block = event.block
   var item = event.itemStack
   if (is_player(player)) {
@@ -2229,7 +2229,7 @@ function beforePlayerInteractWithBlock(event) {
         }
       }
     }
-  };
+  }; */
   for (var t in limit) {
     if (player.hasTag(t)) {
       if (limit[t].ib) {
@@ -2242,7 +2242,7 @@ function beforePlayerInteractWithBlock(event) {
     }
   }
 
-  if (config.land.able && !array_has(data_format.allow_blocks, block.typeId)) {
+  /* if (config.land.able && !array_has(data_format.allow_blocks, block.typeId)) {
     var land = get_land_by_pos(player.dimension, block.center())
     if (is_string(land.name)) {
       if (land_member_level(player, land) === 0 && !array_has(to_array(land.other_per), "ib")) {
@@ -2254,7 +2254,7 @@ function beforePlayerInteractWithBlock(event) {
         land_unable_tip(player)
       }
     }
-  }
+  } */
 
   if (to_number(player.last_in, 0) + 20 < system.currentTick) {
     player.last_in = system.currentTick
@@ -2737,7 +2737,7 @@ function beforeBlockPlace(event) {
     }
   }
 
-  if (config.land.able) {
+/*   if (config.land.able) {
     var land = get_land_by_pos(player.dimension, block.center())
     if (is_string(land.name)) {
       if (land_member_level(player, land) === 0 && !array_has(to_array(land.other_per), "pb")) {
@@ -2749,7 +2749,7 @@ function beforeBlockPlace(event) {
         land_unable_tip(player)
       }
     }
-  }
+  } */
 }
 
 function afterBlockPlace(event) {
@@ -2800,7 +2800,7 @@ function beforeBlockBreak(event) {
     }
   }
 
-  if (config.land.able) {
+/*   if (config.land.able) {
     var land = get_land_by_pos(player.dimension, block.center())
     if (is_string(land.name)) {
       if (land_member_level(player, land) === 0 && !array_has(to_array(land.other_per), "bb")) {
@@ -2812,7 +2812,7 @@ function beforeBlockBreak(event) {
         land_unable_tip(player)
       }
     }
-  }
+  } */
 }
 
 function afterBlockBreak(event) {
@@ -3044,7 +3044,7 @@ function afterPlayerDimensionChange(event) {
       showParticles: false
     })
   } */
-  player.landing.points = []
+  /* player.landing.points = [] */
 }
 
 function get_health(entity) {
@@ -3575,7 +3575,7 @@ case "back":
 
 //界面
 
-function groupLookBar(player, g, op = false) {
+/* function groupLookBar(player, g, op = false) {
   var ui = new btnBar()
   ui.title = format("group.init", [g.name])
 
@@ -3730,7 +3730,7 @@ function groupLookBar(player, g, op = false) {
     })
   }
   ui.show(player)
-}
+} */
 
 /* function confirm(player, text, back = function () { }) {
   var ui = new btnBar()
@@ -3755,14 +3755,14 @@ function groupLookBar(player, g, op = false) {
   ui.show(player)
 } */
 
-function add_invite(player, id) {
+/* function add_invite(player, id) {
   var invites = to_array(parse_json(get_data("invites", player)), [])
   if (!array_has(invites, id)) {
     invites.push(id)
     chat("[群组]你收到一条群组邀请！请前往查看！", [player])
   }
   save_data("invites", to_json(invites), player)
-}
+} */
 
 /* //该函数返回的是选择的things的index
 function chooseBar(player, things = [], back = function () { }) {
@@ -3815,7 +3815,7 @@ function chooseBar(player, things = [], back = function () { }) {
   })
 } */
 
-function editGroupBar(player, g) {
+/* function editGroupBar(player, g) {
   var new_g = false
   if (!is_group(g)) {
     new_g = true
@@ -3846,9 +3846,9 @@ function editGroupBar(player, g) {
     save_group(g)
     groupLookBar(player, get_group(g.id))
   })
-}
+} */
 
-function get_land_by_pos(di, pos) {
+/* function get_land_by_pos(di, pos) {
   var dis = Math.sqrt(Math.pow(Math.abs(pos.x), 2) + Math.pow(Math.abs(pos.z), 2))
   var ix = two_find_min(lands.min, dis)
   if (ix === -1) {
@@ -3868,9 +3868,9 @@ function get_land_by_pos(di, pos) {
     }
   }
   return {}
-}
+} */
 
-function is_group_has(g, player) {
+/* function is_group_has(g, player) {
   if (g.creater === get_id(player) || array_has(g.member, get_id(player))) {
     return true
   }
@@ -4017,7 +4017,7 @@ function groupsBar(player) {
   })
 
   ui.show(player)
-}
+} */
 
 /* function setChatBar(player) {
   var texts = ["公共聊天"]
@@ -4358,7 +4358,7 @@ function get_player_pos(player) {
   })
 } */
 
- function groupPosBar(player) {
+ /* function groupPosBar(player) {
   var ui = new btnBar()
   ui.title = "群组公共点"
   ui.body = "管理所有群组的传送点"
@@ -4448,7 +4448,7 @@ function get_player_pos(player) {
   })
 
   ui.show(player)
-}
+} */
 
 
 /* function worldPosBar(player, page = 0, reverseOrder = false) {
@@ -4878,7 +4878,8 @@ func: () => {
   return block
 } */
 
-function landBar(player, goal) {
+
+/* function landBar(player, goal) {
 
   var ui = new btnBar()
   ui.title = "领地管理"
@@ -4930,9 +4931,9 @@ function landBar(player, goal) {
   }
 
   ui.show(player)
-}
+} */
 
-function array2line(array) {
+/* function array2line(array) {
   var text = ""
   for (var t of array) {
     text += t + ","
@@ -4943,9 +4944,9 @@ function array2line(array) {
 
 function vector3_to_string(vec) {
   return `(${vec.x.toFixed(1)},${vec.y.toFixed(1)},${vec.z.toFixed(1)})`
-}
+} */
 
-function editLandPermissionBar(player, goal, land, type) {
+/* function editLandPermissionBar(player, goal, land, type) {
   land.mem_per = to_array(land.mem_per)
   land.other_per = to_array(land.other_per)
 
@@ -4980,9 +4981,9 @@ function editLandPermissionBar(player, goal, land, type) {
     save_land(land)
     viewLandBar(player, goal, land.id)
   })
-}
+} */
 
-function viewLandBar(player, goal, id) {
+/* function viewLandBar(player, goal, id) {
   var land = get_land(id)
   var ui = new btnBar()
   ui.title = "领地"
@@ -5141,7 +5142,7 @@ function viewLandBar(player, goal, id) {
     })
   }
   ui.show(player)
-}
+} */
 
 /* function get_random_tp_range() {
   return random_int(config.tp.random_range * 2) - config.tp.random_range
@@ -8714,13 +8715,13 @@ function usfSettingBar(player) {
   	func: ()=>{
   		new ScoreBoardGUI().sendToPlayer(player);
   	}
-  }, {
+  }/* , {
     text: "群组设置",
     icon: ui_icon.group,
     func: () => {
       usfFunctionBar(player, "group")
     }
-  }, {
+  }, */ {
     text: "日志功能设置",
     icon: ui_icon.content,
     func: () => {
@@ -8732,13 +8733,13 @@ function usfSettingBar(player) {
     func: () => {
       usfFunctionBar(player, "score")
     }
-  }, */ {
+  }, *//*  {
     text: "领地功能设置",
     icon: ui_icon.land,
     func: () => {
       usfFunctionBar(player, "land")
     }
-  }, /* {
+  }, */ /* {
     text: "小游戏功能设置",
     icon: ui_icon.map,
     func: () => {
@@ -9369,11 +9370,11 @@ function usfFunctionBar(player, type) {
       ui.title = "语言设置"
       ui.options("l", "语言", ["简体中文", "繁体中文"], config.language)
       break */
-    case "group":
+/*     case "group":
       ui.title = "群组设置"
       ui.toggle("able", "[禁用 | 启用]", config.groups.able)
       ui.range("max", "可创建群组数量(管理员可无限创建)", 0, 100, 1, config.groups.max)
-      break
+      break */
 /*     case "land":
       ui.title = "领地设置"
       ui.toggle("able", "[禁用 | 启用]", config.land.able)
@@ -9441,7 +9442,7 @@ function usfFunctionBar(player, type) {
       ui.toggle("able", "进服欢迎提示[关闭 | 开启]", config.tip.able)
       ui.input("content", "内容" + get_text("tran_text"), "输入内容", get_data("tip"))
       break */
-    case "chat":
+/*     case "chat":
       ui.title = "聊天格式"
       var text = get_text("tran_text") + "\n\n聊天格式设置(以下内容会被特殊转义)：\n/sender >>发送者名称\n/tag >>聊天头衔\n/text >>聊天内容"
       ui.input("format", text, "输入内容", config.chat.format)
@@ -9449,7 +9450,7 @@ function usfFunctionBar(player, type) {
       ui.input("l", "消息长度限制(最大长度)", "长度", String(config.chat.length))
       ui.input("tag", "玩家默认头衔(无则显示为维度)", "输入头衔", config.chat.tag)
       ui.toggle("disable", "§e强行禁用USF聊天系统§r(+命令仍能使用)", to_bool(config.chat.disable))
-      break
+      break */
 /*     case "name":
       ui.title = "玩家名格式设置"
       var text = get_text("tran_text") + "\n\n玩家名格式设置"
@@ -9527,12 +9528,12 @@ function usfFunctionBar(player, type) {
         save_config()
         usfSettingBar(player)
         break */
-      case "group":
+/*       case "group":
         config.groups.able = r.able
         config.groups.max = r.max
         save_config()
         usfSettingBar(player)
-        break
+        break */
       case "store":
         config.store.able = r.able
         save_config()
@@ -9604,7 +9605,7 @@ function usfFunctionBar(player, type) {
         save_config()
         usfSettingBar(player)
         break
-      case "chat":
+/*       case "chat":
         config.chat.format = r.format
         config.chat.clear = r.clear
         config.chat.length = to_number(parseInt(r.l), 1024)
@@ -9612,7 +9613,7 @@ function usfFunctionBar(player, type) {
         config.chat.disable = r.disable
         save_config()
         usfSettingBar(player)
-        break
+        break */
 /*       case "name":
         config.name.format = r.format
         config.name.able = r.able

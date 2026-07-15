@@ -8,6 +8,8 @@ import * as text from "./Basic/Text.js";
 import * as data from "./Basic/Data.js";
 import { infoBar } from "./Basic/ui.js";
 import { register_global_ui , show_global_ui } from "./Basic/UniversalUI.js";
+import * as logger from "./Basic/Logger.js";
+
 
 var white_words = [];
 
@@ -24,6 +26,13 @@ event.connect_custom_event("world_load",function(_things){
         }
       });
     }
+
+    //注册设置
+    if(has_system("setting")){
+      get_system("setting").register_setting("land","领地设置",settingBar);
+    }
+    
+    logger.log(0,1,"————聊天系统已加载————");
 });
 //注册命令
 command.register_command("usf" , (player , args) => {
@@ -222,6 +231,32 @@ function get_chat_tag(player) {
     return config.chat.tag === "" ? player.dimension.name : config.chat.tag;
   }
   return tag + "§r";
+}
+
+function settingBar(player,back = false){
+    const ui = new infoBar();
+    ui.title = "聊天设置";
+    ui.cancel = () => {
+        event.emit_custom_event("setting_changed",{player : player , back : back});
+    }
+
+    ui.input("format", text.get_symbol_description() + "聊天信息格式(/sender为发送者;/text为聊天消息)", "输入内容", config.chat.format);
+    ui.toggle("clear", "禁用彩色字符", tool.to_bool(config.chat.clear));
+    ui.input("length", "消息长度限制(最大长度)", "长度", String(config.chat.length));
+    ui.input("tag", "玩家默认头衔(无则显示为维度)", "输入头衔", config.chat.tag);
+    ui.toggle("disable", "§e强行禁用USF聊天系统§r(+命令仍能使用)", tool.to_bool(config.chat.disable));
+
+    
+
+    ui.show(player,(r) => {
+        config.chat.format = r.format;
+        config.chat.clear = r.clear;
+        config.chat.length = tool.to_number(tool.parse_number(r.length),1024);
+        config.chat.tag = r.tag;
+        config.chat.disable = r.disable;
+        save_config();
+        event.emit_custom_event("setting_changed",{player : player , back : back});
+    });
 }
 
 register_global_ui("chat_setting" , setChatBar);

@@ -5,6 +5,7 @@ import { config, get_system , has_system, register_system } from "./Basic/Core.j
 import { btnBar , infoBar } from "./Basic/ui.js";
 import { register_global_ui , show_global_ui } from "./Basic/UniversalUI.js";
 import { ui_icon } from "./Basic/Data.js";
+import { get_name_by_id } from "./Basic/Player.js";
 
 /*
 CD.js
@@ -24,35 +25,6 @@ function cdBar(player , _options = {}) {
     push_text("menu_text" , ["欢迎来到主菜单！"]);
     ui.body = tran_text(player, get_text("menu_text") , true);
     ui.busy = null;
-
-    if(has_system("land")){
-        if (player.landing.mode === 1) {
-            if (player.isSneaking) {
-                player.landing.mode = 0
-                player.landing.points = []
-                mc.chat("§e[领地系统]已取消创建领地!", [player])
-            } else {
-                if (player.landing.points.length === 2) {
-                    //createLandBar(player) TODO
-                } else {
-                    mc.set_title(player, get_text("land.two"));
-                }
-            }
-            return
-        }
-   
-        //TODO
-        /* if (player.in_land !== "") {
-            var land = get_land(player.in_land)
-            ui.btns.push({
-            text: `领地:${land.name}\n领地主:${(is_bool(land.public) ? "公共领地" : get_name_by_id(land.creater))}`,
-            icon: ui_icon.land,
-            func: () => {
-                viewLandBar(player, player, land.id)
-            }
-            })
-        } */
-    }
 
     if(has_system("pos")){
         ui.btns.push({
@@ -83,11 +55,22 @@ function cdBar(player , _options = {}) {
             text: "领地系统",
             icon: ui_icon.land,
             func: () => {
-                /* show_global_ui(player,"chat_setting",{cancel = () => {
+                show_global_ui(player , "land" , {cancel = () => {
                     cdBar(player);
-                }}); */ // TODO
+                }});
             }
         });
+
+        if (player.in_land !== "") {
+            let land = get_system("land").get_land(player.in_land);
+            ui.btns.push({
+            text: `领地:${land.name}\n领地主:${(tool.to_bool(land.public) ? "公共领地" : get_name_by_id(land.creater))}`,
+            icon: ui_icon.land,
+            func: () => {
+                get_system("land").viewLandBar(player,land.id);
+            }
+            });
+        }
     }
 
     if(has_system("group") && config.group.able){
