@@ -1,4 +1,3 @@
-var reset_boards = [];
 var limit = {};
 var events = {};
 var score_config = {};
@@ -148,36 +147,6 @@ system_ids.second = system.runInterval(() => {
     player.block_places = 0;
   }
 
-  //计分板剔除
-  if (config.other.online !== "") {
-    const ids = config.other.online.split(";").filter(id => id !== "");
-
-    for (const id of ids) {
-      try {
-        const ob = world.scoreboard.getObjective(id);
-        if (!un(ob)) {
-          const backupId = id + "_";
-          const nob = world.scoreboard.getObjective(backupId) ||
-            world.scoreboard.addObjective(backupId, ob.displayName);
-
-          overworld.runCommand(`scoreboard players reset * "${backupId}"`);
-
-          const participants = ob.getParticipants();
-          for (const p of participants) {
-            try {
-              const entity = p.getEntity();
-              if (!un(entity)) {
-                nob.setScore(p, ob.getScore(p));
-              }
-            } catch { }
-          }
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  }
-
   
 }, 20);
 
@@ -321,10 +290,6 @@ system_ids.chest_log = system.runInterval(() => {
 function reload_all() {
   lock_config = to_array(parse_json(get_data("lock_items")));
 
-  
-
-  reset_boards = to_array(parse_json(get_data("reset_boards")), []);
-
 
   chests = to_array(parse_json(get_data("chests")), []);
   global_goods = to_array(parse_json(get_data("global_goods")), []);
@@ -365,11 +330,6 @@ function save_command_set() {
 function save_global_goods() {
   save_generic("global_goods", global_goods);
 }
-
-function save_reset_boards() {
-  save_generic("reset_boards", reset_boards);
-}
-
 function save_lock_config() {
   save_generic("lock_items", lock_config);
 }
@@ -947,16 +907,11 @@ function afterBlockBreak(event) {
 
 }
 
-function is_same_day(d1, d2) {
-  return (d1.setHours(0, 0, 0, 0) == d2.setHours(0, 0, 0, 0))
-}
-
 function playerSpawn(event) {
   //var player = event.player
   //var is_login = false
 
   if (event.initialSpawn === true) {
-    //player.info = parse_json(get_data("info", player))
     //签到相关
     if (un(player.info.last_time)) {
     } else {
@@ -970,34 +925,11 @@ function playerSpawn(event) {
    
     show_board(player, null, false)
 
-    if (array_has(config.log.allow, "jl")) {
-      server_log(0, `Join At ${get_block_pos_di(player)}`, get_player_path(player))
-    }
 
 
   }
 
   reset_lock_item(player)
-  //score_event(player, "health", "", Math.round(get_health(player)), 1)
-
-  if (array_has(config.log.allow, "info")) {
-    server_log(2, {
-      name: player.name,
-      last_join_game_time: Date.now(),
-      spawn_point: dimension_pos_to_text(player.getSpawnPoint()),
-      tags: player.getTags(),
-      usfID: get_id(player),
-    }, player.name)
-  }
-}
-
-/* function dimension_pos_to_text(pos) {
-  if (un(pos)) {
-    return "none"
-  }
-  return `[${no_minecraft(pos.dimension.id)}](${Math.round(pos.x)},${Math.round(pos.y)},${Math.round(pos.z)})`
-}
- */
 function afteritemUse(event) {
   var item = event.itemStack
   var player = event.source
@@ -1210,23 +1142,6 @@ function beforePlayerLeave(event) {
   pos.dimension = player.dimension
 
   //save_player_info(player)
-
-  system.run(() => {
-    if (array_has(config.log.allow, "jl")) {
-      server_log(0, "Leave", get_player_path({
-        name: name
-      }))
-    }
-    if (array_has(config.log.allow, "info")) {
-      server_log(2, {
-        name: name,
-        last_leave_game_time: Date.now(),
-        spawn_point: dimension_pos_to_text(spawn_pos),
-        tags: tags,
-        leave_pos: dimension_pos_to_text(pos)
-      }, name)
-    }
-  })
 }
 
 function scriptEventReceive(event) {
@@ -3303,67 +3218,6 @@ function setLockBar(player) {
 
   ui.show(player)
 
-}
-
-function resetBoardBar(player) {
-  var ui = new btnBar()
-  ui.title = "记分板默认值设置"
-  ui.cancel = () => {
-    usfSettingBar(player)
-  }
-  ui.body = ["当玩家记分板无值时，插件自动给予默认值"]
-  for (var i = 0; i < reset_boards.length; i++) {
-    var b = reset_boards[i]
-    ui.btns.push({
-      text: `记分板:${b[0]}\n默认值:${b[1]}`,
-      op: {
-        index: i
-      },
-      func: (op) => {
-        var bd = reset_boards[op.index]
-        var ui2 = new infoBar()
-        ui2.cancel = () => {
-          resetBoardBar(player)
-        }
-        ui2.title = "设置默认值"
-        ui2.input("id", "记分板ID", "输入id", bd[0])
-        ui2.input("value", "默认值", "输入整数", String(bd[1]))
-        ui2.toggle("de", "删除", false)
-        ui2.show(player, (r) => {
-          if (r.de) {
-            reset_boards.splice(op.index, 1)
-            save_reset_boards()
-            resetBoardBar(player)
-          } else {
-            bd[0] = r.id
-            bd[1] = to_number(parseInt(r.value))
-            save_reset_boards()
-            resetBoardBar(player)
-          }
-        })
-      }
-    })
-  }
-
-  ui.btns.push({
-    text: `添加`,
-    icon: ui_icon.add,
-    func: () => {
-      var ui2 = new infoBar()
-      ui2.cancel = () => {
-        resetBoardBar(player)
-      }
-      ui2.title = "设置默认值"
-      ui2.input("id", "记分板ID", "输入id", "")
-      ui2.input("value", "默认值", "输入整数", "0")
-      ui2.show(player, (r) => {
-        reset_boards.push([r.id, to_number(parseInt(r.value))])
-        save_reset_boards()
-        resetBoardBar(player)
-      })
-    }
-  })
-  ui.show(player)
 }
 
 function setConfigItemBar(player) {

@@ -285,6 +285,10 @@ export function get_date_object() {
   return d;
 }
 
+export function is_same_day(d1, d2) {
+  return (new Date(d1).setHours(0, 0, 0, 0) == new Date(d2).setHours(0, 0, 0, 0));
+}
+
 export function get_player_path(player) {
   if (!is_player(player)) return "Players/unknown";
 

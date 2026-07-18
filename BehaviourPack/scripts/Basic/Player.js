@@ -27,6 +27,20 @@ register_symbol(false , "platform" , false , "获取玩家平台" , (player) => 
     return "未知";
 });
 
+register_symbol(false , "inputmode" , false , "获取玩家输入方式" , (player) => {
+    switch(player.inputInfo.lastInputModeUsed){
+        case "Gamepad":
+            return "手柄";
+        case "KeyboardAndMouse":
+            return "键鼠";
+        case "MotionController":
+            return "虚拟现实";
+        case "Touch":
+            return "触屏";
+    }
+    return "未知";
+});
+
 
 event.register_mc_event(false,"worldLoad",undefined,function(event){
     id_names = tool.to_object(tool.parse_json(data.get_data("id_names")), {});

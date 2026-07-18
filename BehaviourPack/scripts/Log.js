@@ -5,6 +5,8 @@ import { config , register_system } from "./Basic/Core.js";
 import { system } from "@minecraft/server";
 import { data_format } from "./Basic/Data.js";
 import * as event from "./Basic/Event.js";
+import * as mc from "./Basic/Mc.js";
+import { get_id } from "./Basic/Player.js";
 
 
 var logs = [];
@@ -52,10 +54,44 @@ function after_tp(options){
     }
 }
 
+//加入游戏
+event.connect_custom_event("player_load" , (options) => {
+    push_log(2 , "jl" , text.format("Join Game at [0]" , [tool.dimension_pos_to_text(options.player.location)]) , tool.get_player_path(options.player));
+    const player = event.player;
+    push_log(0 , "info" , {
+        name: player.name,
+        last_join_game_time: Date.now(),
+        spawn_point: tool.dimension_pos_to_text(player.getSpawnPoint()),
+        tags: player.getTags(),
+        usfID: get_id(player),
+        platform : text.tran_text(player , "/platform"),
+        inputmode : text.tran_text(player , "/inputmode"),
+    } , name , true);
+
+});
+//退出游戏
+event.register_mc_event(true , "playerLeave" , undefined , (event) => {
+    const player = event.player;
+    const name = player.name;
+    const path = tool.get_player_path(player);
+    const loc = player.location;
+    const spawn_pos = player.getSpawnPoint();
+    mc.run(() => {
+        push_log(2 , "jl" , text.format("Leave Game at [0]" , [tool.dimension_pos_to_text(loc)]) , path);
+        push_log(0 , "info" , {
+        name: name,
+        last_leave_game_time: Date.now(),
+        spawn_point: tool.dimension_pos_to_text(spawn_pos),
+        tags: tags,
+        current_position: tool.dimension_pos_to_text(pos),
+      } , name , true);
+    });
+});
+
 
 //推送日志
 //type 0-日志 1-输出 2-日志+输出
-export function push_log(type, text_type , text, path = "") {
+export function push_log(type, text_type , _text, path = "" , use_json = false) {
   if (!log_config.able || !config.log.able) {
     return;
   }
@@ -68,21 +104,22 @@ export function push_log(type, text_type , text, path = "") {
   switch (type) {
     case 0:
       type = "log";
-      break
+      break;
     case 1:
       type = "print";
-      break
+      break;
     case 2:
       type = "log_print";
-      break
+      break;
   }
-  text = tool.clear_color(text);
+  _text = tool.clear_color(_text);
   const data = tool.get_date_object();
   logs.push({
     time: text.get_time_text(date),
     type: type,
-    text: String(text),
-    path: path
+    text: (use_json) ? tool.to_json(_text) : String(_text),
+    path: path,
+    use_json : use_json,
   });
 
 }

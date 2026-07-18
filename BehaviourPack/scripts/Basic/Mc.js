@@ -85,6 +85,22 @@ export function has_score_board(scoreboard_id){
   return !tool.un(world.scoreboard.getObjective(scoreboard_id));
 }
 
+export function get_score_board_object(scoreboard_id){
+  return world.scoreboard.getObjective(scoreboard_id);
+}
+
+export function remove_score_board(scoreboard_id){
+  return world.scoreboard.removeObjective(scoreboard_id);
+}
+
+export function get_score_board_objects(){
+  return world.scoreboard.getObjectives();
+}
+
+export function get_score_board_class(){
+  return world.scoreboard;
+}
+
 export function scoreboard_set(entity , scoreboard_id, score) {
   if(!has_score_board(scoreboard_id)){return false;}
   try{
