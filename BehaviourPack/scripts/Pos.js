@@ -47,7 +47,7 @@ function save_world_pos() {
   save_data("world_pos", tool.to_json(world_pos));
 }
 
-command.register_command("home",(args) => {
+command.register_command("home",(player , args) => {
     const homes = player.pos.filter((pos) => {return tool.to_bool(pos.home,false);});
     if (homes.length === 0) {
         chat(get_text("home.none"), [player]);
@@ -75,6 +75,23 @@ command.register_command("home",(args) => {
 
     ui.show(player);
     }
+});
+
+command.register_command("tpaccept" , "同意TPA" , (player , args) => {
+  acceptTPA(player);
+});
+
+command.register_command("tpr" , "随机传送" , (player , args) => {
+  if(config.tp.random_range > 0){
+    random_tp(player , Date.now());
+  }
+});
+
+command.register_command("back" , "返回死亡点" , (player , args) => {
+  if (config.tp.die && !un(player.last_die) && Date.now() - player.last_tp > config.tp.down * 1000) {
+    let die = player.last_die;
+    mc.tp_entity(player, die.di, die.x, die.y, die.z, {show:true});
+  }
 });
 
 function tp_by_pos_system(player, pos) {
@@ -743,6 +760,35 @@ function tpaRequest(goal, player, mode) {
         }
     }]
     ui.show(goal);
+}
+
+function acceptTPA(player) {
+  if (tool.un(player.tpa)) {
+    chat(get_text("tp.fail"), [player]);
+    return;
+  }
+
+  const tpa = player.tpa;
+  const current_time = Date.now();
+  const goal = tpa.goal;
+
+  if (current_time < tpa.time) {
+    const player_di = player.dimension;
+    const goal_di = goal.dimension;
+    const player_loc = player.location;
+    const goal_loc = goal.location;
+
+    if (tpa.mode === 1) {
+      mc.tp_entity(player , goal_di , goal_loc.x , goal_loc.y ,goal_loc.z , {show : true});
+    } else {
+      mc.tp_entity(goal , player_di , player_loc.x , player_loc.y ,player_loc.z , {show : true});
+    }
+
+    chat("§e[传送系统]正在进行玩家传送", [player, goal]);
+    delete player.tpa;
+  } else {
+    chat(get_text("tp.fail"), [player]);
+  }
 }
 
 //名称、类型、创建者、维度

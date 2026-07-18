@@ -142,7 +142,12 @@ function beforeChatSend(event){
 
     system.run(() => {
         chat(format, t, false);
+
+        if(has_system("log")){
+          get_system("log").push_log(2 , "chat" , format , "Chat");
+        }
     });
+
 }
 
 function blockChatBar(player) {

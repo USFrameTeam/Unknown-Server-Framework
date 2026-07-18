@@ -1,6 +1,7 @@
 import * as event from "./Basic/Event.js";
 import * as tool from "./Basic/Tool.js";
 import * as mc from "./Basic/Mc.js";
+import * as command from "./Command.js";
 import { btnBar , arrayEditor , infoBar} from "./Basic/ui.js";
 import { ui_icon } from "./Basic/Data.js";
 import { get_text } from "./Basic/Text.js";
@@ -9,6 +10,7 @@ import { save_config , config} from "./Basic/Core.js";
 /*
 GameHelper.js
 功能：游戏辅助功能
+同时注册了部分命令
 */
 
 event.connect_custom_event("world_load",(things) => {
@@ -26,6 +28,19 @@ event.register_mc_event(true,"entityRemove",undefined,beforeEntityRemove);
 event.register_mc_event(true,"playerInteractWithBlock",undefined,sign_test);
 event.register_mc_event(false,"playerSpawn",undefined,playerSpawn);
 event.register_mc_event(false,"playerDimensionChange",undefined,playerDiChanged);
+
+//注册命令
+command.register_command("unsleep" , "在聊天栏输出未睡眠的玩家列表" , (player , args) => {
+  let text = [];
+  for(let p of mc.get_all_players()){
+    if(!p.isSleeping){text.push(p.name);}
+  }
+  text = "[辅助系统]未睡眠的玩家：" + tool.array2line(text);
+  mc.chat(text , [player]);
+});
+command.register_command("die" , "玩家自杀" , (player , args) => {
+  player.kill();
+});
 
 function beforeExplosion(event) {
   const entity = event.source;

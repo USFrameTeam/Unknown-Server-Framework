@@ -187,8 +187,8 @@ export const data_format = {
     hacker : [ "chest" ],
     commands : [ "cd" , "op" , "tpaccept" , "home" , "back" , "die" , "unsleep" , "land" , "tpr" , "unland"],
     logs : [
-        "chat",
-        "chat_",
+        "chat",//聊天记录
+        "chat_",//输出聊天记录
         "jl", //加入/退出游戏
         "bb",//破坏方块
         "pb", //放方块

@@ -103,6 +103,33 @@ export function scoreboard_add(entity , scoreboard_id, score) {
   return false;
 }
 
+export function scoreboard_remove(entity , scoreboard_id) {
+  if(!has_score_board(scoreboard_id)){return false;}
+  try{
+    world.scoreboard.getObjective(scoreboard_id).removeParticipant(entity);
+    return true;
+  }catch(e){}
+  return false;
+}
+export function scoreboard_set_display(postion = "List" , scoreboard_id = "") {
+  if(!has_score_board(scoreboard_id)){return false;}
+  try{
+    world.scoreboard.setObjectiveAtDisplaySlot(postion, {
+      objective: world.scoreboard.getObjective(scoreboard_id),
+    });
+    return true;
+  }catch(e){}
+  return false;
+}
+
+export function scoreboard_entitys(scoreboard_id) {
+  if(!has_score_board(scoreboard_id)){return [];}
+  try{
+    return world.scoreboard.getObjective(scoreboard_id).getParticipants();
+  }catch(e){}
+  return [];
+}
+
 export function scoreboard_get(entity , scoreboard_id) {
   if(!has_score_board(scoreboard_id)){return false;}
   let score = 0;
@@ -174,6 +201,10 @@ export function run_interval(func , time){
     return system.runInterval(func,time);
 }
 
+export function run(func){
+    system.run(func);
+}
+
 export function clear_job(id){
   system.clearRun(id);
 }
@@ -197,6 +228,10 @@ export function set_game_mode(player, mode) {
   if (tool.is_string(to_mode)) {
     player.setGameMode(to_mode);
   }
+}
+
+export function get_current_ticks(){
+  return system.currentTick;
 }
 
 export function create_box_shape( di , from , to , goals = [] , color = {

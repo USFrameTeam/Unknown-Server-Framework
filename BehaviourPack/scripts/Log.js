@@ -42,25 +42,28 @@ export function is_log_type_allowed(type){
 event.connect_custom_event("tp",after_tp);
 event.connect_custom_event("anima_tp",after_tp);
 function after_tp(options){
-    if(!is_log_type_allowed("tp") || !tool.is_player(options.entity)){return;}
+    if(!tool.is_player(options.entity)){return;}
     if(tool.to_bool(options.log,false)){
         const pos_text = tool.dimension_pos_to_text({
             dimension: options.di,
             location: { x:options.x , y:options.y, z:options.z }
         });
-        push_log(0,`TP:${pos_text}`,tool.get_player_path(options.entity));
+        push_log(0, "tp" ,`TP:${pos_text}`,tool.get_player_path(options.entity));
     }
 }
 
 
 //推送日志
 //type 0-日志 1-输出 2-日志+输出
-export function push_log(type, text, path) {
+export function push_log(type, text_type , text, path = "") {
   if (!log_config.able || !config.log.able) {
-    return
+    return;
+  }
+  if(!is_log_type_allowed(text_type)){
+    return;
   }
   if (!log_config.connected) {
-    return
+    return;
   }
   switch (type) {
     case 0:

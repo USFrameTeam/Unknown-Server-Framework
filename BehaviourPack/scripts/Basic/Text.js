@@ -51,6 +51,7 @@ function return_empty(player){
 }
 
 export function tran_text(player = null, texts, keep_array = false) {
+  //TODO
     //内部定义(转外部定义)(还有个计分板：things["board." + b.id + ".score"])
         // things = {
           // name: player.name,
@@ -166,7 +167,6 @@ export var texts = {
     "board.go" : "留言",
     "board.content" : "留言内容",
     "board.new" : "新增留言",
-    "board.clear" : "清空留言板",
     "sign.tip" : "§e双击告示牌以编辑",
     "talk.stop" : `你已被禁言！剩余[0]s`,
     "talk.public" : "私聊玩家已离线，当前已切换为公共聊天",
