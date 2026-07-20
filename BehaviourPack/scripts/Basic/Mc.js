@@ -81,6 +81,10 @@ export function has_block_type(id){
   return !tool.un(BlockTypes.get(id));
 }
 
+export function get_structure_manager(){
+  return world.structureManager;
+}
+
 export function has_score_board(scoreboard_id){
   return !tool.un(world.scoreboard.getObjective(scoreboard_id));
 }
@@ -99,6 +103,10 @@ export function get_score_board_objects(){
 
 export function get_score_board_class(){
   return world.scoreboard;
+}
+
+export function get_player_hand_item(player) {
+  return player.slots.getItem(player.selectedSlotIndex);
 }
 
 export function scoreboard_set(entity , scoreboard_id, score) {

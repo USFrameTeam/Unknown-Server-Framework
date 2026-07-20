@@ -94,30 +94,6 @@ system_ids.board = system.runInterval(() => {
   }
 }, 10);
 
-system_ids.particle = system.runInterval(() => {
-  const players = world.getAllPlayers();
-
-  for (const player of players) {
-    if (get_op_level(player) > 0) {
-      const handItem = get_player_hand_item(player);
-
-      if (handItem && handItem.typeId === "minecraft:wooden_axe" && config.other.fast_building) {
-        const chosenBlocks = to_array(player.chosen_blocks);
-        if (chosenBlocks && chosenBlocks.length > 0) {
-          for (const block of chosenBlocks) {
-            if (block) {
-              show_range(block, block, block.dimension);
-            }
-          }
-        }
-        setActionBar(player, "§e[小木斧]潜行下单击方块打开操作面板");
-      }
-    }
-
-
-  }
-}, 35);
-
 system_ids.lo = system.runInterval(() => {
   if (!config.log.able || !array_has(config.log.allow, "lo")) {
     return;
@@ -490,69 +466,11 @@ function beforePlayerInteractWithBlock(event) {
   if (to_number(player.last_in, 0) + 20 < system.currentTick) {
     player.last_in = system.currentTick
 
-    /* if (block.typeId === "minecraft:lectern") {
-      var com = block.getComponent("minecraft:inventory").container
-      var b_item = com.getItem(0)
-      if (!un(item) && un(b_item)) {
-        if (item.typeId === "minecraft:enchanted_book") {
-          event.cancel = true
-          system.run(() => {
-            if (un(com.getItem(0))) {
-              player.slots.setItem(player.selectedSlotIndex)
-              save_data("creater", get_id(player), item)
-              com.setItem(0, item)
-            }
-          })
-          return
-        }
-      }
-
-      if (!un(b_item)) {
-        if (b_item.typeId === "minecraft:enchanted_book") {
-          event.cancel = true
-          system.run(() => {
-            chatBoardBar(player, block, get_data("creater", b_item))
-          })
-        }
-      }
-    } */
-
     if (to_string(player.limiting) !== "") {
       if (!array_has(limit[player.limiting].blocks, block.typeId)) {
         limit[player.limiting].blocks.push(block.typeId)
         chat(`§e[管理系统]已录入：${block.typeId}`)
         save_limit()
-      }
-    }
-
-    if (!un(item)) {
-      if (item.typeId === "minecraft:wooden_axe" && config.other.fast_building) {
-        if (get_op_level(player) > 0) {
-          if (player.isSneaking === false) {
-            player.chosen_blocks = to_array(player.chosen_blocks)
-            player.chosen_blocks.push(block)
-            if (player.chosen_blocks.length > 2) {
-              player.chosen_blocks = player.chosen_blocks.slice(1, 3)
-            }
-            setActionBar(player, "§e[小木斧]成功选定方块")
-
-          } else {
-            system.run(() => {
-              axeBar(player)
-            })
-
-          }
-        }
-      }
-    }
-
-    if (!un(item)) {
-      if (array_has(config.cd_items, item.typeId)) {
-        event.cancel = true
-        system.run(() => {
-          cdBar(player)
-        })
-        return
       }
     }
 
@@ -566,41 +484,7 @@ function beforePlayerInteractWithBlock(event) {
       }
     }
 
-    if (!un(item)) {
-      if (array_has(Object.keys(config.config_item), item.typeId)) {
-        event.cancel = true
-        system.run(() => {
-          if (is_string(config.config_item[item.typeId].chest)) {
-            get_store_item(config.config_item[item.typeId].chest, config.config_item[item.typeId].item, (item2) => {
-              if (!un(item2)) {
-                var data = to_object(parse_json(get_data("data", item2)))
-                if (is_string(data.title)) {
-                  showConfigBar(player, data, "")
-                }
-              }
-            })
-          }
-        })
-        return
-      }
-    }
-
     var slot = get_player_offhand_slot(player)
-    if (!un(slot)) {
-      if (slot.hasItem()) {
-        if (slot.typeId === "usf:config_file") {
-          event.cancel = true
-          system.run(() => {
-            if (player.isSneaking === true) {
-              useConfigFileBar(player, block)
-            } else {
-              editConfigFileBar(player)
-            }
-          })
-          return
-        }
-      }
-    }
 
     var d = get_data(get_block_pos_id(block))
     if (d !== "") {
@@ -647,75 +531,6 @@ function beforePlayerInteractWithBlock(event) {
   }
 }
 
-function axeFillBar(player) {
-  var modes = ["", "replace", "outline"]
-  var add = ""
-  var blocks = player.chosen_blocks
-
-  var ui = new infoBar()
-  ui.title = "小木斧"
-  ui.options("type", "填充模式", ["全填", "替换", "填充外围"], 0)
-  ui.input("re", "替换的方块ID(仅替换时填)", "输入ID", "minecraft:")
-  ui.options("id", "填充的方块", ["接下来放置的方块", "空气"], 0)
-  ui.show(player, (r) => {
-    if (r.type === 1){
-      player.dimension.runCommand(`fill ${blocks[0].x} ${blocks[0].y} ${blocks[0].z} ${blocks[1].x} ${blocks[1].y} ${blocks[1].z} ` + r.re + " ")
-      chat("§e[小木斧]执行中...", [player])
-      }
-    else {
-      if (r.id === 1) {
-        player.dimension.runCommand(`fill ${blocks[0].x} ${blocks[0].y} ${blocks[0].z} ${blocks[1].x} ${blocks[1].y} ${blocks[1].z} air ` + modes[r.type] + " " + add)
-        chat("§e[小木斧]执行中...", [player])
-      } 
-      else {
-         player.axe_filling = (`fill ${blocks[0].x} ${blocks[0].y} ${blocks[0].z} ${blocks[1].x} ${blocks[1].y} ${blocks[1].z} {{{{}}}} ` + modes[r.type] + " " + add)
-       }
-     }
-  })
-}
-
-function axeStrBar(player) {
-  var ui = new infoBar()
-  ui.title = "导出为结构"
-  ui.input("id", "结构ID", "输入ID", "structure")
-  ui.toggle("mode", "保存模式[临时|永久]", false)
-  ui.toggle("block", "包含方块", true)
-  ui.toggle("entity", "包含实体", true)
-  ui.show(player, (r) => {
-    world.structureManager.createFromWorld(r.id, player.dimension, player.chosen_blocks[0], player.chosen_blocks[1], {
-      includeBlocks: r.block,
-      includeEntities: r.entity,
-      saveMode: (r.mode) ? "World" : "Memory"
-    })
-  })
-}
-
-function axeBar(player) {
-  if (to_array(player.chosen_blocks).length !== 2) {
-    setActionBar(player, "§e[小木斧]请选择两个点后继续")
-    return
-  }
-  var ui = new btnBar()
-  ui.title = "小木斧"
-  ui.body = "小木斧操作面板"
-  ui.btns = [{
-    text: "填充选区内方块",
-    icon: ui_icon.brush,
-    func: () => {
-      axeFillBar(player)
-    }
-  },
-  {
-    text: "生成为结构",
-    icon: ui_icon.compass,
-    func: () => {
-      axeStrBar(player)
-    }
-  }
-  ]
-
-  ui.show(player)
-}
 
 function useConfigFileBar(player, block) {
   var item = get_player_offhand_item(player)
@@ -818,15 +633,6 @@ function beforeBlockPlace(event) {
   var player = event.player
   var block = event.block
   var per = event.permutationBeingPlaced
-
-  if (to_string(player.axe_filling) !== "") {
-    event.cancel = true
-    system.run(() => {
-      player.dimension.runCommand(player.axe_filling.replaceAll("{{{{}}}}", event.permutationToPlace.type.id))
-      player.axe_filling = ""
-      chat("§e[小木斧]执行中...", [player])
-    })
-  }
 
   for (var t in limit) {
     if (player.hasTag(t)) {
@@ -1026,10 +832,6 @@ function afterEntityHurt(event) {
    
     }
   } 
-}
-
-function get_player_hand_item(player) {
-  return player.slots.getItem(player.selectedSlotIndex)
 }
 
 //因为懒得改策略文件的逻辑了，offhand其实是主手
@@ -3124,13 +2926,6 @@ function usfSettingBar(player) {
       usfFunctionBar(player, "cd_con")
     }
   },
-  {
-    text: "其他功能",
-    icon: pictures.craft_table,
-    func: () => {
-      usfFunctionBar(player, "other")
-    }
-  },
   ]
   ui.show(player)
 }
@@ -3327,15 +3122,6 @@ function usfFunctionBar(player, type) {
   }
 
   switch (type) {
-    case "online":
-      ui.title = "在线记分板"
-      var text = "下面填入只需要显示在线玩家的记分板id，多个id用;隔开\n插件会自动生成id\"名字_\"的记分板，这个记分板就是只显示在线玩家的记分板\n例如:Show记分板将生成Show_记分板"
-      ui.input("online", text, "输入记分板id", config.other.online)
-      break
-    case "other":
-      ui.title = "其他功能设置"
-      ui.toggle("fast_building", "小木斧[禁用 | 启用]", config.other.fast_building);
-      break
     case "log":
       ui.title = "日志设置"
       ui.toggle("able", "[禁用 | 启用]", config.log.able)
@@ -3431,12 +3217,6 @@ function usfFunctionBar(player, type) {
             config.commands.push(key)
           }
         }
-        save_config()
-        usfSettingBar(player)
-        break
-      case "other":
-        config.other.chat_board = r.chat_board
-        config.other.fast_building = r.fast_building
         save_config()
         usfSettingBar(player)
         break

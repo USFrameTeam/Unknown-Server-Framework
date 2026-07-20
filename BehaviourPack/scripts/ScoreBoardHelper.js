@@ -7,6 +7,11 @@ import * as tool from "./Basic/Tool.js";
 import {has_system ,get_system} from "./Basic/Core.js";
 import { playerChooser , tip } from "./Basic/UniversalUI.js";
 
+/*
+ScoreBoardHelper.js
+功能：计分板编辑功能
+*/
+
 const config_format = {
     default : {},
     show : [],

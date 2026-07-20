@@ -35,7 +35,7 @@ export const usf_config = {
         data : ""
     },
     "chat_board":{
-        able : false
+        able : false,
     },
     "config_item" : {},
     "groups" :{
@@ -44,6 +44,9 @@ export const usf_config = {
     },
     "other":{
         "chat_board":false,
+    },
+    "fast_biulding":{
+        able : false,
     },
     "land":{
         "able":false,
