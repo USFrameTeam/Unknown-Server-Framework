@@ -6,6 +6,7 @@ import * as mc from "./Basic/Mc.js";
 import { infoBar , btnBar } from "./Basic/ui.js";
 import { format, get_text, push_text, tran_text } from "./Basic/Text.js";
 import { tip , register_global_ui, playerChooser, chooseBar } from "./Basic/UniversalUI.js";
+import { get_player_name } from "./Basic/Player.js";
 
 /*
 Bank.js
@@ -79,7 +80,7 @@ function transferBar(player , options){
         let players = (mc.get_all_players().filter((p) => {return p !== player;}));
         playerChooser(player , players,(ps) => {
             get_system("pay").pay(player,[valid_currencys[r.id]] , [(count + tips) * ps.length] , "转账" ,
-            format("转账给:[0]\n单个玩家金额:[1]\n单个玩家手续费:[2]\n总额:[3]",[tool.array2line(ps.map((p) => {return p.name})) , count , tips , (count + tips) * ps.length])
+            format("转账给:[0]\n单个玩家金额:[1]\n单个玩家手续费:[2]\n总额:[3]",[tool.array2line(ps.map((p) => {return get_player_name(p);})) , count , tips , (count + tips) * ps.length])
             ,(result) => {
                 if(!result){
                     tranBar(player ,options);
@@ -95,7 +96,7 @@ function transferBar(player , options){
                         get_system("pay").add_money(player,valid_currencys[r.id],count + tips);
                     }
                 }
-                tip(player , "已向以下玩家转账:" + tool.array2line(success_players.map((p) => {return p.name})) + "\n若部分玩家无法转账,金额已退回",()=>{
+                tip(player , "已向以下玩家转账:" + tool.array2line(success_players.map((p) => {return get_player_name(p);})) + "\n若部分玩家无法转账,金额已退回",()=>{
                     tranBar(player,options);
                 })
             });

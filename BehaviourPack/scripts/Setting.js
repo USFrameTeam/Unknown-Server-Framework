@@ -30,6 +30,7 @@ function settingBar(player , things = {}){
 
     const ui = new btnBar();
     ui.title = "插件设置";
+    ui.show_common = true;
     ui.body = ["欢迎使用USF","此处管理插件所有功能"];
     if(tool.to_bool(things.back,false)){
         ui.cancel = () => {

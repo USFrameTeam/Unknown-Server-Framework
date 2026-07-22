@@ -4,14 +4,25 @@ import * as mc from "./Basic/Mc.js";
 import { format } from "./Basic/Text.js";
 import { ui_icon , get_data , save_data} from "./Basic/Data.js";
 import * as tool from "./Basic/Tool.js";
-import { config , dimensions, save_config } from "./Basic/Core.js";
+import { config , dimensions, save_config ,has_system , get_system} from "./Basic/Core.js";
 import { get_op_level } from "./Basic/Permission.js";
 import { playerChooser , tip } from "./Basic/UniversalUI.js";
+import * as logger from "./Basic/Logger.js";
 
 /*
 Axe.js
 功能：小木斧
 */
+
+event.connect_custom_event("world_load",(things) => {
+
+    //注册设置
+    if(has_system("setting")){
+          get_system("setting").register_setting("axe","小木斧设置",settingBar);
+    }
+
+    logger.log(0,1,"————小木斧已加载————");
+});
 
 mc.run_interval(() => {
     if(!config.fast_building.able){return;}
@@ -149,4 +160,22 @@ function run_fill_command(player , command){
     mc.chat("§e[小木斧]填充失败...", [player]);
   }
     
+}
+
+function settingBar(player,back = false){
+    const ui = new infoBar();
+    ui.title = "小木斧设置";
+    ui.cancel = () => {
+        event.emit_custom_event("setting_changed",{player : player , back : back});
+    }
+
+    ui.toggle("able", "小木斧[禁用|启用]", config.fast_biulding.able);
+
+    
+
+    ui.show(player,(r) => {
+        config.fast_biulding.able = r.able;
+        save_config();
+        event.emit_custom_event("setting_changed",{player : player , back : back});
+    });
 }

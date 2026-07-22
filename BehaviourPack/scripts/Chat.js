@@ -9,6 +9,8 @@ import * as data from "./Basic/Data.js";
 import { infoBar } from "./Basic/ui.js";
 import { register_global_ui , show_global_ui } from "./Basic/UniversalUI.js";
 import * as logger from "./Basic/Logger.js";
+import { get_player_name } from "./Basic/Player.js";
+
 
 
 var white_words = [];
@@ -33,6 +35,13 @@ event.connect_custom_event("world_load",function(_things){
     }
     
     logger.log(0,1,"————聊天系统已加载————");
+});
+
+event.connect_custom_event("player_join" , (options) => {
+    player.talk = {
+      mode: 0,
+      id: "",
+    };
 });
 //注册命令
 command.register_command("usf" , (player , args) => {
@@ -106,10 +115,7 @@ function beforeChatSend(event){
         message = tool.clear_color(message);
     }
     
-    let sender_name = sender.name;
-    if(has_system("player_name")){
-        sender_name = get_system("player_name").get_player_nametag(player);
-    }
+    let sender_name = get_player_name(sender);
     
     format = tran_text(sender, format);
     format = format.replaceAll("/text", message);
@@ -158,7 +164,7 @@ function blockChatBar(player) {
   for (let i = 0; i < ps.length; i++) {
     const p = ps[i]; //player
 
-    let text = p.name;
+    let text = get_player_name(p);
     if (p.info.ban_time > Date.now()) {
       text += `(禁言中，剩余${Math.round(get_left_time(p) / 1000)}s)`;
     }
@@ -188,7 +194,7 @@ function setChatBar(player , _options) {
   var options = [null];
   for (var p of get_all_players()) {
     options.push(p)
-    texts.push(`私聊-${p.name}`)
+    texts.push(`私聊-${get_player_name(p)}`)
   }
   /* for (var g of get_player_groups(player)) {
     options.push(String(g.id))

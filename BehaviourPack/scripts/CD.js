@@ -2,17 +2,30 @@ import * as mc from "./Basic/Mc.js";
 import * as tool from "./Basic/Tool.js";
 import { get_text , push_text } from "./Basic/Text.js";
 import { config, get_system , has_system, register_system } from "./Basic/Core.js";
-import { btnBar , infoBar } from "./Basic/ui.js";
+import { btnBar , infoBar , register_common_btn , remove_common_btn} from "./Basic/ui.js";
 import { register_global_ui , show_global_ui } from "./Basic/UniversalUI.js";
 import { ui_icon } from "./Basic/Data.js";
 import { get_name_by_id } from "./Basic/Player.js";
+import * as event from "./Basic/Event.js";
+import * as logger from "./Basic/Logger.js";
 
 /*
 CD.js
 功能：主菜单
 */
 
+event.connect_custom_event("world_load",(things) => {
+    refresh_global_cd_btn();
+    //注册设置
+    if(has_system("setting")){
+          get_system("setting").register_setting("cd","主菜单设置",settingBar);
+    }
+
+    logger.log(0,1,"————主菜单系统已加载————");
+});
+
 function cdBar(player , _options = {}) {
+    if(!config.cd.able){return;}
     //防止频繁触发主菜单
     if (Date.now() - tool.to_number(player.last_cd) < 1000) {
         return;
@@ -169,3 +182,40 @@ function cdBar(player , _options = {}) {
 
 register_system("cd" , {});
 register_global_ui("cd" , cdBar);
+
+function settingBar(player,back = false){
+    const ui = new btnBar();
+    ui.title = "主菜单设置";
+    ui.cancel = () => {
+        event.emit_custom_event("setting_changed",{player : player , back : back});
+    }
+    ui.btns = [{
+        text : "状态 - " + (config.cd.able) ? "开启" : "关闭",
+        func : () => {
+            config.cd.able = !config.cd.able;
+            settingBar(player,back);
+        }
+    },{
+        text : "设置为全局按钮 - " + (config.cd.able) ? "启用" : "禁用",
+        func : () => {
+            config.cd.global = !config.global;
+            settingBar(player,back);
+            refresh_global_cd_btn();
+        }
+    }];
+}
+
+function refresh_global_cd_btn(){
+    if(!config.cd.able){return;}
+    if(config.cd.global){
+        remove_common_btn("主菜单");
+    }else{
+        register_common_btn({
+            text : "主菜单",
+            icon : ui_icon.craft_table,
+            func : (op) => {
+                cdBar(op.player);
+            }
+        });
+    }
+}

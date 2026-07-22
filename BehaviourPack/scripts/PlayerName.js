@@ -1,6 +1,7 @@
 import * as text from "./Basic/Text.js";
 import * as mc from "./Basic/Mc.js";
 import * as core from "./Basic/Core.js";
+import { register_player_name_getter } from "./Basic/Player.js";
 import * as tool from "./Basic/Tool.js";
 import * as event from "./Basic/Event.js";
 import { infoBar } from "./Basic/ui.js";
@@ -89,6 +90,8 @@ function settingBar(player , back = false){
     })
 }
 
+
+register_player_name_getter(get_player_nametag);
 function get_player_nametag(player){
     if(tool.is_player(player)){
         if(core.config.name.able){
@@ -98,21 +101,15 @@ function get_player_nametag(player){
             }
             return text.tran_text(player, name);
         }return player.name;
-    }return "";
+    }
+    return "";
 }
 
 function refresh_player_nametag(player) {
-    if (!config.name.able) {
+    if (!core.config.name.able) {
         return;
     }
-    const nametag = tool.to_string(player.info.name);
-
-    if (nametag !== "") {
-        player.nameTag = text.tran_text(player, nametag);
-        return;
-    }else{
-        player.nameTag = text.tran_text(player, config.name.format);
-    }
+    player.nameTag = get_player_nametag(player);
 }
 
 core.register_system("player_name" , {

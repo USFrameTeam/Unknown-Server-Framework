@@ -123,6 +123,17 @@ export function get_player_by_id(id) {
   return (id_players[id] === undefined) ? null : id_players[id];
 }
 
+export function register_player_name_getter(func){
+    name_getter = func;
+}
+
+var name_getter ;
+export function get_player_name(player) {
+    const nametag = (tool.is_function(name_getter)) ? name_getter(player) : player.name;
+    id_names[get_id(player)] = nametag;
+    return nametag;
+}
+
 export function is_in_manager_mode(player){
     return tool.to_bool(player.info.manager,false);
 }

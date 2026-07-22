@@ -4,7 +4,6 @@ var score_config = {};
 var tran_info = {
   weather: "",
 };
-var lock_config = [];
 var command_set = [];
 var item_count = 0;
 var chests = [];
@@ -39,25 +38,6 @@ system.chat_board = system.runInterval(() => {
     chat_board[score].push(player);
   }
 }, 20);
-
-system.tag_groups = system.runInterval(() => {
-  const players = world.getAllPlayers();
-
-  for (const player of players) {
-    if (player.hasTag("reload_lock_item")) {
-      player.removeTag("reload_lock_item");
-      reset_lock_item(player);
-    }
-
-    const isSleeping = player.isSleeping;
-    player.last_sleep = to_bool(player.last_sleep, false);
-    player.last_sleep = isSleeping;
-
-
-    }
-  }
-}, 8);
-
 
 system_ids.board = system.runInterval(() => {
   if (!config.copy_boards || config.copy_boards === "") {
@@ -264,12 +244,10 @@ system_ids.chest_log = system.runInterval(() => {
 }, 1 * 20);
 
 function reload_all() {
-  lock_config = to_array(parse_json(get_data("lock_items")));
 
 
   chests = to_array(parse_json(get_data("chests")), []);
   global_goods = to_array(parse_json(get_data("global_goods")), []);
-  //tag_groups = to_array(parse_json(get_data("tag_groups")));
   events = to_object(parse_json(get_data("events")));
   command_set = to_array(parse_json(get_data("command_set")));
   score_config = to_object(parse_json(get_data("score_config2")));
@@ -278,8 +256,6 @@ function reload_all() {
   if (config.timer !== "") {
     overworld.runCommand(`scoreboard players reset * ${config.timer}`);
   }
-
-  //white_words = to_array(parse_json(get_data("white_words")), []);
 }
 
 function save_generic(key, data) {
@@ -306,22 +282,12 @@ function save_command_set() {
 function save_global_goods() {
   save_generic("global_goods", global_goods);
 }
-function save_lock_config() {
-  save_generic("lock_items", lock_config);
-}
 
  function reset_player_data(player) {
   
   const storeRecord = parse_json(get_data("store_record", player));
 
   player.store_record = to_object(storeRecord);
-
-  player.last_tp = 0;
-
-  player.talk = {
-    mode: 0,
-    id: ""
-  };
 
 
   return;
@@ -371,12 +337,6 @@ function afterEntityDie(event) {
 
   if (hurt_entity && !un(hurt_entity) && is_player(hurt_entity)) {
 
-    if (entity.matches({
-      families: ["monster"]
-    })) {
-      ///score_event(hurt_entity, "kill_monster", entity.typeId);
-    }
-
     const logConfig = config.log.allow;
     if (logConfig.includes("kill")) {
       let text = "Kill ";
@@ -388,49 +348,6 @@ function afterEntityDie(event) {
   }
 }
 
-
-function reset_lock_item(player) {
-  try {
-    const playerSlots = player.slots;
-    const slotsSize = playerSlots.size;
-
-    for (let i = 0; i < slotsSize; i++) {
-      const item = playerSlots.getItem(i);
-
-      if (item) {
-        const lore = item.getLore();
-
-        if (lore.length === 1 && lore[0] === "usf:Lock") {
-          playerSlots.setItem(i);
-        }
-      }
-    }
-
-    for (let j = 0; j < lock_config.length; j++) {
-      try {
-        const items = lock_config[j];
-        const slotIndex = items[0];
-        const item = playerSlots.getItem(slotIndex);
-
-        if (!un(item)) {
-          continue;
-        }
-
-        const tag = items.length > 3 ? items[3] : "";
-        if (tag !== "" && !player.hasTag(tag)) {
-          continue;
-        }
-
-        const newItem = new mc.ItemStack(items[1], items[2]);
-        newItem.setLore(["usf:Lock"]);
-        newItem.lockMode = "slot";
-        newItem.keepOnDeath = true;
-
-        playerSlots.setItem(slotIndex, newItem);
-      } catch (err) { }
-    }
-  } catch (err) { }
-}
 
 
 
@@ -484,99 +401,12 @@ function beforePlayerInteractWithBlock(event) {
       }
     }
 
-    var slot = get_player_offhand_slot(player)
-
-    var d = get_data(get_block_pos_id(block))
-    if (d !== "") {
-      d = to_object(parse_json(d))
-      if (is_string(d.chest)) {
-        get_store_item(d.chest, d.slot, (item) => {
-          if (!un(item)) {
-            var data = to_object(parse_json(get_data("data", item)))
-            if (is_string(data.title)) {
-              system.run(() => {
-                showConfigBar(player, data, "")
-              })
-            }
-          }
-        })
-        return
-      }
-    } else {
-      try {
-        var buttom = block.dimension.getBlock({
-          x: block.x,
-          y: block.y - 1,
-          z: block.z
-        })
-        var com = buttom.getComponent("minecraft:inventory")
-        if (!un(com)) {
-          var i = com.container.getItem(0)
-          if (!un(i)) {
-            if (i.typeId === "usf:config_file") {
-              var data = to_object(parse_json(get_data("data", i)))
-              if (is_string(data.title)) {
-                system.run(() => {
-                  showConfigBar(player, data, "")
-                })
-              }
-              return
-            }
-          }
-        }
-      } catch (err) { }
-    }
-
     
   }
 }
 
 
-function useConfigFileBar(player, block) {
-  var item = get_player_offhand_item(player)
-  if (un(item)) {
-    return
-  }
 
-  var data = get_data(get_block_pos_id(block))
-  var ui = new btnBar()
-  ui.title = "绑定策略文件"
-  ui.body = data === "" ? "目前该方块未绑定策略文件！" : "§e该方块已绑定策略文件！"
-  if (data === "") {
-    ui.btns = [{
-      text: "绑定现在的策略文件",
-      icon: ui_icon.go,
-      func: () => {
-        set_store_item(item, (chest, slot) => {
-          save_data(get_block_pos_id(block), to_json({
-            chest: chest,
-            slot: slot
-          }))
-        })
-      }
-    }]
-  } else {
-    ui.btns = [{
-      text: "覆盖现在的策略文件",
-      icon: ui_icon.brush,
-      func: () => {
-        set_store_item(item, (chest, slot) => {
-          save_data(get_block_pos_id(block), to_json({
-            chest: chest,
-            slot: slot
-          }))
-        })
-      }
-    }, {
-      text: "解绑现在的策略文件",
-      icon: ui_icon.back,
-      func: () => {
-        save_data(get_block_pos_id(block), "")
-      }
-    }]
-  }
-  ui.show(player)
-}
 
 function get_block_pos_id(block) {
   return `${block.dimension.id}.${block.x}.${block.y}.${block.z}`
@@ -727,9 +557,6 @@ function playerSpawn(event) {
         player.info.score = {}
       }
     }
-
-   
-    show_board(player, null, false)
 
 
 
@@ -883,39 +710,6 @@ function afterPlayerInteractWithBlock(event) {
       if (!un(item)) {
         items[no_minecraft(item.typeId)] = to_number(items[no_minecraft(item.typeId)]) + item.amount
       }
-    }
-
-    if (array_has(config.hacker.allow, "chest")) {
-      var count = com.emptySlotsCount
-      var items_o = []
-      for (var i = 0; i < com.size; i++) {
-        items_o.push(com.getItem(i))
-      }
-      system.runTimeout(() => {
-        if (com.emptySlotsCount - count >= 5) {
-          report_warn("chest", {
-            player: player,
-            block: block
-          })
-          if (config.hacker.back) {
-            for (var i = 0; i < items_o.length; i++) {
-              com.setItem(i, items_o[i])
-            }
-
-            var ids = Object.keys(items)
-            var p_com = player.getComponent("minecraft:inventory").container
-            for (var i = 0; i < p_com.size; i++) {
-              var item = p_com.getItem(i)
-              if (!un(item)) {
-                if (array_has(ids, no_minecraft(item.typeId))) {
-                  p_com.setItem(i)
-                }
-              }
-            }
-          }
-        }
-      }, 8)
-
     }
 
     if (config.log.able && log_config.able && array_has(config.log.allow, "chest")) {
@@ -2894,25 +2688,7 @@ function usfSettingBar(player) {
     func: () => {
       usfFunctionBar(player, "chat")
     }
-  }/* , {
-    text: "玩家名格式",
-    icon: ui_icon.player,
-    func: () => {
-      usfFunctionBar(player, "name")
-    }
-  } */, {
-    text: "反作弊设置",
-    icon: ui_icon.stop,
-    func: () => {
-      usfFunctionBar(player, "hacker")
-    }
-  }, /* {
-    text: "插件命令设置",
-    icon: ui_icon.command,
-    func: () => {
-      usfFunctionBar(player, "com")
-    }
-  }, */
+  },
   {
     text: "打开主菜单物品",
     icon: ui_icon.big,
@@ -2928,191 +2704,6 @@ function usfSettingBar(player) {
   },
   ]
   ui.show(player)
-}
-
-
-
-
-function editLock(player, index, first) {
-  var cf = lock_config[index]
-  var ui = new infoBar()
-  ui.cancel = () => {
-    if (first) {
-      lock_config.splice(index, 1)
-    }
-    setLockBar(player)
-  }
-  ui.title = "编辑锁定物品"
-  ui.input("id", "物品id", "输入id(如:minecraft:apple)", to_string(cf[1]))
-  ui.range("count", "物品数量", 0, 64, 1, to_number(cf[2], 1))
-  ui.options("slot", "锁定位置", [
-    "物品栏1",
-    "物品栏2",
-    "物品栏3",
-    "物品栏4",
-    "物品栏5",
-    "物品栏6",
-    "物品栏7",
-    "物品栏8",
-    "物品栏9",
-  ], to_number(cf[0], 0))
-  ui.toggle("de", "删除", false)
-  var tag = (cf.length > 3) ? cf[3] : ""
-  ui.input("tag", "标签(含该标签才会被锁定此物品)", "标签", tag)
-  ui.show(player, (r) => {
-    if (r.de) {
-      lock_config.splice(index, 1)
-    } else {
-      cf[0] = r.slot
-      cf[1] = r.id
-      cf[2] = r.count
-      cf[3] = r.tag
-    }
-    save_lock_config()
-    setLockBar(player)
-  })
-}
-
-function setLockBar(player) {
-  var ui = new btnBar()
-  ui.title = "物品锁定"
-  ui.cancel = () => {
-    usfSettingBar(player)
-  }
-  ui.body = "管理锁定物品\n提示：为玩家添加reload_lock_item标签可以立马刷新玩家的锁定物品"
-  ui.btns.push({
-    text: "添加",
-    icon: ui_icon.add,
-    func: () => {
-      lock_config.push([])
-      editLock(player, lock_config.length - 1, true)
-    }
-  })
-  ui.btns.push({
-    text: "立即重载",
-    icon: ui_icon.go,
-    func: () => {
-      for (var p of world.getAllPlayers()) {
-        reset_lock_item(p)
-      }
-      setLockBar(player)
-    }
-  })
-  for (var i = 0; i < lock_config.length; i++) {
-    var items = lock_config[i]
-    ui.btns.push({
-      text: `${items[1]}\n物品栏:${items[0] + 1}`,
-      op: {
-        index: i
-      },
-      func: (op) => {
-        editLock(player, op.index, false)
-      }
-    })
-  }
-
-  ui.show(player)
-
-}
-
-function setConfigItemBar(player) {
-  var item = get_player_offhand_item(player)
-  var ui = new btnBar()
-  ui.title = "设置全局配置文件"
-  ui.body = ["管理可以通过物品打开的全局配置文件", "注：在编辑界面将物品id留空则会删除此配置"]
-  ui.btns = [{
-    text: "新增物品",
-    icon: ui_icon.add,
-    func: () => {
-      var ui2 = new infoBar()
-      ui2.title = "新增物品"
-      ui2.input("id", "物品id", "输入id", "minecraft:")
-      ui2.cancel = () => {
-        setConfigItemBar(player)
-      }
-      if (!un(item)) {
-        if (item.typeId === "usf:config_file") {
-          ui2.toggle("update", "绑定为当前配置文件", true)
-        }
-      }
-      ui2.show(player, (r) => {
-        if (r.id === "") {
-          setConfigItemBar(player)
-          return
-        }
-
-        var o = {}
-        if (to_bool(r.update, false)) {
-          set_store_item(item, (chest, slot) => {
-            o.chest = chest
-            o.item = slot
-            config.config_item[r.id] = o
-            save_config()
-            setConfigItemBar(player)
-          })
-        } else {
-          config.config_item[r.id] = o
-          save_config()
-          setConfigItemBar(player)
-        }
-
-      })
-    }
-  }]
-
-  for (var id in config.config_item) {
-    ui.btns.push({
-      text: id,
-      op: {
-        id: id
-      },
-      func: (op) => {
-        editConfigItemDetailBar(player, op.id)
-      }
-    })
-  }
-
-  ui.show(player)
-
-}
-
-function editConfigItemDetailBar(player, id) {
-  var item = get_player_offhand_item(player)
-  var ui = new infoBar()
-  ui.title = "修改物品"
-  ui.input("id", (is_string(config.config_item[id].chest) ? "当前已绑定配置文件" : "当前没有绑定配置文件") + "\n物品id", "输入id", id)
-  ui.cancel = () => {
-    setConfigItemBar(player)
-  }
-  if (!un(item)) {
-    if (item.typeId === "usf:config_file") {
-      ui.toggle("update", "绑定/覆盖为当前配置文件", false)
-    }
-  }
-  ui.show(player, (r) => {
-    var o = {
-      ...config.config_item[id]
-    }
-    delete config.config_item[id]
-    if (r.id === "") {
-      setConfigItemBar(player)
-      return
-    }
-    if (to_bool(r.update, false)) {
-      set_store_item(item, (chest, slot) => {
-        o.chest = chest
-        o.item = slot
-        config.config_item[r.id] = o
-        save_config()
-        setConfigItemBar(player)
-      })
-    } else {
-      config.config_item[r.id] = o
-      save_config()
-      setConfigItemBar(player)
-    }
-
-  })
 }
 //插件设置界面
 function usfFunctionBar(player, type) {
@@ -3131,22 +2722,10 @@ function usfFunctionBar(player, type) {
         ui.toggle(name, get_text("log." + name), array_has(config.log.allow, name))
       }
       break
-    case "reset":
-      resetBoardBar(player)
-      return
-    case "hacker":
-      ui.title = "反作弊设置"
-      ui.toggle("back", "回退操作[禁用 | 启用]", config.hacker.back)
-      ui.toggle("kick", "踢出玩家[禁用 | 启用]", config.hacker.kick)
-      ui.toggle("chest", "反自动偷箱", array_has(config.hacker.allow, "chest"))
-      break
     case "store":
       ui.title = "全局商店设置"
       ui.toggle("able", "全局商店[禁用 | 启用]", config.store.able)
       break
-    case "score":
-      setScoreBar(player)
-      return
       break
     case "cd_con":
       var menu = to_array(parse_json(get_data("menu_text")), data_format.menu)
@@ -3182,16 +2761,6 @@ function usfFunctionBar(player, type) {
         break
       case "store":
         config.store.able = r.able
-        save_config()
-        usfSettingBar(player)
-        break
-      case "hacker":
-        config.hacker.back = r.back
-        config.hacker.kick = r.kick
-        config.hacker.allow = []
-        if (r.chest) {
-          config.hacker.allow.push("chest")
-        }
         save_config()
         usfSettingBar(player)
         break

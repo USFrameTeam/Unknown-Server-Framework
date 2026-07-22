@@ -2,7 +2,7 @@ import * as event from "./Basic/Event.js";
 import * as mc from "./Basic/Mc.js";
 import * as tool from "./Basic/Tool.js";
 import { save_data , get_data , ui_icon } from "./Basic/Data.js";
-import { get_name_by_id , get_id } from "./Basic/Player.js";
+import { get_name_by_id , get_id, get_player_name } from "./Basic/Player.js";
 import { get_op_level } from "./Basic/Permission.js";
 import { get_text, push_text } from "./Basic/Text.js";
 import { config , save_config ,has_system , get_system } from "./Basic/Core.js";
@@ -90,7 +90,7 @@ function chatBoardBar(player, block, creator) {
       ui2.show(player, (r) => {
         let text = config.chat.format;
         text = tran_text(player, text)
-          .replaceAll("/sender", player.name)
+          .replaceAll("/sender", get_player_name(player))
           .replaceAll("/text", r.text);
         
         if (text.length > config.chat.length) {
@@ -134,7 +134,7 @@ function chatBoardBar(player, block, creator) {
 
 function settingBar(player,back = false){
     const ui = new infoBar();
-    ui.title = "领地设置";
+    ui.title = "留言板设置";
     ui.cancel = () => {
         event.emit_custom_event("setting_changed",{player : player , back : back});
     }

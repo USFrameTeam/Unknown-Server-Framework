@@ -183,6 +183,7 @@ function set_var(var_id , type = 0, value = "" , player = null){
     }
 }
 
+//0-不存在 1-字符串 2-数字
 function get_var_type(var_id , player = null){
     if(player === null){
         return tool.un(global_vars[var_id]) ? 0 : (tool.is_string(global_vars[var_id]) ? 1 : 2);

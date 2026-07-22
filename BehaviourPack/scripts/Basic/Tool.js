@@ -102,6 +102,16 @@ export function array_has(array, text) {
   return array.includes(text);
 }
 
+export function array_count(array, text) {
+  let last_index = -1;
+  let count = -1;
+  do{
+    last_index = array.indexOf(text , last_index + 1);
+    count += 1;
+  }while(last_index >= 0);
+  return count;
+}
+
 export function array_get(array , index){
   return (array.length > index) ? array[index] : array[0]
 }

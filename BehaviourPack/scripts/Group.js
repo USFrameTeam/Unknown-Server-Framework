@@ -523,5 +523,6 @@ register_system("group" , {
     get_player_groups : get_player_groups,
     save_group : save_group,
     get_group : get_group,
+    get_group_level : get_group_level,
     is_group_valid : is_group_valid,
 });

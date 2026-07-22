@@ -6,13 +6,17 @@ import * as text from "./Text.js";
 import * as permission from "./Permission.js";
 import { report_custom_event , emit_custom_event , register_mc_event } from "./Event.js";
 import { forEach } from "core-js/core/array";
+import { get_player_name } from "./Player.js";
 
 //注册一些转义
 text.register_symbol(false,"weather",true,"当前天气",(player)=>{
     return text.tran_text("Weather." + world.getDimension("minecraft:overworld").getWeather());
 });
-text.register_symbol(false,"name",false,"玩家id",(player)=>{
+text.register_symbol(false,"id",false,"玩家id",(player)=>{
     return tool.to_string(tool.to_object(player).name);
+});
+text.register_symbol(false,"name",false,"玩家自定义格式的名称",(player)=>{
+    return tool.is_player(player) ? get_player_name(player) : "";
 });
 text.register_symbol(false,"all_time",true,"游戏已运行的时间/s",(player)=>{
     return `${Math.round(system.currentTick / 20)}s`;

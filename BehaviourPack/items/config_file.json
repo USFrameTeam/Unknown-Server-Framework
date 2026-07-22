@@ -8,7 +8,7 @@
 		"components": {
 			"minecraft:max_stack_size": 1,
 			"minecraft:display_name": {
-				"value": "策略文件"
+				"value": "配置文件"
 			},
 			"minecraft:icon": {
 				"texture": "paper"

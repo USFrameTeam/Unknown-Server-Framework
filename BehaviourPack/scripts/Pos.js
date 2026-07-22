@@ -7,8 +7,8 @@ import { config , dimensions , has_system ,get_system , save_config} from "./Bas
 import { tpWithAnimation } from "./Basic/TpAni.js";
 import { btnBar , infoBar , add_pictures_choice} from "./Basic/ui.js";
 import { playerChooser , confirm , tip , register_global_ui} from "./Basic/UniversalUI.js";
-import { get_name_by_id , get_id , get_op_level , is_in_manager_mode} from "./Basic/Player.js";
-import { get_text , push_text , format ,pictures , tran_text } from "./Basic/Text.js";
+import { get_name_by_id , get_id , get_op_level , is_in_manager_mode, get_player_name} from "./Basic/Player.js";
+import { get_text , push_text , format ,pictures , tran_text , register_symbol} from "./Basic/Text.js";
 import * as logger from "./Basic/Logger.js";
 
 /*Pos.js
@@ -35,6 +35,13 @@ event.connect_custom_event("world_load",(things) => {
 event.connect_custom_event("player_join",(things) => {
     const player = things.player;
     player.pos = get_player_pos(player);
+});
+
+register_symbol(false,"tpcooldown",false,"转换为玩家传送冷却剩余时间/s",(player) => {
+  if (Date.now() - tool.to_number(player.last_tp) < config.tp.down * 1000) {
+      return String(Math.ceil(config.tp.down - (Date.now() - tool.to_number(player.last_tp))/1000.0));
+  }
+  return "0";
 });
 
 function save_public_pos() {
@@ -88,15 +95,15 @@ command.register_command("tpr" , "随机传送" , (player , args) => {
 });
 
 command.register_command("back" , "返回死亡点" , (player , args) => {
-  if (config.tp.die && !un(player.last_die) && Date.now() - player.last_tp > config.tp.down * 1000) {
+  if (config.tp.die && !un(player.last_die) && Date.now() - tool.to_number(player.last_tp) > config.tp.down * 1000) {
     let die = player.last_die;
     mc.tp_entity(player, die.di, die.x, die.y, die.z, {show:true});
   }
 });
 
 function tp_by_pos_system(player, pos) {
-    if (Date.now() - player.last_tp < config.tp.down * 1000) {
-        tip(player, "传送功能冷却中...请稍后尝试！", "");
+    if (Date.now() - tool.to_number(player.last_tp) < config.tp.down * 1000) {
+        tip(player, "传送功能冷却中...请稍后尝试！",()=>{});
         return;
     }
 
@@ -212,6 +219,7 @@ function viewPosBar(player, pos, options = {} , save = function (need_delete = f
         `§a所在维度§r: ${get_di(pos.di).name}`,
         `§a所在坐标§r: ${pos_to_text(pos)}`,
     ];
+    ui.show_common = true;
 
     ui.btns = [{
         text: "传送",
@@ -282,6 +290,7 @@ function typedPosBar(player, title , pos_set , page = 0 , funcs = {}) {
     const ui = new btnBar();
     ui.title = title + ` (${page + 1}/${total_pages}页)}`;
     ui.cancel = funcs.cancel;
+    ui.show_common = true;
 
     push_text("type_pos_body","添加传送点时记得加上图标哦∽\n§b总共记录 §a([0]/[1])§b 个传送点")
     ui.body = format(get_text("type_pos_body"),[pos_set.length,max_count]);
@@ -608,7 +617,7 @@ function posBar(player , options = {}) {
       }
     })
   }
-  if (config.tp.die && !un(player.last_die) && now - player.last_tp > config.tp.down * 1000) {
+  if (config.tp.die && !un(player.last_die) && now - tool.to_number(player.last_tp) > config.tp.down * 1000) {
     let die = player.last_die;
     ui.btns.push({
       text: "返回死亡点",
@@ -659,7 +668,7 @@ function posBar(player , options = {}) {
     })
   }
 
-  if ((config.tp.random_range > 0 && now - player.last_tp > config.tp.down * 1000) && (player.dimension.id !== "minecraft:the_end" || config.tp.random_end === true)) {
+  if ((config.tp.random_range > 0 && now - tool.to_number(player.last_tp) > config.tp.down * 1000) && (player.dimension.id !== "minecraft:the_end" || config.tp.random_end === true)) {
     ui.btns.push({
       text: "随机传送",
       icon: ui_icon.compass,
@@ -711,7 +720,7 @@ function tpPlayerBar(player) {
   const players = mc.get_all_players();
   let names = [];
   for (let i = 0; i < players.length; i++) {
-    names.push(players[i].name)
+    names.push(get_player_name(players[i]));
   }
   const ui = new infoBar();
   ui.title = "传送玩家"
@@ -729,7 +738,7 @@ function tpPlayerBar(player) {
       mode: r.mode,
       time: Date.now() + 60 * 1000
     }
-    chat(`§e[传送系统]玩家${player.name}向你发起传送请求\n方向：${r.mode === 0 ? "对方 > 你" : "你 > 对方"}\n一分钟内输入+tpaccept即可传送`, [goal])
+    chat(`§e[传送系统]玩家${get_player_name(player)}向你发起传送请求\n方向：${r.mode === 0 ? "对方 > 你" : "你 > 对方"}\n一分钟内输入+tpaccept即可传送`, [goal])
     tpaRequest(goal, player, r.mode);
   })
 }
@@ -737,7 +746,7 @@ function tpPlayerBar(player) {
 function tpaRequest(goal, player, mode) {
     const ui = new btnBar();
     ui.title = "传送请求";//Teleportation Request
-    ui.body = `玩家${player.name}向你发起传送请求\n方向：${mode === 0 ? "对方(other) > 你(me)" : "你(me) > 对方(other)"}`
+    ui.body = `玩家${get_player_name(player)}向你发起传送请求\n方向：${mode === 0 ? "对方(other) > 你(me)" : "你(me) > 对方(other)"}`
     ui.btns = [{
         text: "同意",
         icon: ui_icon.ok,

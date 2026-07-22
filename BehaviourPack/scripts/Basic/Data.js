@@ -59,6 +59,7 @@ export const usf_config = {
         //0-禁用 1-可选 2-强制
         "radius" : 512,
         "var" : "",
+        "show" : true,
     },
     "log" : {
         "able" : true,
@@ -85,6 +86,7 @@ export const usf_config = {
     },
     "board" : { //公告(notification)
         "able" : false,//启用
+        "display_type" : 0,//显示类型
         "first" : "",//发送给新成员
         "_" : ""//默认公告
     },
@@ -107,7 +109,10 @@ export const usf_config = {
         "length" : 1024,
         "disable" : false
     },
-    "cd_items" : ["minecraft:clock"],
+    "cd" : {
+        "able" : true,
+        "global" : false,
+    },
     "ban_entity" : [],
     "ban_item" : [],
     "ban_block" : [],
@@ -281,7 +286,9 @@ export const data_format = {
         "wel" : "", //欢迎语
         "name" : "",
         "mem_per" : [],//成员权限
-        "other_per" : []//访客权限
+        "other_per" : [],//访客权限
+        "hide" : false,
+        "lock" : false,
     },
     lock_config : {
         able : false,

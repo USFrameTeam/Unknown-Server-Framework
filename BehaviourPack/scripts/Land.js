@@ -6,7 +6,7 @@ import { infoBar , btnBar } from "./Basic/ui.js";
 import * as mc from "./Basic/Mc.js";
 import { format , get_text, push_text} from "./Basic/Text.js";
 import { get_op_level } from "./Basic/Permission.js";
-import { is_in_manager_mode , get_name_by_id , get_id} from "./Basic/Player.js";
+import { is_in_manager_mode , get_name_by_id , get_id, get_player_name} from "./Basic/Player.js";
 import * as command from "./Command.js";
 import { register_global_ui , confirm , tip, playerChooser} from "./Basic/UniversalUI.js";
 import * as logger from "./Basic/Logger.js";
@@ -91,7 +91,10 @@ mc.run_interval(() => {
           mc.set_game_mode(player , player.in_land.mode);
           player.in_land.mode = mc.get_game_mode(player);
         }
-        mc.set_ActionBar(player, ` `);
+        if(config.land.show && !tool.to_bool(land.hide)){
+          mc.set_ActionBar(player, ` `);
+        }
+        
       }
       return;
     }
@@ -118,10 +121,10 @@ mc.run_interval(() => {
       set_land_id(player,land_id);
     
       //显示ActionBar
-      push_text("land.show" , "您已进入领地:[0]\n领地创建者:[1]\n您的身份是:[2]")
-      let text = format(get_text("land.show"),[land.name , (tool.to_bool(land.public) ? "公共领地" : get_name_by_id(land.creater)) , get_text("land." + String(level))]);
-      text += "\n§r" + land.wel;
-      if(Date.now() - to_number(player.last_warn, 0) > 1500){
+      if(Date.now() - to_number(player.last_warn, 0) > 1500  && (config.land.show && !tool.to_bool(land.hide))){
+        push_text("land.show" , "您已进入领地:[0]\n领地创建者:[1]\n您的身份是:[2]");
+        let text = format(get_text("land.show"),[land.name , (tool.to_bool(land.public) ? "公共领地" : get_name_by_id(land.creater)) , get_text("land." + String(level))]);
+        text += "\n§r" + land.wel;
         mc.set_ActionBar(player , text);
       }
     }
@@ -304,6 +307,8 @@ function createLandBar(player) {
 
   if (get_op_level(player) > 0) {
     ui.toggle("public", "公共领地(管理均可编辑)", false);
+    ui.toggle("hide", "隐藏领地(在领地内不触发任何提示)", false);
+    ui.toggle("lock", "锁定领地(非OP无法删除领地)", false);
   }
 
   ui.options("type", "操作", ["更新并预览范围", "取消创建", "确认创建"], 0);
@@ -324,7 +329,6 @@ function createLandBar(player) {
           })
           if (!un(b)) {
             points[0] = {
-              location: b.location,
               x: b.x,
               y: b.y,
               z: b.z
@@ -338,7 +342,6 @@ function createLandBar(player) {
           })
           if (!un(b)) {
             points[1] = {
-              location: b.location,
               x: b.x,
               y: b.y,
               z: b.z
@@ -379,58 +382,71 @@ function createLandBar(player) {
     //创建领地
     get_system("pay").pay(player , [config.land.currency] , [(tool.to_bool(r.public) === true) ? 0 : price] , "购买领地" , "" , (result) => {
       if(!result){return;}
-      let land = tool.object_override({} , data_format.land);
-      switch(type){
-        case "box":
-          const ps = get_edge_from_block(points[0].location, points[1].location);
-          points[0] = ps[0];
-          points[1] = ps[1];
-          land.di = player.dimension.id;
-          land.id = get_random_land_id(player.dimension);
-          land.from = points[0];
-          land.to = points[1];
-          land.creater = get_id(player);
-          land.name = r.name;
-          land.price = price;
-          land.type = "box";
-          const center = {
-            x : (points[0].x + points[1].x)/2,
-            z : (points[0].z + points[1].z)/2,
-          }
-          land.distance = Math.round(Math.sqrt(Math.pow(Math.abs(center.x), 2) + Math.pow(Math.abs(center.z), 2)));
-          break;
-        case "circle":
-          land.di = player.dimension.id;
-          land.id = get_random_land_id(player.dimension);
-          land.from = {
-            x : points[0].x,
-            z : points[0].z,
-            y : (player.landing.high_max + player.landing.high_min)/2 + 0.5,
-          };
-          land.height = (player.landing.high_max - player.landing.high_min + 1 )/2;
-          land.creater = get_id(player);
-          land.name = r.name;
-          land.type = "circle";
-          land.price = price;
-          land.distance = Math.round(Math.sqrt(Math.pow(Math.abs(land.from.x), 2) + Math.pow(Math.abs(land.from.z), 2)));
-          break;
-      }
-
-      if (r.public === true) {
-        land.public = r.public;
-      }
-
-      if(tool.is_object(player.landing.shape)){
-        mc.remove_shape(player.landing.shape);
-      }
-      
-      add_land(player, land);
-      save_land(land);
-      player.landing.able = false;
-      player.landing.points = [];
-    })
+      create_land(type , points , player , r.name , price , tool.to_bool(r.public) , tool.to_bool(r.hide),tool.to_bool(r.lock));
+    });
     });
     
+}
+
+
+function create_land(type , points , player , name , price , public = false , hide = false , lock = false){
+  let land = tool.object_override({} , data_format.land);
+  switch(type){
+    case "box":
+      const ps = get_edge_from_block(points[0].location, points[1].location);
+      points[0] = ps[0];
+      points[1] = ps[1];
+      land.di = player.dimension.id;
+      land.id = get_random_land_id(player.dimension);
+      land.from = points[0];
+      land.to = points[1];
+      land.creater = get_id(player);
+      land.name = name;
+      land.price = price;
+      land.type = "box";
+      const center = {
+        x : (points[0].x + points[1].x)/2,
+        z : (points[0].z + points[1].z)/2,
+      }
+      land_get_distance(land,center);
+      break;
+    case "circle":
+      land.di = player.dimension.id;
+      land.id = get_random_land_id(player.dimension);
+      land.from = {
+        x : points[0].x,
+        z : points[0].z,
+        y : (player.landing.high_max + player.landing.high_min)/2 + 0.5,
+      };
+      land.height = (player.landing.high_max - player.landing.high_min + 1 )/2;
+      land.creater = get_id(player);
+      land.name = name;
+      land.type = "circle";
+      land.price = price;
+      land_get_distance(land);
+      break;
+  }
+
+  land.public = public;
+  land.hide = hide;
+  land.lock = lock;
+
+  if(tool.is_object(player.landing.shape)){
+    mc.remove_shape(player.landing.shape);
+  }
+  
+  add_land(player, land);
+  save_land(land);
+  player.landing.able = false;
+  player.landing.points = [];
+}
+
+function land_get_distance(land , center = undefined){
+  if(land.type === "box"){
+    land.distance = Math.round(Math.sqrt(Math.pow(Math.abs(center.x), 2) + Math.pow(Math.abs(center.z), 2)));
+  } else{
+    land.distance = Math.round(Math.sqrt(Math.pow(Math.abs(land.from.x), 2) + Math.pow(Math.abs(land.from.z), 2)));
+  }
 }
 
 function get_di_num(di) {
@@ -480,8 +496,10 @@ function add_land(player, land) {
     lands.max.splice(index + 1, 0, land.distance + max_radius);
   }
   save_lands();
-  player.lands.push(land.id);
-  save_player_lands(player);
+  if(tool.is_player(player)){
+    player.lands.push(land.id);
+    save_player_lands(player);
+  }
 }
 
 function save_land(land) {
@@ -493,9 +511,9 @@ function is_preland_in_other(di, type , lo1 , lo2 , lo3 = 0) {
   switch(type){
     case "box":
       center = {
-        x: (lo1.location.x + lo2.location.x) / 2,
-        y: (lo1.location.y + lo2.location.y) / 2,
-        z: (lo1.location.z + lo2.location.z) / 2
+        x: (lo1.x + lo2.x) / 2,
+        y: (lo1.y + lo2.y) / 2,
+        z: (lo1.z + lo2.z) / 2
       };
       break;
     case "circle":
@@ -725,6 +743,7 @@ function viewLandBar(player , id , direct = false) {
 
   let land = get_land(id);
   const ui = new btnBar();
+  ui.show_common = true;
   ui.title = format("领地 - [0]" , [land.name]);
   if(!direct){
     ui.cancel = () => {
@@ -923,7 +942,32 @@ function viewLandBar(player , id , direct = false) {
     }
   }
 
-  if(level === 4){
+  if(level === 4 && (!tool.to_bool(land.lock) || get_op_level(player) > 0)){
+    ui.btns.push({
+      text: "转让领地",
+      icon: ui_icon.speed,
+      func: () => {
+        const ui2 = new infoBar();
+        ui2.title = "转让领地";
+        ui2.cancel = () => {
+          viewLandBar(player , id , direct);
+        }
+        const players = mc.get_all_players().filter((p) => {return p !== player;});
+        if(players.length === 0){
+          tip(player , "当前无可选择的在线玩家" , () => {viewLandBar(player , id , direct);});
+        }
+        ui2.options("index" , "选择玩家" , players.map((p) => { return get_player_name(p);}),0);
+        ui2.show(player , (r) => {
+          const new_creater = players[r.index];
+          if(mc.is_entity_valid(new_creater)){
+            transfer_land(land.id , new_creater);
+            landBar(player);
+          }else{
+            tip(player , "转让失败！" , () => {viewLandBar(player , id , direct);});
+          }
+        });
+      }
+    });
     ui.btns.push({
       text: "删除领地",
       icon: ui_icon.delete,
@@ -1010,6 +1054,7 @@ function settingBar(player,back = false){
     ui.options("2d" , "2D模式" , ["禁用" , "可选" , "强制"] , config.land["2d"]);
     ui.range("radius" , "圆形领地最大半径(方形领地最大边长为圆形领地半径*1.4)" , 64 , 512 , 1 , config.land.radius);
     ui.input("var" , "映射到自定义变量的ID(设置后，玩家进入领地，对应的自定义变量赋值为领地ID)","输入变量ID" , config.land.var);
+    ui.toggle("show", "在领地内显示提示语、无法操作提示", config.land.show);
 
     ui.show(player,(r) => {
         config.land.able = r.able;
@@ -1021,6 +1066,7 @@ function settingBar(player,back = false){
         config.land["2d"] = r["2d"];
         config.land.radius = r.radius;
         config.land.var = r.var;
+        config.land.show = r.show;
         save_config();
         event.emit_custom_event("setting_changed",{player : player , back : back});
     });
@@ -1042,6 +1088,125 @@ command.register_command("unland" , "取消领地创建" , (player ,args) => {
   }
   chat("§e[领地系统]已取消创建领地！", [player]);
 });
+
+command.register_mc_command({
+  description : "创建领地",
+  permissionLevel : 1,
+  name : "usf:land_create",
+  mandatoryParameters : [
+    {
+    name : "DimensionID",
+    type : "String"
+  },
+    {
+    name : "Center",
+    type : "Location"
+  },{
+    name : "Format",
+    type : "String"
+  },{
+    name : "Name",
+    type : "String"
+  },{
+    name : "Var",
+    type : "String"
+  }],
+  optionalParameters : [{
+    name : "Creator",
+    type : "PlayerSelector"
+  }],
+},(origin,args) => {
+    let di = mc.get_di(args[0]);
+    let loc = args[1];
+    let format_id = args[2];
+    let name = args[3];
+    let var_id = args[4];
+    let new_id = get_random_land_id(di);
+    if(tool.un(di) || !is_land_id_valid(format_id) || var_id === ""){
+      logger.log(2,1,"[领地系统]使用命令创建领地时失败!请确认维度ID、模板领地ID是否合法");
+      return;
+    }
+
+    loc.x = Math.round(loc.x);
+    loc.y = Math.round(loc.y);
+    loc.z = Math.round(loc.z);
+
+    let land = get_land(format_id);
+    land.di = di.id;
+    land.name = name;
+    land.id = new_id;
+    land.price = 0;
+    switch(land.type){
+      case "box":
+        let old_from = land.from;
+        let old_to = land.to;
+        land.from = {
+          x : loc.x,
+          y : loc.y,
+          z : loc.z,
+        }
+        land.to = {
+          x : old_to.x + (land.from.x - old_from.x),
+          y : old_to.y + (land.from.y - old_from.y),
+          z : old_to.z + (land.from.z - old_from.z),
+        }
+        const center = {
+          x : (land.from.x + land.to.x)/2,
+          z : (land.from.z +land.to.z)/2,
+        }
+        land_get_distance(land,center);
+        break;
+      case "circle":
+        land.from = {
+          x : loc.x,
+          y : loc.y,
+          z : loc.z,
+        };
+        land_get_distance(land);
+        break;
+    }
+
+    if(args.length >= 6){
+      let player = args[5];
+      land.creater = get_id(player);
+      add_land(player , land);
+    }else{
+      land.creater = "";
+      add_land(undefined , land);
+    }
+    save_land(land);
+});
+
+command.register_mc_command({
+  description : "转让领地",
+  permissionLevel : 1,
+  name : "usf:land_transfer",
+  mandatoryParameters : [
+    {
+    name : "LandID",
+    type : "String"
+  },
+    {
+    name : "Player",
+    type : "Player"
+  }],
+},(origin,args) => {
+    let id = args[0];
+    let player = args[1];
+    if(!is_land_id_valid(id)){
+      logger.log(2,1,"[领地系统]使用命令转让领地时失败!请确认领地ID是否存在");
+      return;
+    }
+    transfer_land(id , player);
+});
+
+function transfer_land(id , player){
+    const land = get_land(id);
+    id.creater = get_id(player);
+    player.lands.push(land.id);
+    save_player_lands(player);
+    save_land(land);
+}
 
 event.register_mc_event(true , "explosion" , undefined , (event) => {
   if (config.land.able) {
@@ -1130,7 +1295,6 @@ event.register_mc_event(true , "playerInteractWithBlock" , undefined , (event) =
         break;
     }
   }
-
 });
 
 event.register_mc_event(true , "playerPlaceBlock" , undefined , (event) => {
@@ -1219,13 +1383,15 @@ event.register_mc_event(true , "playerBreakBlock" , undefined , (event) => {
 
 
 function land_unable_tip(player) {
+  if(!config.land.show || tool.to_bool(land.hide)){return;}
   mc.run(() => {
     mc.set_ActionBar(player, "§e你无权在领地内操作");
-  })
+  });
   player.last_warn = Date.now();
 }
 
 register_system("land" , {
   get_land : get_land,
   is_land_id_valid : is_land_id_valid,
+  get_land_member_level : get_land_member_level,
 })

@@ -5,7 +5,10 @@ import * as command from "./Command.js";
 import { btnBar , arrayEditor , infoBar} from "./Basic/ui.js";
 import { ui_icon } from "./Basic/Data.js";
 import { get_text } from "./Basic/Text.js";
-import { save_config , config} from "./Basic/Core.js";
+import { save_config , config , has_system , get_system} from "./Basic/Core.js";
+import { get_player_name } from "./Basic/Player.js";
+import * as logger from "./Basic/Logger.js";
+
 
 /*
 GameHelper.js
@@ -33,7 +36,7 @@ event.register_mc_event(false,"playerDimensionChange",undefined,playerDiChanged)
 command.register_command("unsleep" , "在聊天栏输出未睡眠的玩家列表" , (player , args) => {
   let text = [];
   for(let p of mc.get_all_players()){
-    if(!p.isSleeping){text.push(p.name);}
+    if(!p.isSleeping){text.push(get_player_name(p));}
   }
   text = "[辅助系统]未睡眠的玩家：" + tool.array2line(text);
   mc.chat(text , [player]);

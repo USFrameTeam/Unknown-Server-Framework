@@ -15,11 +15,11 @@ import {get_text}  from "./Text.js";
 
 
 function to_array(value , none = []){
-    return Array.isArray(value) ? value : none
+    return Array.isArray(value) ? value : none;
 }
 
 function to_string(value , none = ""){
-    return typeof(value) == "string" ? value : none
+    return typeof(value) == "string" ? value : none;
 }
 
 function array2string(array = [] , none = ""){
@@ -55,6 +55,20 @@ function is_array(v ){
      return Array.isArray(v)
 }
 
+var common_btns = [];
+export function register_common_btn(btn){
+    btn.is_global = true;
+    common_btns.push(btn);
+}
+export function remove_common_btn(btn_name){
+    for(let index = 0; index < common_btns.length ; index++){
+        if(common_btns[index].text === btn_name){
+            common_btns.splice(index,1);
+            return;
+        }
+    }
+}
+
 export function clear_bars(player){
     uiManager.closeAllForms(player);
 }
@@ -64,6 +78,7 @@ export function btnBar(){
     this.title = ""
     this.body = ""
     this.btns = []
+    this.show_common = false;
     this.busy = function() {}
     this.busy_wait = 1
     this.cancel = function(){}
@@ -118,6 +133,9 @@ export function btnBar(){
                 typeof this.btns[selectedIndex]?.func === "function"
                 ) {
                     const { func, op } = this.btns[selectedIndex];
+                    if(this.btns[selectedIndex].is_global === true){
+                        op = {player : player};
+                    }
                     func(op);
                 } else {
                       console.error("无效的按钮选择:", selectedIndex);

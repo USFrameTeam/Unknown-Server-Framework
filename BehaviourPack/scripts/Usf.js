@@ -1,6 +1,6 @@
 import { register_global_ui , show_global_ui , tip , chooseBar , has_global_ui} from "./Basic/UniversalUI.js";
 import { btnBar , infoBar } from "./Basic/ui.js";
-import { get_id , get_name_by_id} from "./Basic/Player.js";
+import { get_id , get_name_by_id, get_player_name} from "./Basic/Player.js";
 import { get_op_level , ops , owners , save_ops , save_owners} from "./Basic/Permission.js";
 import { format } from "./Basic/Text.js";
 import * as data from "./Basic/Data.js";
@@ -66,7 +66,7 @@ function addOpBar(player){
     var players = [];
     for (var p of mc.get_all_players()) {
         if (get_op_level(p) === 0) {
-        names.push(p.name);
+        names.push(get_player_name(p));
         players.push(p);
         }
     }

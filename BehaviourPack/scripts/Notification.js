@@ -1,11 +1,12 @@
-import { btnBar ,infoBar , arrayEditor} from "./Basic/ui.js";
+import { btnBar ,infoBar , arrayEditor , add_pictures_choice} from "./Basic/ui.js";
 import { ui_icon , get_data , save_data , pictures ,clear_data} from "./Basic/Data.js";
 import * as tool from "./Basic/Tool.js";
 import { config ,has_system ,get_system , save_config , register_system} from "./Basic/Core.js";
 import * as event from "./Basic/Event.js";
 import { tran_text } from "./Basic/Text.js";
-import {register_global_ui, show_global_ui} from "./Basic/UniversalUI.js";
+import {register_global_ui, show_global_ui , add_pictures_choice} from "./Basic/UniversalUI.js";
 import { chat } from "./Basic/Mc.js";
+import * as logger from "./Basic/Logger.js";
 /*
 Notification.js
 功能：全服公告
@@ -21,6 +22,10 @@ event.connect_custom_event("world_load",(things) => {
 
     load_notifications();
     logger.log(0,1,"————公告系统已加载————");
+});
+
+event.connect_custom_event("player_load" , (options) => {
+    notificationBar(options.player);
 });
 
 function notificationManagerBar(player , back = false) {
@@ -136,23 +141,24 @@ function configEditBar(player,back){
     const ui = new infoBar();
     ui.title = "公告配置";
     ui.toggle("able", "公告[关闭 | 开启]", config.board.able);
+    ui.options("display_type" , "公告列表显示方案" , [ "显示在当前公告下方" , "独立页面"] , config.board.display_type);
 
     ui.options("_", "默认公告", names, (config.board["_"] === "") ? 0 : Math.max(tool.array_index(ids, config.board["_"]),0));
     ui.match(ids);
 
-    ui.options("first", "发给新成员", names, array_index(ids, config.board.first))
+    ui.options("first", "发给新成员", names, array_index(ids, config.board.first));
     ui.match(ids);
     ui.show(player, (r) => {
-        config.board["_"] = r["_"]
-        config.board["first"] = r["first"]
-        config.board.able = r.able
-        save_config()
+        config.board["_"] = r["_"];
+        config.board["first"] = r["first"];
+        config.board.able = r.able;
+        config.board.display_type = r.display_type;
+        save_config();
         notificationManagerBar(player,back);
     });
 }
 
 /* id = null 要显示的公告id,为null则打开默认公告
-show_cd = true 是否显示主菜单
 fisrt = false 是否优先打开新成员公告
 */
 function notificationBar(player,options) {
@@ -202,38 +208,28 @@ function notificationBar(player,options) {
     ui.busy = null;
     ui.title = notification.name;
     ui.body = tran_text(player, notification.texts, true);
-    if (has_system("cd") && show_cd) {
-        ui.btns = [{
-            text: "主菜单",
-            icon: ui_icon.craft_table,
-            func: () => {
-                show_global_ui(player,"cd");
-            }
-        }]
+
+    if(config.board.display_type === 0){
+      ui_show_all_notifications(ui , ids , current_id);
+    }else{
+      ui.btns.push({
+        text : "公告列表",
+        func : () => {
+          listBar(player);
+        }
+      });
     }
 
-    for (var i = 0; i < ids.length; i++) {
-        var this_id = ids[i];
-        if (this_id !== current_id && notifications[this_id].able) {
-        ui.btns.push({
-            text: (notifications[this_id].up ? "§n[顶置]§r" : "") + notifications[this_id].name,
-            icon: (tool.is_string(notifications[this_id].icon)) ? pictures[notifications[this_id].icon] : null,
-            func: (op) => {
-                notificationBar(player , {
-                    "id" : op.this_id,
-                    "show_cd" : show_cd,
-                    "first" : false,
-                })
-            },
-            op: {
-                "this_id": this_id
-            }
-        })
-        if (notifications[this_id].up) {
-            ui.btns.splice(0, 0, ui.btns.pop())
+    if(show_cd){
+      ui.btns.push({
+        text : "主菜单",
+        icon : ui_icon.craft_table,
+        func : () => {
+          show_global_ui(player , "cd");
         }
-        }
+      });
     }
+    
 
     if (ui.btns.length === 0) {
         ui.btns.push({
@@ -243,6 +239,38 @@ function notificationBar(player,options) {
         })
     }
     ui.show(player);
+}
+
+function listBar(player){
+  const ui = new btnBar();
+  ui.title = "公告列表";
+  ui_show_all_notifications(ui , Object.keys(notifications) , "");
+  ui.show(player);
+}
+
+function ui_show_all_notifications( ui , ids , current_id){
+  for (let i = 0; i < ids.length; i++) {
+      let this_id = ids[i];
+      if (this_id !== current_id && notifications[this_id].able) {
+      ui.btns.push({
+          text: (notifications[this_id].up ? "§n[顶置]§r" : "") + notifications[this_id].name,
+          icon: (tool.is_string(notifications[this_id].icon)) ? pictures[notifications[this_id].icon] : null,
+          func: (op) => {
+              notificationBar(player , {
+                  "id" : op.this_id,
+                  "show_cd" : show_cd,
+                  "first" : false,
+              })
+          },
+          op: {
+              "this_id": this_id
+          }
+      })
+      if (notifications[this_id].up) {
+          ui.btns.splice(0, 0, ui.btns.pop());
+      }
+      }
+  }
 }
 
 function load_notifications() {

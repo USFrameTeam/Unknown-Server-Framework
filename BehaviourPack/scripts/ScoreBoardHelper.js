@@ -40,7 +40,7 @@ mc.run_interval(() => {
     }
 } , 20);
 
-event.connect_custom_event("player_load" , (options) => {
+event.connect_custom_event("player_join" , (options) => {
     const player = options.player;
     const scoreboard = mc.get_score_board_class();
     for(let key of Object.keys(config.default)){
