@@ -1208,6 +1208,23 @@ function transfer_land(id , player){
     save_land(land);
 }
 
+function is_player_enable_event(player , land , event_id){
+	switch(get_land_member_level(player,land)){
+        case 1:
+        case 2:
+          if(!tool.array_has(tool.to_array(land.mem_per),event_id)){
+            return true;
+          }
+          break;
+        case 0:
+          if(!tool.array_has(tool.to_array(land.other_per),event_id)){
+            return true;
+          }
+          break;
+      }
+    return false;
+}
+
 event.register_mc_event(true , "explosion" , undefined , (event) => {
   if (config.land.able) {
     const entity = event.source;
@@ -1230,20 +1247,10 @@ event.register_mc_event(true , "playerInteractWithEntity" , undefined , (event) 
     let id = is_point_in_land(player.dimension, entity.location);
     if (id !== "") {
       let land = get_land(id);
-      switch(get_land_member_level(player,land)){
-        case 1:
-        case 2:
-          if(!tool.array_has(tool.to_array(land.mem_per),"ie")){
-            event.cancel = true;
-            land_unable_tip(player);
-          }
-          break;
-        case 0:
-          if(!tool.array_has(tool.to_array(land.other_per),"ie")){
-            event.cancel = true;
-            land_unable_tip(player);
-          }
-          break;
+      let able = is_player_enable_event(player , land , "ie");
+      if(able){
+      	event.cancel = true;
+      	land_unable_tip(player);
       }
     }
   }
@@ -1279,21 +1286,11 @@ event.register_mc_event(true , "playerInteractWithBlock" , undefined , (event) =
   let id = is_point_in_land(player.dimension, block.location);
   if (id !== "") {
     let land = get_land(id);
-    switch(get_land_member_level(player,land)){
-      case 1:
-      case 2:
-        if(!tool.array_has(tool.to_array(land.mem_per),"ib")){
-          event.cancel = true;
-          land_unable_tip(player);
-        }
-        break;
-      case 0:
-        if(!tool.array_has(tool.to_array(land.other_per),"ib")){
-          event.cancel = true;
-          land_unable_tip(player);
-        }
-        break;
-    }
+    let able = is_player_enable_event(player , land , "ib");
+	  if(able){
+	  	event.cancel = true;
+		land_unable_tip(player);
+	}
   }
 });
 
@@ -1304,20 +1301,10 @@ event.register_mc_event(true , "playerPlaceBlock" , undefined , (event) => {
     let id = is_point_in_land(player.dimension, block.location);
     if (id !== "") {
       let land = get_land(id);
-      switch(get_land_member_level(player,land)){
-        case 1:
-        case 2:
-          if(!tool.array_has(tool.to_array(land.mem_per),"pb")){
-            event.cancel = true;
-            land_unable_tip(player);
-          }
-          break;
-        case 0:
-          if(!tool.array_has(tool.to_array(land.other_per),"pb")){
-            event.cancel = true;
-            land_unable_tip(player);
-          }
-          break;
+      let able = is_player_enable_event(player , land , "pb");
+      if(able){
+      	event.cancel = true;
+      	land_unable_tip(player);
       }
     }
   }
@@ -1335,21 +1322,25 @@ event.register_mc_event(true , "entityHurt" , undefined , (event) => {
     let entity = event.hurtEntity;
     let id = is_point_in_land(entity.dimension, entity.location);
     if (id !== "") {
+    	let event_id = "";
+    	if(tool.is_player(entity)){
+    		event_id = "pvp";
+    	}
+   		else if(entity.matches({families : ["monster"]})){
+    		event_id = "hurt_monster";
+    	}
+    	else if(entity.matches({families : ["inanimate"]})){
+    		event_id = "hurt_inanimate";
+    	}
+    	else if(entity.matches({families : ["mob"] , excludeFamilies : ["monster"]}) || tool.array_has(["panda" , "goat" , "tropicalfish" , "salmon"] , tool.cut_minecraft(entity.tupeId))){
+    		event_id = "hurt_mob";
+    	}
+    	if(event_id === ""){return;}
       let land = get_land(id);
-      switch(get_land_member_level(player,land)){
-        case 1:
-        case 2:
-          if(!tool.array_has(tool.to_array(land.mem_per),"hurt")){
-            event.cancel = true;
-            land_unable_tip(player);
-          }
-          break;
-        case 0:
-          if(!tool.array_has(tool.to_array(land.other_per),"hurt")){
-            event.cancel = true;
-            land_unable_tip(player);
-          }
-          break;
+      let able = is_player_enable_event(player , land , event_id);
+      if(able){
+      	event.cancel = true;
+      	land_unable_tip(player);
       }
     }
   }
@@ -1362,20 +1353,10 @@ event.register_mc_event(true , "playerBreakBlock" , undefined , (event) => {
     let id = is_point_in_land(player.dimension, block.location);
     if (id !== "") {
       let land = get_land(id);
-      switch(get_land_member_level(player,land)){
-        case 1:
-        case 2:
-          if(!tool.array_has(tool.to_array(land.mem_per),"bb")){
-            event.cancel = true;
-            land_unable_tip(player);
-          }
-          break;
-        case 0:
-          if(!tool.array_has(tool.to_array(land.other_per),"bb")){
-            event.cancel = true;
-            land_unable_tip(player);
-          }
-          break;
+      let able = is_player_enable_event(player , land , "bb");
+      if(able){
+      	event.cancel = true;
+      	land_unable_tip(player);
       }
     }
   }

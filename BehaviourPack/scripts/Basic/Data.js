@@ -160,27 +160,6 @@ export const usf_config = {
 }
 
 export const data_format = {
-    //0-string 1-int 2-float
-    job_format : {
-    },
-    command_format : {
-        code : [0],
-        open : [0],
-        hotbar : [1],
-        name : [0,0],
-        knock : [2,2,2,2],
-        health : [0,2],
-        tag : [0],
-        fire : [2],
-        show : [0,0,0],
-        ui : [0],
-        back : [],
-        tpa : [],
-        commandblock : [1,1,1],
-        var : [0,0,0],
-        test : [1,1,0,0,0],
-        get : [0,0,0]
-    },
     item_events : ["knock","runner","tp"],
     score : ["die","di","bb","pb","damage","health","kill","join","buy","earn","hurt","hurt_time","kill_monster"],
     events : ["join","die","pos","chat","di","bb","pb","attack","sleep","kill"],
@@ -189,7 +168,10 @@ export const data_format = {
         "ib",//方块交互
         "ie",//实体交互
         "pb",//放置方块
-        "hurt",//攻击生物
+        "pvp",//pvp
+        "hurt_monster",
+        "hurt_mob",
+        "hurt_inanimate",
     ],
     hacker : [ "chest" ],
     commands : [ "cd" , "op" , "tpaccept" , "home" , "back" , "die" , "unsleep" , "land" , "tpr" , "unland"],
