@@ -1,6 +1,6 @@
 import * as command from "./Command.js";
 import { btnBar , infoBar } from "./Basic/ui.js";
-import { has_system , get_system } from "./Basic/Core.js";
+import { has_system , get_system , exported_datas} from "./Basic/Core.js";
 import * as event from "./Basic/Event.js";
 import * as mc from "./Basic/Mc.js";
 import * as tool from "./Basic/Tool.js";
@@ -177,3 +177,16 @@ function setLockBar(player , back = false) {
 function save_lock_config() {
   save_data("lock_items", tool.to_json(lock_config));
 }
+
+event.connect_custom_event("export" , ()=> {
+	exported_datas.push({
+		description : "锁定物品",
+		id : "lock_item",
+		data : tool.to_json(lock_config),
+	});
+});
+event.connect_custom_event("import" , (data_set)=> {
+	if(data_set.id !== "lock_item"){return;}
+	lock_config = tool.to_array(tool.parse_json(data_set.data));
+	save_lock_config();
+});

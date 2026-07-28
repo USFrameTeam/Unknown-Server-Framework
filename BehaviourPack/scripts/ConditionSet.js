@@ -817,7 +817,7 @@ const condition_format = {
             },
             index : {
                 type : "Number",
-                description : "具体位置的ID\n根据上到下、左到右对物品列表顺序,由0开始\n背包:0~35(物品栏为最后9个)\n末影箱:0~26\n物品栏:0-8",
+                description : "具体位置的ID\n根据上到下、左到右对物品列表顺序,由0开始\n背包:0~35(物品栏为0~9)\n末影箱:0~26\n物品栏:0-8",
                 default_value : 0,
             },
             con_index_valid : {

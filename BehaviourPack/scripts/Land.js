@@ -1072,6 +1072,14 @@ function settingBar(player,back = false){
     });
 }
 
+function landManager(player){
+	const ui = new btnBar();
+	ui.title = "管理领地";
+	ui.cancel = () => {
+		
+	}
+}
+
 command.register_command("land" , "打开领地创建界面" , (player ,args) => {
   if (player.landing.points.length !== 0) {
     createLandBar(player);

@@ -1,13 +1,13 @@
 import * as event from "./Basic/Event.js";
-import { config , version_text , register_system, has_system, get_system} from "./Basic/Core.js";
+import { config , version_text , register_system, has_system, get_system , exported_datas} from "./Basic/Core.js";
 import { chat , get_all_players } from "./Basic/Mc.js";
 import * as command from "./Command.js";
 import * as tool from "./Basic/Tool.js";
 import {is_entity_valid} from "./Basic/Mc.js";
 import * as text from "./Basic/Text.js";
 import * as data from "./Basic/Data.js";
-import { infoBar } from "./Basic/ui.js";
-import { register_global_ui , show_global_ui } from "./Basic/UniversalUI.js";
+import { infoBar , arrayEditor} from "./Basic/ui.js";
+import { register_global_ui , show_global_ui , confirm } from "./Basic/UniversalUI.js";
 import * as logger from "./Basic/Logger.js";
 import { get_player_name } from "./Basic/Player.js";
 
@@ -31,7 +31,8 @@ event.connect_custom_event("world_load",function(_things){
 
     //注册设置
     if(has_system("setting")){
-      get_system("setting").register_setting("land","领地设置",settingBar);
+      get_system("setting").register_setting("chat","聊天设置",settingBar);
+      get_system("setting").register_setting("white","聊天过滤词设置",editWhiteWords);
     }
     
     logger.log(0,1,"————聊天系统已加载————");
@@ -270,5 +271,40 @@ function settingBar(player,back = false){
     });
 }
 
+function save_white_words(){
+	data.save_data("white_words", tool.to_json(white_words));
+}
+
+function editWhiteWords(player,back = false){
+	confirm(player, [
+        "提醒：每行输入一个白名单词，若聊天信息中包含任意一个词，usf将不处理此消息，可用于兼容其他模组的指令系统",
+        "点击下方确认按钮前往编辑"
+      ], (r) => {
+        if (r) {
+          const editor = new arrayEditor();
+          editor.back = () => {
+            save_white_words();
+            event.emit_custom_event("setting_changed",{player : player , back : back});
+          }
+          editor.edit(player, white_words);
+        } else {
+          event.emit_custom_event("setting_changed",{player : player , back : back});
+        }
+      });
+}
+
 register_global_ui("chat_setting" , setChatBar);
 register_system("chat" , {});
+
+event.connect_custom_event("export" , ()=> {
+	exported_datas.push({
+		description : "聊天信息过滤词",
+		id : "white_words",
+		data : tool.to_json(white_words),
+	});
+});
+event.connect_custom_event("import" , (data_set)=> {
+	if(data_set.id !== "white_words"){return;}
+	white_words = tool.to_array(tool.parse_json(data_set.data));
+	save_white_words();
+});

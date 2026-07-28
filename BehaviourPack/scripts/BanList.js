@@ -3,13 +3,13 @@ import * as logger from "./Basic/Logger.js";
 import * as tool from "./Basic/Tool.js";
 import * as event from "./Basic/Event.js";
 import * as mc from "./Basic/Mc.js";
-import { get_system } from "./Basic/Core.js";
+import { get_system , exported_datas } from "./Basic/Core.js";
 import { get_text } from "./Basic/Text.js";
 import { get_name_by_id , get_id } from "./Basic/Player.js";
 import { playerChooser , confirm } from "./Basic/UniversalUI.js";
 import { arrayEditor } from "./Basic/ui.js";
 
-var ban_list = []
+var ban_list = [];
 
 event.register_mc_event(false,"worldLoad",undefined,function(event){
     load_ban_list();
@@ -113,4 +113,17 @@ get_system("manager").register_manager_bar_btn({
     func: (op) => {
       banListCheck(op.player);
     }
+});
+
+event.connect_custom_event("export" , ()=> {
+	exported_datas.push({
+		description : "封禁列表",
+		id : "ban_list",
+		data : tool.to_json(ban_list),
+	});
+});
+event.connect_custom_event("import" , (data_set)=> {
+	if(data_set.id !== "ban_list"){return;}
+	ban_list = tool.to_array(tool.parse_json(data_set.data));
+	save_ban_list();
 });
