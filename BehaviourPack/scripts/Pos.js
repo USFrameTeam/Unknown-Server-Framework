@@ -37,6 +37,19 @@ event.connect_custom_event("player_join",(things) => {
     player.pos = get_player_pos(player);
 });
 
+event.register_mc_event(false , "entityDie" , undefined , (event) => {
+    const entity = event.deadEntity;
+    if (tool.is_player(entity)) {
+      const location = {
+        x: entity.location.x,
+        y: entity.location.y,
+        z: entity.location.z,
+        di: entity.dimension
+      };
+      entity.last_die = location;
+    }
+});
+
 register_symbol(false,"tpcooldown",false,"转换为玩家传送冷却剩余时间/s",(player) => {
   if (Date.now() - tool.to_number(player.last_tp) < config.tp.down * 1000) {
       return String(Math.ceil(config.tp.down - (Date.now() - tool.to_number(player.last_tp))/1000.0));

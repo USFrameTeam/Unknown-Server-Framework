@@ -5,7 +5,6 @@ var command_set = [];
 var item_count = 0;
 var chests = [];
 
-var sign = {};
 var chest = {};
 
 
@@ -34,73 +33,6 @@ system.chat_board = system.runInterval(() => {
 
     chat_board[score].push(player);
   }
-}, 20);
-
-system_ids.board = system.runInterval(() => {
-  if (!config.copy_boards || config.copy_boards === "") {
-    return;
-  }
-
-  const players = world.getAllPlayers();
-  const boardIds = config.copy_boards.split(";");
-
-  for (const id of boardIds) {
-    const sourceBoard = world.scoreboard.getObjective(id);
-
-    if (sourceBoard) {
-      const targetBoardId = id + "_";
-
-      let targetBoard = world.scoreboard.getObjective(targetBoardId);
-      if (!targetBoard) {
-        targetBoard = world.scoreboard.addObjective(targetBoardId, sourceBoard.displayName);
-      }
-
-      try {
-        overworld.runCommand(`scoreboard players reset * ${targetBoardId}`);
-      } catch (err) { }
-
-      for (const player of players) {
-        try {
-          if (sourceBoard.hasParticipant(player)) {
-            const score = sourceBoard.getScore(player);
-            targetBoard.setScore(player, score);
-          }
-        } catch (err) { }
-      }
-    }
-  }
-}, 10);
-
-system_ids.lo = system.runInterval(() => {
-  if (!config.log.able || !array_has(config.log.allow, "lo")) {
-    return;
-  }
-
-  const players = world.getAllPlayers();
-
-  if (players.length === 0) {
-    return;
-  }
-
-  for (const player of players) {
-    try {
-      const playerPos = get_block_pos_di(player);
-      const playerPath = get_player_path(player);
-
-      server_log(0, `Location:${playerPos}`, playerPath);
-    } catch (err) { }
-  }
-}, 20 * 60);
-
-
-
-system_ids.second = system.runInterval(() => {
-  const players = world.getAllPlayers();
-  for (const player of players) {
-    player.block_places = 0;
-  }
-
-  
 }, 20);
 
 var ids = [];
@@ -139,115 +71,11 @@ system_ids.timer = system.runInterval(() => {
 }, 20);
 
 
-system_ids.chest_log = system.runInterval(() => {
-  const signPositions = Object.keys(sign);
-  for (const pos of signPositions) {
-    const signData = sign[pos];
-    const block = signData.block;
-    let record = false;
-
-    try {
-      if (block.typeId === signData.id) {
-        const entities = block.dimension.getEntities({
-          location: block.location,
-          maxDistance: 6,
-          type: "player"
-        });
-        const noPlayersNearby = !is_array(entities) || entities.length === 0;
-
-        if (noPlayersNearby) {
-          record = true;
-        }
-
-        const com = block.getComponent("minecraft:sign");
-        signData.now = [com.getText("Front"), com.getText("Back")];
-      } else {
-        record = true;
-      }
-    } catch (err) {
-      record = true;
-    }
-
-    if (record) {
-      for (let i = 0; i < signData.now.length; i++) {
-        if (signData.before[i] !== signData.now[i]) {
-          server_log(0,
-            `Sign Change${pos}:\nFrom:${signData.before[i]}\nTo:${signData.now[i]}`,
-            "Sign"
-          );
-        }
-      }
-      delete sign[pos];
-    }
-  }
-
-  const chestPositions = Object.keys(chest);
-  for (const pos of chestPositions) {
-    const chestData = chest[pos];
-    const block = chestData.block;
-    let shouldClose = false;
-
-    try {
-      if (block.typeId !== chestData.typeId) {
-        shouldClose = true;
-      } else {
-        const entities = block.dimension.getEntities({
-          location: block.location,
-          maxDistance: 6,
-          type: "player"
-        });
-        const noPlayersNearby = !is_array(entities) || entities.length === 0;
-
-        if (noPlayersNearby) {
-          const items = chestData.items;
-          const newItems = {};
-          const com = block.getComponent("minecraft:inventory").container;
-
-          for (let i = 0; i < com.size; i++) {
-            const item = com.getItem(i);
-            if (!un(item)) {
-              const itemId = no_minecraft(item.typeId);
-              newItems[itemId] = (newItems[itemId] || 0) + item.amount;
-            }
-          }
-
-          let text = `${no_minecraft(block.typeId)}${pos} Close:\nPlayers:`;
-          text += chestData.players.join(",");
-          text += "\nChanges:";
-
-          const keys = [...new Set([...Object.keys(items), ...Object.keys(newItems)])];
-          for (const k of keys) {
-            const oldAmount = items[k] || 0;
-            const newAmount = newItems[k] || 0;
-            const diff = newAmount - oldAmount;
-            text += `${k}(${diff});`;
-          }
-
-          server_log(0, text, "Chest");
-          delete chest[pos];
-        }
-      }
-    } catch (err) {
-      shouldClose = true;
-    }
-
-    if (shouldClose) {
-      let text = `${no_minecraft(block.typeId)}${pos} Close : No Data\nPlayers:`;
-      text += chestData.players.join(",");
-      server_log(0, text, "Chest");
-      delete chest[pos];
-    }
-  }
-}, 1 * 20);
-
 function reload_all() {
 
 
   chests = to_array(parse_json(get_data("chests")), []);
-  global_goods = to_array(parse_json(get_data("global_goods")), []);
-  events = to_object(parse_json(get_data("events")));
   command_set = to_array(parse_json(get_data("command_set")));
-  score_config = to_object(parse_json(get_data("score_config2")));
   limit = to_object(parse_json(get_data("limit")));
 
   if (config.timer !== "") {
@@ -293,68 +121,6 @@ function save_store_record(player) {
 
 
 
-function afterEntityDie(event) {
-  const entity = event.deadEntity;
-  const source = event.damageSource;
-  const cause = source.cause;
-  const hurt_entity = source.damagingEntity;
-
-
-
-  if (is_player(entity)) {
-    const location = {
-      x: entity.location.x,
-      y: entity.location.y,
-      z: entity.location.z,
-      di: entity.dimension
-    };
-    entity.last_die = location;
-
-    let text = `Killed ${get_block_pos_di(entity)}`;
-
-    if (hurt_entity && !un(hurt_entity)) {
-      if (is_player(hurt_entity)) {
-        text += ` By ${hurt_entity.name}`;
-      }
-    }
-
-    text += `(Cause:${cause})`;
-
-    const logConfig = config.log.allow;
-    if (logConfig.includes("die")) {
-      server_log(0, text, get_player_path(entity));
-    }
-
-  }
-
-  if (hurt_entity && !un(hurt_entity) && is_player(hurt_entity)) {
-
-    const logConfig = config.log.allow;
-    if (logConfig.includes("kill")) {
-      let text = "Kill ";
-      text += is_player(entity) ? entity.name : no_minecraft(entity.typeId);
-      text += get_block_pos_di(hurt_entity);
-
-      server_log(0, text, get_player_path(hurt_entity));
-    }
-  }
-}
-
-
-
-
-  const commandHandlers = {
-    "cd": () => {
-      cdBar(player);
-    },
-
-    "op": () => {
-      opBar(player);
-    },
-  };
-
-
-
 
 function beforePlayerInteractWithBlock(event) {
   
@@ -383,16 +149,6 @@ function beforePlayerInteractWithBlock(event) {
       }
     }
 
-    if (typeof (item) === "object") {
-      if (item.typeId === "usf:op") {
-        if (get_op_level(player) >= 1) {
-          system.run(() => {
-            opBar(player)
-          })
-        }
-      }
-    }
-
     
   }
 }
@@ -403,12 +159,6 @@ function beforePlayerInteractWithBlock(event) {
 function get_block_pos_id(block) {
   return `${block.dimension.id}.${block.x}.${block.y}.${block.z}`
 }
-
-
-
-function afterPlayerGameModeChange(event) {
-  server_log(0, `GameMode changed:${event.toGameMode}`, get_player_path(event.player))
-
  
 
 function beforeChatSend(event) {
@@ -479,26 +229,8 @@ function afterBlockPlace(event) {
     chat(`§e[管理系统]已退出录入！`, [player])
   }
   player.limiting = ""
-  //score_event(player, "pb", block.typeId)
-  player.block_places = to_number(player.block_places) + 1
-  if (array_has(config.log.allow, "pb")) {
-    log_info.pb[player.name] = to_object(log_info.pb[player.name])
-    log_info.pb[player.name][id] = to_array(log_info.pb[player.name][id])
 
-    log_info.pb[player.name][id].push(get_block_pos_di(block))
-  }
-
-  if (block.hasTag("text_sign") && array_has(config.log.allow, "sign") && config.log.able && sign[get_block_pos_di] == undefined) {
-    var com = block.getComponent("minecraft:sign")
-    sign[get_block_pos_di(block)] = {
-      block: block,
-      id: block.typeId,
-      player: player.name,
-      before: [com.getText("Front"), com.getText("Back")],
-      now: [com.getText("Front"), com.getText("Back")]
-    }
-    server_log(0, "Edit Sign" + get_block_pos_di(block), get_player_path(player))
-  }
+  
 }
 
 function beforeBlockBreak(event) {
@@ -517,21 +249,6 @@ function beforeBlockBreak(event) {
     }
   }
 
-
-}
-
-function afterBlockBreak(event) {
-  var player = event.player
-  var block = event.block
-  var broken = event.brokenBlockPermutation
-  var id = no_minecraft(broken.type.id)
-
-  if (array_has(config.log.allow, "bb")) {
-    log_info.bb[player.name] = to_object(log_info.bb[player.name])
-    log_info.bb[player.name][id] = to_array(log_info.bb[player.name][id])
-
-    log_info.bb[player.name][id].push(get_block_pos_di(block))
-  }
 
 }
 
@@ -601,39 +318,13 @@ function afteritemUse(event) {
   }
 }
 
-
-
-function afterPlayerDimensionChange(event) {
-  var player = event.player
-  var to = event.toDimension
-  var from = event.fromDimension
-
-  if (array_has(config.log.allow, "di")) {
-    server_log(0, `Dimension Change:${from.name} to ${to.name}`, get_player_path(player))
-  }
-
-}
-
-function get_health(entity) {
-  return entity.getComponent("minecraft:health").currentValue
-}
-
 function afterEntityHurt(event) {
   var hurt = event.hurtEntity
   var hurter = event.damageSource.damagingEntity
   var damage = event.damage
 
-/*   if (is_player(hurt)) {
-    score_event(hurt, "health", "", Math.round(get_health(hurt)), 1)
-    score_event(hurt, "hurt", "", Math.round(damage))
-    score_event(hurt, "hurt_time", "", 1)
-  } */
-
   if (typeof (hurter) === "object") {
     if (hurter.typeId == "minecraft:player") {
-      if (is_player(hurter)) {
-        //score_event(hurter, "damage", hurt.typeId, Math.ceil(damage))
-      }
 
       var event = get_item_event(get_player_hand_item(hurter))
       if (!un(event)) {
@@ -663,60 +354,6 @@ function get_player_offhand_slot(player) {
     return undefined
   }
   return slot
-}
-
-
-
-
-
-function afterPlayerInteractWithBlock(event) {
-  var item = event.itemStack
-  var block = event.block
-  var player = event.player
-  if (block.hasTag("text_sign")) {
-    if (array_has(config.log.allow, "sign") && config.log.able && sign[get_block_pos_di(block)] == undefined) {
-      var com = block.getComponent("minecraft:sign")
-      sign[get_block_pos_di(block)] = {
-        block: block,
-        id: block.typeId,
-        player: player.name,
-        before: [com.getText("Front"), com.getText("Back")],
-        now: [com.getText("Front"), com.getText("Back")]
-      }
-      server_log(0, "Edit Sign" + get_block_pos_di(block), get_player_path(player))
-    }
-  }
-
-  if (array_has(config.log.allow, "ib") && !un(item)) {
-    var text = `Interact Block ${get_block_pos_di(block)};Item : ${item.typeId}`
-    server_log(0, text, get_player_path(player))
-  }
-
-  var com = block.getComponent("minecraft:inventory")
-  if (!un(com)) {
-    com = com.container
-    var items = {}
-    for (var i = 0; i < com.size; i++) {
-      var item = com.getItem(i)
-      if (!un(item)) {
-        items[no_minecraft(item.typeId)] = to_number(items[no_minecraft(item.typeId)]) + item.amount
-      }
-    }
-
-    if (config.log.able && log_config.able && array_has(config.log.allow, "chest")) {
-      chest[get_block_pos_di(block)] = to_object(chest[get_block_pos_di(block)], {
-        "block": block,
-        "players": [],
-        "items": items,
-        "typeId": block.typeId
-      })
-      if (array_has(chest[get_block_pos_di(block)].players, player.name) === false) {
-        chest[get_block_pos_di(block)].players.push(player.name)
-      }
-
-      server_log(0, `Open ${no_minecraft(block.typeId)}${get_block_pos_di(block)}`, get_player_path(player))
-    }
-  }
 }
 
 function beforePlayerLeave(event) {
@@ -2609,50 +2246,13 @@ function usfSettingBar(player) {
       })
     }
   },
-
-  {
-    text: "全局商店设置",
-    icon: ui_icon.villager,
-    func: () => {
-      usfFunctionBar(player, "store")
-    }
-  }, {
-    text: "伤害血量显示",
-    icon: ui_icon.heart,
-    func: () => {
-      usfFunctionBar(player, "hurttip")
-    }
-  }, {
-  	text: "记分板编辑",
-  	icon: "textures/ui/hanging_sign.png",
-  	func: ()=>{
-  		new ScoreBoardGUI().sendToPlayer(player);
-  	}
-  }, {
+ {
     text: "日志功能设置",
     icon: ui_icon.content,
     func: () => {
       usfFunctionBar(player, "log")
     }
-  }, {
-    text: "游戏时间统计",
-    icon: ui_icon.clock,
-    func: () => {
-      usfFunctionBar(player, "time")
-    }
-  }, {
-    text: "锁定物品设置",
-    icon: ui_icon.slot,
-    func: () => {
-      setLockBar(player)
-    }
-  }, /* {
-    text: "进服欢迎提示设置",
-    icon: ui_icon.tip,
-    func: () => {
-      usfFunctionBar(player, "tip")
-    }
-  }, */ {
+  }  {
     text: "聊天信息格式",
     icon: ui_icon.chat,
     func: () => {

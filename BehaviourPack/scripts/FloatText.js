@@ -153,10 +153,13 @@ function refresh_texts(){
   }
 }
 
-get_system("manager").register_manager_bar_btn({
-    text: "编辑悬浮字",
-    icon: ui_icon.stop,
-    func: (op) => {
-      managerFloat(op.player);
-    }
+event.register_mc_event(false,"worldLoad",undefined,function(event){
+   get_system("manager").register_manager_bar_btn({
+      text: "编辑悬浮字",
+      icon: ui_icon.stop,
+      func: (op) => {
+        managerFloat(op.player);
+      }
+  });
 });
+

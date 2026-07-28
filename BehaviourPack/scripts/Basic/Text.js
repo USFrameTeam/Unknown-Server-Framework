@@ -210,13 +210,12 @@ export var texts = {
     "commands.tpr" : "随机传送",
     
     "log.chat" : "聊天记录(Chat.log)",
-    "log.chat_" : "聊天显示在日志服务器控制台",
     "log.lo" : "记录玩家位置/每60s",
     "log.die" : "玩家死亡记录",
     "log.kill" : "玩家击杀记录",
     "log.jl" : "玩家进出游戏记录",
     "log.info" : "玩家信息",
-    "log.chest" : "容器记录",
+    "log.chest" : "容器记录(Container.log)",
     "log.pb" : "放置方块记录",
     "log.bb" : "破坏方块记录",
     "log.tp" : "USF内置传送记录",
@@ -224,6 +223,7 @@ export var texts = {
     "log.ib" : "与方块交互",
     "log.info" : "玩家信息(Info.log)",
     "log.sign" : "告示牌更改记录(Sign.log)",
+    "log.bag" : "玩家背包物品改变日志",
     
     "overworld.name" : "§b主世界§r",
     "end.name" : "§5末地§r",

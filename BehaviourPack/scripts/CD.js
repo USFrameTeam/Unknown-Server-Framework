@@ -8,6 +8,7 @@ import { ui_icon } from "./Basic/Data.js";
 import { get_name_by_id } from "./Basic/Player.js";
 import * as event from "./Basic/Event.js";
 import * as logger from "./Basic/Logger.js";
+import { register_command } from "./Command.js";
 
 /*
 CD.js
@@ -22,6 +23,10 @@ event.connect_custom_event("world_load",(things) => {
     }
 
     logger.log(0,1,"————主菜单系统已加载————");
+});
+
+register_command("cd" , "打开主菜单" , (player , _args) => {
+    cdBar(player);
 });
 
 function cdBar(player , _options = {}) {

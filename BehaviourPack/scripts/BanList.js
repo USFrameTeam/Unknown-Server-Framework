@@ -14,6 +14,14 @@ var ban_list = [];
 event.register_mc_event(false,"worldLoad",undefined,function(event){
     load_ban_list();
     text.push_text("kick_message","您已被封禁，请联系服务器管理员解禁后重试！");
+
+    get_system("manager").register_manager_bar_btn({
+        text: "封禁列表管理",
+        icon: data.ui_icon.stop,
+        func: (op) => {
+          banListCheck(op.player);
+        }
+    });
 });
 
 event.register_mc_event(false,"playerSpawn",undefined,function(event){
@@ -107,13 +115,7 @@ export function banListCheck(player) {
   ui.show(player);
 }
 
-get_system("manager").register_manager_bar_btn({
-    text: "封禁列表管理",
-    icon: data.ui_icon.stop,
-    func: (op) => {
-      banListCheck(op.player);
-    }
-});
+
 
 event.connect_custom_event("export" , ()=> {
 	exported_datas.push({

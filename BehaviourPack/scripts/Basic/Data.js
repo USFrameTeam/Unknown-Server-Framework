@@ -177,20 +177,20 @@ export const data_format = {
     commands : [ "cd" , "op" , "tpaccept" , "home" , "back" , "die" , "unsleep" , "land" , "tpr" , "unland"],
     logs : [
         "chat",//聊天记录
-        "chat_",//输出聊天记录
         "jl", //加入/退出游戏
         "bb",//破坏方块
         "pb", //放方块
-        "di",
-        "kill",
-        "die",
-        "sign" ,
-        "lo", 
-        "chest",
+        "di",//维度改变
+        "kill",//杀死生物
+        "die",//死亡
+        "gm", //游戏模式
+        "sign",//告示牌
+        "chest",//容器
         "tp",//传送
-        "info",
-        "ib",
+        "info",//玩家信息
+        "ib",//交互方块
         "land", //领地
+        "bag",//背包
     ],
     allow_blocks:[
         "minecraft:crafting_table",

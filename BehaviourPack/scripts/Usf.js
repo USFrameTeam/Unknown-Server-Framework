@@ -7,13 +7,33 @@ import * as data from "./Basic/Data.js";
 import * as mc from "./Basic/Mc.js";
 import * as event from "./Basic/Event.js";
 import { register_system } from "./Basic/Core.js";
-import { is_function } from "./Basic/Tool.js";
+import { is_function, is_object } from "./Basic/Tool.js";
+import { register_command } from "./Command.js";
 
 /*Usf.js
 功能：
 1.定义管理界面
 2.管理OP权限
 */
+
+register_command("op" , "打开管理页面" , (player , _args) => {
+    usfBar(player);
+});
+
+event.register_mc_event(true , "playerInteractWithBlock" , undefined , (event) => {
+    const player = event.player;
+    const item = event.item;
+    if (is_object(item)) {
+        if (item.typeId === "usf:op") {
+            if (get_op_level(player) >= 1) {
+                event.cancel = true;
+                mc.run(() => {
+                    usfBar(player);
+                });
+            }
+        }
+    }
+});
 
 function usfBar(player , options){
     if(get_op_level(player) === 0){return;}

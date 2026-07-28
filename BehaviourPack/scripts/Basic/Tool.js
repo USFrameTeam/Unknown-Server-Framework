@@ -224,6 +224,14 @@ export function get_block_pos_text(block) {
   return `(${Math.round(block.x)},${Math.round(block.y)},${Math.round(block.z)})`;
 }
 
+export function get_block_pos_text_with_di(block) {
+  return `(${shorter_minecraft(block.dimension.id)}:${Math.round(block.x)},${Math.round(block.y)},${Math.round(block.z)})`;
+}
+
+export function get_entity_location_text(entity){
+  return `(${shorter_minecraft(entity.dimension.id)}:${Math.round(entity.location.x)},${Math.round(entity.location.y)},${Math.round(entity.location.z)})`;
+}
+
 //DimendionPosition -> string
 export function dimension_pos_to_text(pos) {
   if (un(pos)) {

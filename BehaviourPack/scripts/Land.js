@@ -8,7 +8,7 @@ import { format , get_text, push_text} from "./Basic/Text.js";
 import { get_op_level } from "./Basic/Permission.js";
 import { is_in_manager_mode , get_name_by_id , get_id, get_player_name} from "./Basic/Player.js";
 import * as command from "./Command.js";
-import { register_global_ui , confirm , tip, playerChooser} from "./Basic/UniversalUI.js";
+import { register_global_ui , confirm , tip, playerChooser, show_global_ui} from "./Basic/UniversalUI.js";
 import * as logger from "./Basic/Logger.js";
 
 
@@ -42,6 +42,14 @@ event.connect_custom_event("world_load",(things) => {
     if(!has_system("pay")){
       logger.log(2,1,"————支付系统未加载，领地系统无法使用————");
     }
+
+    get_system("manager").register_manager_bar_btn({
+      text : "领地管理",
+      icon : ui_icon.land,
+      func : (op) => {
+        landManager(op.player);
+      }
+    });
 
     logger.log(0,1,"————领地系统已加载————");
 });
@@ -1076,8 +1084,87 @@ function landManager(player){
 	const ui = new btnBar();
 	ui.title = "管理领地";
 	ui.cancel = () => {
-		
+		show_global_ui(player , "manager");
 	}
+  ui.body = [
+    "此处管理该存档的所有领地",
+    "提示：若想使用\"查看领地详情\"修改服务器玩家的领地，请确保你已开启管理模式!"
+  ];
+  ui.btns = [{
+    text : "查看所有领地",
+    icon : ui_icon.eye,
+    func : () => {
+      viewAllLandsBar(player);
+    }
+  },{
+    text : "查看领地详情",
+    icon : ui_icon.content,
+    func : () => {
+      const ui2 = new infoBar();
+      ui2.title = "查看领地";
+      ui2.cancel = () => {
+        landManager(player);
+      }
+      ui2.input("id" , "要查看的领地ID" , "请输入领地ID" , "");
+      ui2.show(player , (r) => {
+        if(is_land_id_valid(r.id)){
+          viewLandBar(player , r.id , true);
+        }
+      });
+    }
+  },{
+    text : "删除领地",
+    icon : ui_icon.delete,
+    func : () => {
+      const ui2 = new infoBar();
+      ui2.title = "删除领地";
+      ui2.cancel = () => {
+        landManager(player);
+      }
+      ui2.input("id" , "要删除的领地ID" , "请输入领地ID" , "");
+      ui2.show(player , (r) => {
+        if(is_land_id_valid(r.id)){
+          delete_land(r.id);
+          tip(player , "已删除该领地!"  , () => {landManager(player);});
+        }else{
+          tip(player , "该领地不存在!"  , () => {landManager(player);});
+        }
+      });
+    }
+  }];
+}
+
+function viewAllLandsBar(player , page = 1){
+  const ui = new btnBar();
+  const total_page = Math.max(1 , Math.ceil(lands.ids.length / 50.0));
+  page = Math.min(page , total_page);
+  page = Math.max(page , 1);
+  ui.title = "查看所有领地";
+  ui.body = [
+    format("目前存档共有[0]个领地", [lands.ids.length]),
+    format("第[0]页 - 共[1]页" , [page , total_page]),
+  ];
+  for(let i = (page-1)*50 ; i < Math.min(page*50 , lands.ids.length) ; i++){
+    const land = get_land(lands.ids[i]);
+    ui.body.push(format("[0].领地名称:[1] ; 创建者:[2]" , [i + 1 , land.name , get_name_by_id(land.creater)]));
+  }
+  ui.cancel = () => {
+    landManager(player);
+  }
+  ui.btns = [{
+    text : "上一页",
+    icon : ui_icon.back,
+    func : () => {
+      viewAllLandsBar(player,page -1);
+    }
+  },{
+    text : "下一页",
+    icon : ui_icon.go,
+    func : () => {
+      viewAllLandsBar(player,page +1);
+    }
+  }];
+  ui.show(player);
 }
 
 command.register_command("land" , "打开领地创建界面" , (player ,args) => {
