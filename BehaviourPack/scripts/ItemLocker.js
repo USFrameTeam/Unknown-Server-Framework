@@ -15,9 +15,11 @@ ItemLocker.js
 */
 
 var lock_config = [];
+var lock_item_condition_list = {};
 
 event.connect_custom_event("world_load",(things) => {
     lock_config = tool.to_array(tool.parse_json(get_data("lock_items")));
+    lock_item_condition_list = tool.to_object(tool.parse_json(get_data("lock_items_condition_list")));
 
     //注册设置
     if(has_system("setting")){
@@ -25,6 +27,10 @@ event.connect_custom_event("world_load",(things) => {
     }
 
     logger.log(0,1,"————留言板已加载————");
+});
+
+event.connect_custom_event("player_load" , (options) => {
+  reset_lock_item(options.player);
 });
 
 command.register_mc_command({
@@ -46,64 +52,44 @@ function reset_lock_item(player) {
         logger.log(2,1,format("玩家[0]数据slots加载失败！无法刷新玩家的锁定物品",[player.name]));
         return;
     }
-    for(let index = 0; index < player.slots.size; index++){
-        const item = player.slots.getItem(index);
-        if(!tool.un())
-    }
-  try {
-    const playerSlots = player.slots;
-    const slotsSize = playerSlots.size;
 
-    for (let i = 0; i < slotsSize; i++) {
-      const item = playerSlots.getItem(i);
+    try {
+      //清理旧锁定
+      for (let i = 0; i < player.slots.size; i++) {
+        const item = player.slots.getItem(i);
 
-      if (item) {
-        const lore = item.getLore();
-
-        if (lore.length === 1 && lore[0] === "usf:Lock") {
-          playerSlots.setItem(i);
+        if (tool.is_object(item)) {
+          const lore = item.getLore();
+          if (lore.length === 1 && lore[0] === "usf:Lock") {
+            player.slots.setItem(i);
+          }
         }
       }
-    }
 
-    for (let j = 0; j < lock_config.length; j++) {
-      try {
-        const items = lock_config[j];
-        const slotIndex = items[0];
-        const item = playerSlots.getItem(slotIndex);
-
-        if (!un(item)) {
+      for (let config of lock_config) {
+        if(config[3] !== "" && has_system("condition") && get_system("condition").test(player , lock_item_condition_list , config[3])){
           continue;
         }
-
-        const tag = items.length > 3 ? items[3] : "";
-        if (tag !== "" && !player.hasTag(tag)) {
-          continue;
-        }
-
-        const newItem = new mc.ItemStack(items[1], items[2]);
-        newItem.setLore(["usf:Lock"]);
-        newItem.lockMode = "slot";
-        newItem.keepOnDeath = true;
-
-        playerSlots.setItem(slotIndex, newItem);
-      } catch (err) { }
-    }
-  } catch (err) { }
+        try {
+          const new_item = new mc.ItemStack(config[1], config[2]);
+          new_item.setLore(["usf:Lock"]);
+          new_item.lockMode = "slot";
+          new_item.keepOnDeath = true;
+          player.slots.setItem(config[0], new_item);
+        } catch (err) {logger.log(2,1,"重置玩家[0]的锁定物品时报错[1]",[player.name , e]);}
+      }
+    }catch(e){logger.log(2,1,"重置玩家[0]的锁定物品时报错[1]",[player.name , e]);}
 }
 
-function editLock(player, index, first) {
-  var cf = lock_config[index]
-  var ui = new infoBar()
+function editLock(player, index , back) {
+  const config = (index === -1) ? [] : lock_config[index];
+  const ui = new infoBar();
   ui.cancel = () => {
-    if (first) {
-      lock_config.splice(index, 1)
-    }
-    setLockBar(player)
+    setLockBar(player);
   }
-  ui.title = "编辑锁定物品"
-  ui.input("id", "物品id", "输入id(如:minecraft:apple)", to_string(cf[1]))
-  ui.range("count", "物品数量", 0, 64, 1, to_number(cf[2], 1))
+  ui.title = "编辑锁定物品";
+  ui.input("id", "物品id", "输入id(如:minecraft:apple)", tool.to_string(cf[1]));
+  ui.range("count", "物品数量", 1, 64, 1, tool.to_number(cf[2], 1));
   ui.options("slot", "锁定位置", [
     "物品栏1",
     "物品栏2",
@@ -114,22 +100,28 @@ function editLock(player, index, first) {
     "物品栏7",
     "物品栏8",
     "物品栏9",
-  ], to_number(cf[0], 0))
-  ui.toggle("de", "删除", false)
-  var tag = (cf.length > 3) ? cf[3] : ""
-  ui.input("tag", "标签(含该标签才会被锁定此物品)", "标签", tag)
+  ], tool.to_number(cf[0], 0));
+  ui.toggle("de", "删除", false);
+  ui.input("condition_set", "准则集ID(结果为真的玩家才会执行,留空则默认全部玩家执行)", "准则集ID", tool.to_string(cf[3]));
   ui.show(player, (r) => {
     if (r.de) {
-      lock_config.splice(index, 1)
+      if(index === -1){
+        setLockBar(player , back);
+      }else{
+        lock_config.splice(index,1);
+        save_lock_config();
+        setLockBar(player,back);
+      }
+      return;
     } else {
-      cf[0] = r.slot
-      cf[1] = r.id
-      cf[2] = r.count
-      cf[3] = r.tag
+      cf[0] = r.slot;
+      cf[1] = r.id;
+      cf[2] = r.count;
+      cf[3] = r.condition_set;
     }
-    save_lock_config()
-    setLockBar(player)
-  })
+    save_lock_config();
+    setLockBar(player , back);
+  });
 }
 
 function setLockBar(player , back = false) {
@@ -140,40 +132,56 @@ function setLockBar(player , back = false) {
   }
   ui.body = "管理锁定物品\n提示：使用命令/usf:reset_lock_item可以立马刷新玩家的锁定物品";
   ui.btns.push({
-    text: "添加",
+    text: "添加锁定物品",
     icon: ui_icon.add,
     func: () => {
-      lock_config.push([])
-      editLock(player, lock_config.length - 1, true)
+      lock_config.push([]);
+      editLock(player , -1 , back);
     }
-  })
+  });
+  if(has_system("condition")){
+    ui.btns.push({
+      text: "编辑准则集列表",
+      icon: ui_icon.content,
+      func: () => {
+        get_system("condition").editConditionList(player , lock_item_condition_list , (intention) => {
+          if(intention === "save"){save_lock_condition_list();}
+          else{ setLockBar(player , back);}
+        });
+      }
+    });
+  }
   ui.btns.push({
     text: "立即重载",
     icon: ui_icon.go,
     func: () => {
-      for (var p of world.getAllPlayers()) {
-        reset_lock_item(p)
+      for (var p of mc.get_all_players()) {
+        reset_lock_item(p);
       }
-      setLockBar(player)
+      setLockBar(player);
     }
   })
   for (var i = 0; i < lock_config.length; i++) {
-    var items = lock_config[i]
+    var items = lock_config[i];
     ui.btns.push({
       text: `${items[1]}\n物品栏:${items[0] + 1}`,
       op: {
         index: i
       },
       func: (op) => {
-        editLock(player, op.index, false)
+        editLock(player, op.index, back);
       }
     })
   }
 
-  ui.show(player)
+  ui.show(player);
 
 }
 
 function save_lock_config() {
   save_data("lock_items", tool.to_json(lock_config));
+}
+
+function save_lock_condition_list() {
+  save_data("lock_items_condition_list", tool.to_json(lock_item_condition_list));
 }

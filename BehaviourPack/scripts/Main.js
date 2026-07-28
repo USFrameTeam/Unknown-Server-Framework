@@ -1,9 +1,6 @@
 var limit = {};
 var events = {};
 var score_config = {};
-var tran_info = {
-  weather: "",
-};
 var command_set = [];
 var item_count = 0;
 var chests = [];
@@ -562,7 +559,6 @@ function playerSpawn(event) {
 
   }
 
-  reset_lock_item(player)
 function afteritemUse(event) {
   var item = event.itemStack
   var player = event.source

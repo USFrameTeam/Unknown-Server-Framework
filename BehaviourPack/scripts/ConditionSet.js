@@ -4,7 +4,7 @@ import * as tool from "./Basic/Tool.js";
 import { confirm, tip } from "./Basic/UniversalUI.js";
 import { format } from "./Basic/Text.js";
 import * as logger from "./Basic/Logger.js";
-import { get_system, has_system } from "./Basic/Core.js";
+import { get_system, has_system, register_system } from "./Basic/Core.js";
 import { get_op_level } from "./Basic/Permission.js";
 import * as mc from "./Basic/Mc.js";
 
@@ -91,6 +91,27 @@ function editConditionSet(player , list , id , back){
             });
         }
     },{
+        text : "测试运行准则集",
+        icon : ui_icon.delete,
+        func : () => {
+            logs = [];
+            test(player , list , id , true);
+            const ui2 = new btnBar();
+            ui2.title = "测试结果";
+            ui2.body = logs;
+            ui2.cancel = () => {
+                editConditionSet(player , list , id , back);
+            }
+            ui2.btns = [{
+                text : "关闭",
+                icon : ui_icon.x,
+                func : () => {
+                    editConditionSet(player , list , id , back);
+                }
+            }];
+            ui2.show(player);
+        }
+    },{
         text : "删除准则集",
         icon : ui_icon.delete,
         func : () => {
@@ -159,7 +180,7 @@ function editCondition(player , list , id , index , back , new_condition = undef
                 ui.input(value_id , value_config.description , "请输入文本" , tool.to_string(condition.values[value_id] , tool.to_string(value_config.default_value)));
                 break;
             case "Number":
-                ui.input(value_id , value_config.description , "请输入数字" , tool.un(condition.values[value_id]) ? String(tool.to_number(value_config.default_value)) : String(condition.values[value_id]));
+                ui.input(value_id , value_config.description , "请输入数字(留空则为无限大/无限小)" , tool.un(condition.values[value_id]) ? String(tool.to_number(value_config.default_value)) : String(condition.values[value_id]));
                 break;
             case "bool" :
                 ui.toggle(value_id , value_config.description , tool.to_bool(condition.values[value_id] , tool.to_bool(value_config.default_value)));
@@ -191,7 +212,7 @@ function editCondition(player , list , id , index , back , new_condition = undef
                     condition.values[value_id] = r[value_id];
                     break;
                 case "Number":
-                    condition.values[value_id] = tool.to_number(tool.parse_number(r[value_id]) , tool.to_number(value_config.default_value,0));
+                    condition.values[value_id] = r[value_id] === "" ? "" : tool.to_number(tool.parse_number(r[value_id]) , tool.to_number(value_config.default_value,0));
                     break;
                 case "bool" :
                     condition.values[value_id] = r[value_id];
@@ -219,7 +240,17 @@ logger.reporter_register((message , is_global) => {
     if(is_debuging && message.startsWith("[准则集]")){
         logs.push(message);
     }
-})
+});
+
+function is_between(value , max , min){
+    if(tool.is_number(max) && value > max){
+        return false;
+    }
+    if(tool.is_number(min) && value < min){
+        return false;
+    }
+    return true;
+}
 
 function test(player , list , set_id , debug = false , tested_id_list = []){
     const set = list[set_id];
@@ -268,15 +299,15 @@ function test(player , list , set_id , debug = false , tested_id_list = []){
                 break;
             case "num_var_between":
                 const value = tool.to_number(get_system("var").get_var(values.id , false , player));
-                if(tool.is_between(value , values.max , values.min)){result = true;}
+                if(is_between(value , values.max , values.min)){result = true;}
                 break;
             case "level":
                 const level = player.level;
-                if(tool.is_between(level , values.max , values.min)){result = true;}
+                if(is_between(level , values.max , values.min)){result = true;}
                 break;
             case "ping":
                 const ping = player.getPing();
-                if(tool.is_between(ping , values.max , values.min)){result = true;}
+                if(is_between(ping , values.max , values.min)){result = true;}
                 break;
             case "is_sneaking":
                 if(player.isSneaking){result = true;}
@@ -295,7 +326,7 @@ function test(player , list , set_id , debug = false , tested_id_list = []){
                 break;
             case "scoreboard_between":
                 const count = mc.has_score_board(values.id) ? mc.scoreboard_get(player , values.id) : 0;
-                if(tool.is_between(count , values.max , values.min)){result = true;}
+                if(is_between(count , values.max , values.min)){result = true;}
                 break;
             case "view_direction_block":
                 const block_id = player.getBlockFromViewDirection({
@@ -410,14 +441,14 @@ function test(player , list , set_id , debug = false , tested_id_list = []){
                 }
 
                 if(values.amount_able && items[0].isStackable){
-                    items = items.filter((item) => { return tool.is_between(item.amount , values.amount_max , values.amount_min)});
+                    items = items.filter((item) => { return is_between(item.amount , values.amount_max , values.amount_min)});
                 }
 
                 if(values.durability_able && !items[0].isStackable && item[0].hasComponent("minecraft:durability")){
                     
                     items = items.filter((item) => { 
                         const com = item.getComponent("minecraft:durability");
-                        return tool.is_between((com.maxDurability - com.damage)/com.maxDurability*100 , values.amount_max , values.amount_min);
+                        return is_between((com.maxDurability - com.damage)/com.maxDurability*100 , values.amount_max , values.amount_min);
                     });
                 }
 
@@ -963,3 +994,8 @@ const condition_format = {
         },
     }
 }
+
+register_system("condition" , {
+    test : test,
+    editConditionList : editConditionList,
+})

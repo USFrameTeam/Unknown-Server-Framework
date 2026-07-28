@@ -361,3 +361,7 @@ export function tp_entity(entity, di, x, y, z, options = {}) {
 
 report_custom_event("tp");
 report_custom_event("anima_tp");
+
+export {
+  ItemStack,
+}
