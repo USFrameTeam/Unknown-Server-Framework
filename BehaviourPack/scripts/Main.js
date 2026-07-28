@@ -4,7 +4,7 @@ var score_config = {};
 var command_set = [];
 var item_count = 0;
 var chests = [];
-var global_goods = [];
+
 var sign = {};
 var chest = {};
 
@@ -254,11 +254,6 @@ function reload_all() {
     overworld.runCommand(`scoreboard players reset * ${config.timer}`);
   }
 }
-
-function save_generic(key, data) {
-  save_data(key, to_json(data));
-}
-
 function save_score_config() {
   save_generic("score_config2", score_config);
 }
@@ -2237,27 +2232,6 @@ function opBar(player) {
     func: () => {
       player.info.daily = 0
     }
-  },
-  {
-    text: "聊天消息过滤词",
-    func: () => {
-      confirm(player, [
-        "提醒：每行输入一个白名单词，若聊天信息中包含任意一个词，usf将不处理此消息，例如兼容其他模组的指令系统",
-        "点击下方确认按钮前往编辑"
-      ], (r) => {
-        if (r) {
-          var editor = new arrayEditor()
-          editor.back = () => {
-            save_data("white_words", to_json(white_words))
-            opBar(player)
-          }
-          editor.edit(player, white_words)
-        } else {
-          opBar(player)
-        }
-      })
-    },
-    icon: ui_icon.water
   },
   , {
     text: "管理玩家领地",

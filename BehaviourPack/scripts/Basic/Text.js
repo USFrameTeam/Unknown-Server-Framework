@@ -154,7 +154,11 @@ export var texts = {
     "pb" : "放置方块(开启前需要开启 与方块交互)",
     "ib" : "与方块交互",
     "ie" : "与生物交互",
-    "hurt": "攻击生物",
+    
+    "hurt_inanimate": "攻击非生物实体",
+    "hurt_mob" : "攻击非敌对生物",
+    "hurt_monster" : "攻击敌对生物",
+    "pvp" : "PVP",
 
     "unsleep" : "§e当前未入睡的玩家:",
     "home.none" : "§e[传送系统]当前无Home传送点",

@@ -34,10 +34,37 @@ system.run(() => {
   dimensions = [overworld, nether, end];
 });
 
+event.report_custom_event("export");
+export var exported_datas = [];
+export function export_data(){
+	event.emit_custom_event("export" , {});
+	mc.run_timeout(() => {
+		exported_datas = [];
+	}, 5 * 20);
+}
+export function import_data(data_set){
+	event.emit_custom_event("import" , data_set);
+}
+
+
+event.connect_custom_event("export" , ()=> {
+	exported_datas.push({
+		description : "插件设置",
+		id : "config",
+		data : tool.to_json(config),
+	});
+});
+event.connect_custom_event("import" , (data_set)=> {
+	if(data_set.id !== "config"){return;}
+	save_data("config", data_set.data);
+	config = tool.parse_json(data.get_data("config"));
+	tool.object_override(config, data.usf_config);
+});
+
 event.report_custom_event("world_load");
-event.connect_custom_event("player_join",function(event){
+event.connect_custom_event("player_join",(event) => {
   if (permission.get_owners().length === 0) {
-      mc.chat(text.get_text("tip.init"), [player], false);
+      mc.chat(text.get_text("tip.init"), [event.player], false);
   }
 });
 event.register_mc_event(false,"worldLoad",undefined,(event)=>{
@@ -70,7 +97,7 @@ function reload_all() {
 }
 
 export function save_config() {
-  save_data("config", to_json(config));
+  save_data("config", tool.to_json(config));
 }
 
 //播报日志
