@@ -60,7 +60,7 @@ event.register_mc_event(true , "playerPlaceBlock" , undefined , (event) => {
 
 
 event.register_mc_event(true , "playerInteractWithBlock" , undefined , (event) => {
-    if(!config.other.fast_building){return;}
+    if(!config.fast_building.able){return;}
     const player = event.player;
     const item = event.itemStack;
     const block = event.block;

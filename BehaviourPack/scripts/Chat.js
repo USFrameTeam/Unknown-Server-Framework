@@ -1,5 +1,5 @@
 import * as event from "./Basic/Event.js";
-import { config , version_text , register_system, has_system, get_system , exported_datas} from "./Basic/Core.js";
+import { config , version_text , register_system, has_system, get_system , exported_datas , save_config} from "./Basic/Core.js";
 import { chat , get_all_players } from "./Basic/Mc.js";
 import * as command from "./Command.js";
 import * as tool from "./Basic/Tool.js";
@@ -33,6 +33,7 @@ event.connect_custom_event("world_load",function(_things){
     if(has_system("setting")){
       get_system("setting").register_setting("chat","聊天设置",settingBar);
       get_system("setting").register_setting("white","聊天过滤词设置",editWhiteWords);
+      get_system("setting").register_setting("custom_chat","自定义聊天室",chatByBoardBar);
     }
     
     logger.log(0,1,"————聊天系统已加载————");
@@ -145,6 +146,18 @@ function beforeChatSend(event){
             }
         break;
         //缺2 TODO
+    }
+
+    if(config.custom_chat.able){
+      const value = get_system("var").get_var("chat" , false , sender);
+      if(value !== ""){
+        t = [sender];
+        for(let p of get_all_players()){
+          if(value === get_system("var").get_var("chat" , false , p)){
+            t.push(p);
+          }
+        }
+      }
     }
 
     system.run(() => {
@@ -269,6 +282,20 @@ function settingBar(player,back = false){
         save_config();
         event.emit_custom_event("setting_changed",{player : player , back : back});
     });
+}
+
+function chatByBoardBar(player) {
+  var ui = new infoBar();
+  ui.cancel = () => {;
+    event.emit_custom_event("setting_changed",{player : player , back : back});
+  }
+  ui.title = "自定义聊天室";
+  ui.toggle("able", "自定义聊天室\n启用后会根据玩家的自定义变量chat的值进行分类\n变量值相同的人进行单独群聊\n[禁用|启用]", config.custom_chat.able);
+  ui.show(player, (r) => {
+    config.custom_chat.able = r.able;
+    save_config();
+    event.emit_custom_event("setting_changed",{player : player , back : back});
+  })
 }
 
 function save_white_words(){

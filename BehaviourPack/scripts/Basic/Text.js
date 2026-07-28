@@ -132,8 +132,8 @@ export function format(text, replacer) {
   return text
 }
 
-export function push_text(id , text){
-  if(tool.is_string(text) && tool.is_string(id)){
+export function push_text(id , text , force = false){
+  if(tool.is_string(text) && tool.is_string(id) && (!tool.is_string(texts[id]) || force)){
     texts[id] = text;
   }
 }

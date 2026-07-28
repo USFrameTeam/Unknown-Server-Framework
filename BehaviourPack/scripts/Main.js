@@ -2,10 +2,6 @@ var limit = {};
 var events = {};
 var score_config = {};
 var command_set = [];
-var item_count = 0;
-var chests = [];
-
-var chest = {};
 
 
 var chat_board = {};
@@ -1882,33 +1878,6 @@ function opBar(player) {
         }
       })
     }
-  }, {
-    text: "删除领地",
-    icon: ui_icon.land,
-    func: () => {
-      var ui2 = new infoBar()
-      ui2.cancel = () => {
-        opBar(player)
-      }
-      ui2.title = "删除领地"
-      ui2.input("id", "输入领地ID", "输入7位ID", "")
-      ui2.show(player, (r) => {
-        var index = lands.ids.indexOf(r.id)
-        if (index === -1) {
-          tip(player, "找不到此领地！", () => {
-            opBar(player)
-          })
-        } else {
-          lands.ids.splice(index, 1)
-          lands.min.splice(index, 1)
-          lands.max.splice(index, 1)
-          save_lands()
-          tip(player, "已删除此领地！", () => {
-            opBar(player)
-          })
-        }
-      })
-    }
   }{
     text: "获取背包",
     icon: pictures.chest,
@@ -1916,49 +1885,7 @@ function opBar(player) {
       getPlayerItemsBar(player)
     }
   }
-  {
-    text: "查看所有群组",
-    icon: ui_icon.group,
-    func: () => {
-      var text = []
-
-      for (var id of groups) {
-        var g = get_group(id)
-        if (is_group(g)) {
-          text.push(`群名:${g.name}\n群ID:${g.id}\n群主:${get_name_by_id(g.creater)}\n群成员:`)
-          for (var m of g.member) {
-            text.push(get_name_by_id(m))
-          }
-          text.push("————————————")
-        }
-      }
-      var ui = new btnBar()
-      ui.title = "所有群组"
-      ui.body = "此处管理所有群组，点击进入管理员编辑模式"
-      ui.btns = [{
-        text: "返回",
-        icon: ui_icon.back,
-        func: () => {
-          opBar(player)
-        }
-      }]
-      for (var id of groups) {
-        var g = get_group(id)
-        if (is_group(g)) {
-          ui.btns.push({
-            text: `${g.name}(${g.id})\n群主:${get_name_by_id(g.creater)}`,
-            op: {
-              i: id
-            },
-            func: (op) => {
-              groupLookBar(player, get_group(op.i), true)
-            }
-          })
-        }
-      }
-      ui.show(player)
-    }
-  },  {
+    {
     text: "编辑物品特殊效果",
     icon: ui_icon.sword,
     func: () => {
@@ -1967,114 +1894,6 @@ function opBar(player) {
   }
 }
 
-function OnlineBoardBar(player) {
-  var ui = new infoBar()
-  ui.title = "剔除离线玩家记分板"
-  var text = `输入要剔除离线玩家的记分板ID，多个记分板之间用英文分号;间隔开\n设置后,系统会生成一个下划线_后缀的记分板，这个记分板就是剔除离线玩家的记分板\n例如： Money >> Money_`
-  ui.input("r", text, "记分板id,多个之间用;隔开", config.copy_boards)
-  ui.show(player, (r) => {
-    config.copy_boards = r.r
-    save_config()
-  })
-}
-
-function setEventsBar(player) {
-  var ui = new btnBar()
-  ui.title = "编辑全局事件"
-  ui.body = "管理全局事件"
-  ui.cancel = () => {
-    usfSettingBar(player)
-  }
-  ui.btns = [{
-    text: "添加全局事件",
-    icon: ui_icon.add,
-    func: () => {
-      editEventBar(player, "", -1)
-    }
-  }]
-
-  for (var type of Object.keys(events)) {
-    for (var i = 0; i < events[type].length; i++) {
-      ui.btns.push({
-        text: to_string(events[type][i].name),
-        op: {
-          type: type,
-          i: i
-        },
-        func: (op) => {
-          editEventBar(player, op.type, op.i)
-        }
-      })
-    }
-  }
-
-  ui.show(player)
-}
-
-function editEventBar(player, type, index) {
-  var first = false
-  var event
-  if (index === -1) {
-    first = true
-    event = {
-      tag: "",
-      commands: "",
-      name: ""
-    }
-  } else {
-    event = events[type][index]
-  }
-
-  var ui = new infoBar()
-  ui.title = "编辑事件"
-  ui.cancel = () => {
-    setEventsBar(player)
-  }
-  ui.input("name", "事件备注名", "输入名字", to_string(event.name))
-  ui.options("type", "事件类型",
-    ["玩家进游戏", "玩家死亡", "玩家使用传送点", "玩家发送消息", "玩家转换维度", "破坏方块", "放置方块", "玩家攻击", "玩家睡觉", "玩家杀死生物"],
-    array_has(data_format.events, type) ? array_index(data_format.events, type) : 0)
-  ui.input("tag", "标签限制(含有该标签才触发)", "标签(不支持多个)", event.tag)
-  ui.input("commands", '执行的命令\n格式:["命令1","命令2","命令3"]', "输入命令", event.commands)
-  if (!first) {
-    ui.toggle("d", "删除", false)
-  }
-  ui.show(player, (r) => {
-    if (!first) {
-      if (r.d) {
-        events[type].splice(index, 1)
-        save_events()
-        setEventsBar(player)
-        return
-      }
-      events[type].splice(index, 1)
-    }
-    event.tag = r.tag
-    event.name = r.name
-    event.commands = r.commands
-    if (un(events[data_format.events[r.type]])) {
-      events[data_format.events[r.type]] = []
-    }
-    events[data_format.events[r.type]].push(event)
-    save_events()
-    setEventsBar(player)
-
-  })
-}
-
-function chatByBoardBar(player) {
-  var ui = new infoBar()
-  ui.cancel = () => {
-    usfSettingBar(player)
-  }
-  ui.title = "记分板聊天室"
-  ui.toggle("able", "记分板聊天室\n启用后会生成一个id为chat的记分板\n记分板分数相同的人进行单独群聊\n[禁用|启用]", config.chat_board.able)
-  ui.show(player, (r) => {
-    config.chat_board.able = r.able
-    save_config()
-    usfSettingBar(player)
-  })
-}
 
 function limitSetBar(player) {
   var ui = new btnBar()
@@ -2195,12 +2014,6 @@ function usfSettingBar(player) {
     icon: ui_icon.stop,
     func: () => {
       limitSetBar(player)
-    }
-  }, {
-    text: "记分板聊天室",
-    icon: ui_icon.player,
-    func: () => {
-      chatByBoardBar(player)
     }
   }, {
     text: "记分板自动剔除离线玩家设置",

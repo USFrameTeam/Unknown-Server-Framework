@@ -34,7 +34,7 @@ export const usf_config = {
         able : false,
         data : ""
     },
-    "chat_board":{
+    "custom_chat":{
         able : false,
     },
     "config_item" : {},

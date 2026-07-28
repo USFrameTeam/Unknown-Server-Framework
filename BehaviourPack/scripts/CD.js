@@ -40,7 +40,7 @@ function cdBar(player , _options = {}) {
 
     const ui = new btnBar();
     ui.title = "主菜单";
-    push_text("menu_text" , ["欢迎来到主菜单！"]);
+    push_text("menu_text" , "欢迎来到主菜单！");
     ui.body = tran_text(player, get_text("menu_text") , true);
     ui.busy = null;
 
