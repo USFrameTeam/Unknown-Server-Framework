@@ -4,7 +4,7 @@ import * as tool from "./Basic/Tool.js";
 import * as event from "./Basic/Event.js";
 import { infoBar , btnBar } from "./Basic/ui.js";
 import * as mc from "./Basic/Mc.js";
-import { format , get_text, push_text} from "./Basic/Text.js";
+import { format , get_text, push_text ,register_symbol} from "./Basic/Text.js";
 import { get_op_level } from "./Basic/Permission.js";
 import { is_in_manager_mode , get_name_by_id , get_id} from "./Basic/Player.js";
 import * as command from "./Command.js";
@@ -26,6 +26,81 @@ event.connect_custom_event("world_load",(things) => {
     logger.log(0,1,"————群组系统已加载————");
 });
 
+register_symbol(false , "group" , false , "转义为玩家所在群组(使用逗号间隔)" , (player) => {
+    const groups = get_player_groups(player);
+    const text = "";
+    for(let id of groups){
+      const group = get_group(id);
+      text += "," + group.name;
+    }
+    text = text.slice(1);
+    return text;
+});
+
+command.register_mc_command({
+  description : "编辑群组",
+  permissionLevel : 1,
+  name : "usf:group_edit",
+  mandatoryParameters : [
+    {
+    name : "Operation",
+    type : "Enum",
+    enumName : "GroupOperation"
+  },
+    {
+    name : "GroupID",
+    type : "String"
+  }],
+  optionalParameters : [{
+    name : "Player",
+    type : "PlayerSelector"
+  },{
+    name : "IsOP",
+    type : "Boolean"
+  }],
+},(origin , args) => {
+  const group = get_group(args[1]);
+  if(!is_group_valid(group)){
+    logger.log(2 , 1, "尝试使用命令处理领地时出错:领地[0]不存在！",[args[1]]);
+    return;
+  }
+  switch(args[0]){
+    case "add_player":
+      if(args.length === 3){
+        group_add_member(group , args[2]);
+      }
+      break;
+    case "delete":
+      if(args.length === 2){
+        delete_group(group);
+      }
+      break;
+    case "delete_player":
+      if(args.length === 3){
+        tool.array_clear(group.member , get_id(args[2]));
+        tool.array_clear(group.op , get_id(args[2]));
+        save_group(group);
+      }
+      break;
+    case "set_op":
+      if(args.length === 4){
+        const id = get_id(args[2]);
+        if(id === group.creater || (!tool.array_has(group.op , id) && !tool.array_has(group.member , id))){return;}
+        tool.array_clear(group.member , id);
+        tool.array_clear(group.op , id);
+        if(args[3] === true){
+          group.op.push(id);
+        }else{
+          group.member.push(id);
+        }
+        save_group(group);
+      }
+      break;
+  }
+});
+
+command.register_mc_command_enum("GroupOperation",["add_player" , "delete" , "delete_player" , "set_op"]);
+
 mc.run_interval(() => {
   const ids = Object.keys(group_mess);
 
@@ -42,6 +117,7 @@ mc.run_interval(() => {
     }
   }
   group_mess = {};
+  //TODO 群组消息未实现
 }, 20 * 30);
 
 function player_add_group(player, id) {
@@ -276,9 +352,7 @@ function groupLookBar(player, group_id) {
         func: () => {
             confirm(player, "确认解散群组？你将和所有群员失去联系！", (r) => {
             if (r) {
-                save_data("group" + group.id, "");
-                tool.array_clear(groups, group.id);
-                save_groups();
+                delete_group(group);
                 groupsBar(player);
             } else {
                 groupLookBar(player, group_id);
@@ -305,6 +379,12 @@ function groupLookBar(player, group_id) {
         });
     }
     ui.show(player);
+}
+
+function delete_group(group){
+  save_data("group" + group.id, "");
+  tool.array_clear(groups, group.id);
+  save_groups();
 }
 
 //3-创建者 2-管理员 1-成员

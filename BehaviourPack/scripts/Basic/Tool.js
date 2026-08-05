@@ -199,7 +199,7 @@ export function parse_json(data) {
   try {
     data = JSON.parse(data)
   } catch (e) { }
-  return to_object(data, {})
+  return (is_array(data) || is_object(data)) ? data : {};
 }
 
 //to_json必须传入object

@@ -2015,18 +2015,6 @@ function usfSettingBar(player) {
     func: () => {
       limitSetBar(player)
     }
-  }, {
-    text: "记分板自动剔除离线玩家设置",
-    icon: ui_icon.ping,
-    func: () => {
-      OnlineBoardBar(player)
-    }
-  }, {
-    text: "转账鸡设置",
-    icon: ui_icon.trade,
-    func: () => {
-      usfFunctionBar(player, "tran")
-    }
   },
   {
     text: "全局配置文件",
@@ -2065,26 +2053,7 @@ function usfSettingBar(player) {
     func: () => {
       usfFunctionBar(player, "log")
     }
-  }  {
-    text: "聊天信息格式",
-    icon: ui_icon.chat,
-    func: () => {
-      usfFunctionBar(player, "chat")
-    }
-  },
-  {
-    text: "打开主菜单物品",
-    icon: ui_icon.big,
-    func: () => {
-      usfFunctionBar(player, "cd_items")
-    }
-  }, {
-    text: "编辑主菜单文字",
-    icon: ui_icon.edit,
-    func: () => {
-      usfFunctionBar(player, "cd_con")
-    }
-  },
+  }
   ]
   ui.show(player)
 }

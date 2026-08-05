@@ -137,11 +137,6 @@ export const usf_config = {
         "fb" : false,
         "lock": false,//非op锁定生存
     },
-    "store" : {
-        "able" : false,
-        "moneys" : "",
-        "groups" : {}
-    },
     "commands" : [ "cd" , "op" , "tpaccept" , "home"],
     "copy_boards" : "",
     "mini" : {
