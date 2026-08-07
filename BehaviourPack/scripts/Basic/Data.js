@@ -137,7 +137,7 @@ export const usf_config = {
         "fb" : false,
         "lock": false,//非op锁定生存
     },
-    "commands" : [ "cd" , "op" , "tpaccept" , "home"],
+    "commands" : [ "cd" , "op" , "tpaccept" , "home" ],
     "copy_boards" : "",
     "mini" : {
         land_tag : false,
@@ -151,7 +151,8 @@ export const usf_config = {
     },
     "var" : {
         "save" : 60,//自动保存时隔
-    }
+    },
+    "store_chest": "",
 }
 
 export const data_format = {

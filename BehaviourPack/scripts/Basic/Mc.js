@@ -51,11 +51,11 @@ export function get_all_players(){
 }
 
 export function get_block(di, lo) {
-  var block = undefined
+  var block = undefined;
   try {
-    block = di.getBlock(lo)
+    block = di.getBlock(lo);
   } catch (err) { }
-  return block
+  return block;
 }
 
 export function each_player(func = function(player){}){
@@ -237,6 +237,9 @@ export function clear_job(id){
   system.clearRun(id);
 }
 
+export function run_job(func){
+  system.runJob(func);
+}
 
 export function get_game_mode(player) {
   const modes = {

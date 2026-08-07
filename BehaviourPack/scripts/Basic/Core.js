@@ -17,9 +17,9 @@ var systems = {};
 //设定插件是否进行初始化
 var reloaded = false;
 
-var overworld;
-var end;
-var nether;
+export var overworld;
+export var end;
+export var nether;
 export var dimensions;
 
 system.run(() => {
