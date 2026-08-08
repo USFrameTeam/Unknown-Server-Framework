@@ -143,7 +143,6 @@ export const usf_config = {
         land_tag : false,
         clear_tag : false
     },
-    "timer" : "",
     "limit" : {},
     "daily":{
         able : false,

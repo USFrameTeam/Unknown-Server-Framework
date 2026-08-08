@@ -100,6 +100,31 @@ c.剩余准则:任意n个为真/任意n个为假/全部为真/全部为假
 /usf:group_edit add_player <群组ID> <玩家> 向群组内添加玩家(权限为成员) 
 /usf:group_edit delete_player <群组ID> <玩家> 删除群组内玩家(创建者无法删除) 
 /usf:group_edit set_op <群组ID> <玩家> <Boolean> 设置群组内成员是否为管理员(对创建者无效,若操作玩家不在群组内无效)
+52.日志服务器：现在在日志服务器输入文字，会将文字送回服务器并发送消息
+53.新增/usf:ui_open <玩家> <UI的ID> 命令，用于打开插件内的UI(具体留意文档)
+54.新增/usf:selectedbar <玩家> <快捷栏index> 命令，用于修改玩家的快捷栏的选中位置
+55.新增/usf:health <实体> set/add <血量> 命令，用于修改实体血量
+56.新增/usf:show_tran_text <玩家> <位置> <文字> 命令，向玩家显示转义后的文本，位置可为聊天栏(chat)和ActionBar(actionbar)
+57.移除计时器的配置界面
+58.新增命令/usf:timer_create <玩家> <计时器ID> <显示位置> <位置ID> <退出类型> <时间> ,用于创建计时器
+计时器ID:用于分辨不同计时器,当计时器ID以G或g开头时为全局计时器，否则则为玩家的计时器
+显示位置：显示在等级处(level)、绑定到计分板(scoreboard)、绑定到自定义变量(var)(全局计时器只支持自定义变量)
+位置ID:选择计分板、自定义变量时传入计分板或变量的ID
+退出类型：定义玩家退出游戏/存档关闭时，计时器的操作，支持退出时删除计时器(leave_delete)、退出时暂停计时器(leave_pause)、退出时不变(leave_keep)
+时间：整数时间，正数时为倒计时，不为正数是为正计时
+59.新增命令/usf:timer_opearte <玩家> <操作> [计时器ID] ,用于操作计时器
+/usf:timer_opearte <玩家> pause [计时器ID] 暂停执行计时器
+/usf:timer_opearte <玩家> continue [计时器ID] 继续执行计时器
+/usf:timer_opearte <玩家> delete [计时器ID] 删除计时器
+/usf:timer_opearte <玩家> delete_all 删除玩家所有计时器
+/usf:timer_opearte <玩家> delete_all_global 删除所有全局计时器
+注：操作pause、continue、delete支持操作全局计时器，使用时传入任意玩家即可
+60.弃用/function get_owner、/scriptevent usf:reset
+请改用/usf:get_owner、/usf:reset
+61.新增/usf:op命令，用于打开OP界面
+62.移除签到功能，请使用配置文件实现
+63.废除玩家行为限制功能
+64.移除物品特殊效果
 
 微调/Bug修复：
 1.修复群组id可能出现的问题

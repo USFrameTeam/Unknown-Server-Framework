@@ -4,10 +4,11 @@ import * as mc from "./Basic/Mc.js";
 import * as command from "./Command.js";
 import { btnBar , arrayEditor , infoBar} from "./Basic/ui.js";
 import { ui_icon } from "./Basic/Data.js";
-import { get_text } from "./Basic/Text.js";
+import { get_text, tran_text } from "./Basic/Text.js";
 import { save_config , config , has_system , get_system} from "./Basic/Core.js";
 import { get_player_name } from "./Basic/Player.js";
 import * as logger from "./Basic/Logger.js";
+import { show_global_ui } from "./Basic/UniversalUI.js";
 
 
 /*
@@ -43,6 +44,108 @@ command.register_command("unsleep" , "在聊天栏输出未睡眠的玩家列表
 });
 command.register_command("die" , "玩家自杀" , (player , args) => {
   player.kill();
+});
+//打开全局界面
+command.register_mc_command({
+  description : "打开插件页面",
+  permissionLevel : 1,
+  name : "usf:ui_open",
+  mandatoryParameters : [
+    {
+    name : "Player",
+    type : "PlayerSelector"
+  },{
+    name : "UI ID",
+    type : "String"
+  }],
+},(origin,args) => {
+    show_global_ui(args[0] , args[1]);
+});
+command.register_mc_command({
+  description : "修改玩家快捷栏",
+  permissionLevel : 1,
+  name : "usf:selectedbar",
+  mandatoryParameters : [
+    {
+    name : "Player",
+    type : "PlayerSelector"
+  },{
+    name : "Index",
+    type : "Integer"
+  }],
+},(origin,args) => {
+    if(args[1] >= 0 && args[1] <= 8){
+      args[0].selectedSlotIndex = args[1];
+    }
+});
+command.register_mc_command_enum("HealthOperation" , ["set" , "add"]);
+command.register_mc_command({
+  description : "修改实体血量",
+  permissionLevel : 1,
+  name : "usf:health",
+  mandatoryParameters : [
+    {
+    name : "Entity",
+    type : "EntitySelector"
+  },{
+    name : "Operation",
+    enumName : "HealthOperation",
+    type : "Enum"
+  },{
+    name : "Health",
+    type : "Float"
+  }],
+},(origin,args) => {
+    const com = args[0].getComponent("minecraft:health");
+    if(tool.is_object(com)){
+      switch(args[1]){
+        case "add":
+          com.setCurrentValue(com.currentValue + args[2]);
+          break;
+        case "set":
+          com.setCurrentValue(args[2]);
+          break;
+      }
+    }
+});
+command.register_mc_command_enum("ShowPlace" , ["chat" , "actionbar"]);
+command.register_mc_command({
+  description : "展示转义文字",
+  permissionLevel : 1,
+  name : "usf:show_tran_text",
+  mandatoryParameters : [
+    {
+    name : "Player",
+    type : "PlayerSelector"
+  },{
+    name : "Place",
+    enumName : "ShowPlace",
+    type : "Enum"
+  },{
+    name : "Text",
+    type : "String"
+  }],
+},(origin,args) => {
+    const text = tran_text(args[0] , args[2] , false);
+    const player = args[0];
+    switch (args[1]) {
+      case "chat":
+        const data = {
+          "rawtext":[{
+            text : text,
+          }],
+        }
+        player.runCommand(`tellraw @s ${tool.to_json(data)}`);
+        break
+      case "actionbar":
+        const data = {
+          "rawtext":[{
+            text : text,
+          }],
+        }
+        player.runCommand(`titleraw @s actionbar ${tool.to_json(data)}`);
+        break
+    }
 });
 
 function beforeExplosion(event) {

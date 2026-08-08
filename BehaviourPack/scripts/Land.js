@@ -1283,7 +1283,7 @@ command.register_mc_command({
   },
     {
     name : "Player",
-    type : "Player"
+    type : "PlayerSelector"
   }],
 },(origin,args) => {
     let id = args[0];

@@ -1,11 +1,11 @@
-import { chooseBar, register_global_ui , show_global_ui } from "./Basic/UniversalUI.js";
+import { chooseBar, playerChooser, register_global_ui , show_global_ui } from "./Basic/UniversalUI.js";
 import { btnBar , infoBar } from "./Basic/ui.js";
 import { config , register_system } from "./Basic/Core.js";
 import { id_names , ids , save_player_info } from "./Basic/Player.js";
 import { get_op_level } from "./Basic/Permission.js";
 import * as logger from "./Basic/Logger.js";
 import { format , get_text } from "./Basic/Text.js";
-import { ui_icon } from "./Basic/Data.js";
+import { ui_icon , pictures } from "./Basic/Data.js";
 import * as mc from "./Basic/Mc.js";
 import * as tool from "./Basic/Tool.js";
 
@@ -80,13 +80,67 @@ function managerBar(player , options = {cancel = ()=>{show_global_ui(player,"usf
             func: () => {
                 show_global_ui(player,"follow");
             }
-        }
+        },{
+            text: "获取背包",
+            icon: pictures.chest,
+            func: () => {
+                getPlayerItemsBar(player);
+            }
+    },
     ];
     for(let btn of external_btns){
         btn.op = btn_options;
         ui.btns.push(btn);
     }
     ui.show(player);
+}
+
+function getPlayerItemsBar(player) {
+  const block = player.dimension.getBlock(player.location);
+  const com = player.slots;
+  const items = [];
+  if (!block.isAir) {
+    tip(player, "您所在的位置不是空气方块，无法执行背包检查功能！", () => {
+      managerBar(player);
+    });
+    return;
+  } else {
+    playerChooser(player, mc.get_all_players(), (ps) => {
+      for (const p of ps) {
+        const com = p.getComponent("minecraft:inventory").container;
+        block.setType("minecraft:undyed_shulker_box");
+        const b_com = block.getComponent("minecraft:inventory").container;
+        b_com.clearAll();
+
+        for (let i = 9; i < com.size; i++) {
+          b_com.setItem(i - 9, com.getItem(i));
+        }
+        items.push(block.getItemStack(1, true))
+        b_com.clearAll();
+
+        for (let i = 0; i < 9; i++) {
+          b_com.setItem(i, com.getItem(i));
+        }
+        com = p.getComponent("minecraft:equippable");
+        b_com.setItem(9, com.getEquipment("Head"));
+        b_com.setItem(10, com.getEquipment("Chest"));
+        b_com.setItem(11, com.getEquipment("Legs"));
+        b_com.setItem(12, com.getEquipment("Feet"));
+
+        b_com.setItem(18, com.getEquipment("Offhand"));
+        items.push(block.getItemStack(1, true));
+
+        b_com.clearAll();
+        for (const item of items) {
+          b_com.addItem(item);
+        }
+        const goal = block.getItemStack(1, true);
+        goal.nameTag = `玩家背包:${p.name}`;
+        p_com.addItem(goal);
+        block.setType("minecraft:air");
+      }
+    });
+  }
 }
 
 

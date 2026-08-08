@@ -366,6 +366,7 @@ function commit_log(){
                 if(client.isOpen){
                     log_config.connected = true;
                     websocket_client = client;
+                    client.afterEvents.message.subscribe(get_log_server_message);
                 }
             });
             log_config.time = Date.now();
@@ -385,6 +386,15 @@ function commit_log(){
         websocket_client.send(tool.to_json(log));
     }
     logs = []
+}
+
+function get_log_server_message(event){
+    const data = tool.to_object(tool.parse_json(event.message));
+    switch(data.type){
+        case "message":
+            mc.chat(data.message);
+            break;
+    }
 }
 
 function commit_long_log(){

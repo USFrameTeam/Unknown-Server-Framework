@@ -3,11 +3,13 @@ import * as event from "./Basic/Event.js";
 import * as tool from "./Basic/Tool.js";
 import * as logger from "./Basic/Logger.js";
 import { config , save_config , register_system , get_system , has_system} from "./Basic/Core.js";
-import { is_op , get_op_level } from "./Basic/Permission.js";
+import { is_op , get_op_level, has_owner, get_owners, save_owners } from "./Basic/Permission.js";
 import { btnBar , arrayEditor , infoBar} from "./Basic/ui.js";
-import { ui_icon } from "./Basic/Data.js";
+import { ui_icon , save_data } from "./Basic/Data.js";
 import { tip } from "./Basic/UniversalUI.js";
 import { tran_text } from "./Basic/Text.js";
+import * as command from "./Command.js";
+import { get_id } from "./Basic/Player.js";
 
 /*
 Safety.js
@@ -16,11 +18,50 @@ Safety.js
 2.封禁方块
 3.锁定游戏规则
 4.游戏模式锁定
+5.OP修改
 */
 
 const lockable_rules = ["commandBlocksEnabled" , "doImmediateRespawn" , "keepInventory" , "mobGriefing",
     "pvp", "showCoordinates" , "tntExplodes" , "doMobSpawning"
 ]
+
+command.register_mc_command({
+  description : "申请重置USF最高OP(owner)",
+  permissionLevel : 1,
+  name : "usf:reset",
+  mandatoryParameters : [],
+},(origin,args) => {
+    logger.log(0 , 2 , "[安全系统]重置命令已发出，请于30秒内在控制台运行/reload命令即可重置owner");
+    save_data("reset", String(Date.now()));
+});
+
+command.register_mc_command({
+  description : "获取USF最高OP(owner)",
+  permissionLevel : 1,
+  name : "usf:get_owner",
+  mandatoryParameters : [],
+},(origin,args) => {
+    if(origin.sourceType === "Entity" && tool.is_player(origin.sourceEntity)){
+      if (!has_owner) {
+          save_data("owners", tool.to_json([get_id(origin.sourceEntity)]));
+          get_owners();
+          logger.log( 0 , 2, "初始化成功，您已获取最高op！");
+        } else {
+          logger.log(0,2,"已存在owner，请在控制台使用命令，或从其他owner处获取");
+        }
+    }
+    if(origin.sourceType === "Server"){
+      const owners = get_owners();
+      for (var p of world.getAllPlayers()) {
+        if (!tool.array_has(owners, get_id(p))) {
+          owners.push(get_id(p));
+        }
+      }
+      save_owners();
+      logger.log(0,2,"已给予全部在线玩家Owner权限！", []);
+    }
+});
+
 
 event.register_mc_event(false,"entitySpawn",undefined,function(event){
     const entity = event.entity;

@@ -19,6 +19,16 @@ import { register_command } from "./Command.js";
 register_command("op" , "打开管理页面" , (player , _args) => {
     usfBar(player);
 });
+command.register_mc_command({
+  description : "打开管理界面",
+  permissionLevel : 0,
+  name : "usf:op",
+  mandatoryParameters : [],
+},(origin,args) => {
+     if(origin.sourceType === "Entity" && tool.is_player(origin.sourceEntity)){
+        usfBar(origin.sourceEntity);
+    }
+});
 
 event.register_mc_event(true , "playerInteractWithBlock" , undefined , (event) => {
     const player = event.player;
