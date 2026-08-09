@@ -7,11 +7,9 @@ import {is_entity_valid} from "./Basic/Mc.js";
 import * as text from "./Basic/Text.js";
 import * as data from "./Basic/Data.js";
 import { infoBar , arrayEditor} from "./Basic/ui.js";
-import { register_global_ui , show_global_ui , confirm } from "./Basic/UniversalUI.js";
+import { register_global_ui , show_global_ui , confirm, playerChooser } from "./Basic/UniversalUI.js";
 import * as logger from "./Basic/Logger.js";
-import { get_player_name } from "./Basic/Player.js";
-
-
+import { get_player_by_id, get_player_name } from "./Basic/Player.js";
 
 var white_words = [];
 
@@ -80,12 +78,6 @@ text.register_symbol(false,"list",true,"玩家列表",(_player) => {
     }
 });
 
-function get_player_nametag(player){
-    if(tool.is_player(player)){
-//TODO
-    }return "";
-}
-
 function beforeChatSend(event){
     let sender = event.sender;
     let message = event.message;
@@ -134,7 +126,7 @@ function beforeChatSend(event){
 
     switch (sender.talk.mode) {
         case 0:
-        break
+        break;
         case 1:
             if(!tool.is_entity(sender.talk.goal) || !is_entity_valid(sender.talk.goal)){
                 sender.talk.mode = 0
@@ -145,7 +137,25 @@ function beforeChatSend(event){
                 format = "[§e私聊§r]" + format
             }
         break;
-        //缺2 TODO
+        case 2:
+          const group = get_system("group").get_group(sender.talk.goal);
+          if (get_system("group").is_group_valid(group) && get_system("group").get_group_level(sender , group) > 0) {
+            t = [];
+            for (let p_id of group.member) {
+              t.push(get_player_by_id(p_id));
+            }
+            t.push(get_player_by_id(group.creater));
+            tool.array_clear(t, null);
+
+            get_system("group").push_group_mess(group , mess);
+
+            format = `[§e${group.name}§r]` + format;
+
+          } else {
+            t = [];
+            chat(text.get_text("talk.public.group"), [sender]);
+          }
+          break;
     }
 
     if(config.custom_chat.able){
@@ -221,13 +231,13 @@ function setChatBar(player , _options) {
 
   ui.show(player, (r) => {
     if (r.goal === 0) {
-      player.talk.mode = 0
+      player.talk.mode = 0;
     } else {
       if (is_string(options[r.goal])) {
-        player.talk.mode = 2
+        player.talk.mode = 2;
         player.talk.goal = options[r.goal];
       } else {
-        player.talk.mode = 1
+        player.talk.mode = 1;
         player.talk.goal = optionss[r.goal];
       }
     }

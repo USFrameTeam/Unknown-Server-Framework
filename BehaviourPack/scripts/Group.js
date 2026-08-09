@@ -117,8 +117,16 @@ mc.run_interval(() => {
     }
   }
   group_mess = {};
-  //TODO 群组消息未实现
 }, 20 * 30);
+
+function push_group_mess(group , mess){
+  if(message.length > 60){mess = mess.slice(0,60) + "...";}
+  if (tool.is_array(group_mess[group.id])) {
+    group_mess[group.id].push(mess);
+  } else {
+    group_mess[group.id] = [mess];
+  }
+}
 
 function player_add_group(player, id) {
   const groups = tool.to_array(tool.parse_json(get_data("groups", player)));
@@ -605,4 +613,5 @@ register_system("group" , {
     get_group : get_group,
     get_group_level : get_group_level,
     is_group_valid : is_group_valid,
+    push_group_mess : push_group_mess,
 });

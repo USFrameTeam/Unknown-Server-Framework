@@ -1,12 +1,13 @@
 import * as logger from "./Basic/Logger.js";
 import * as tool from "./Basic/Tool.js";
 import * as text from "./Basic/Text.js";
-import { config , register_system } from "./Basic/Core.js";
+import { config , register_system , has_system , get_system, save_config } from "./Basic/Core.js";
 import { system } from "@minecraft/server";
 import { data_format } from "./Basic/Data.js";
 import * as event from "./Basic/Event.js";
 import * as mc from "./Basic/Mc.js";
 import { get_id } from "./Basic/Player.js";
+import { infoBar } from "./Basic/ui.js";
 
 
 var logs = [];
@@ -42,6 +43,15 @@ var opened_containers = {};
 export function is_log_type_allowed(type){
     return tool.array_has(config.log.allow,type);
 }
+
+event.connect_custom_event("world_load",(things) => {
+    //注册设置
+    if(has_system("setting")){
+      get_system("setting").register_setting("log","日志设置",settingBar);
+    }
+
+    logger.log(0,1,"————玩家日志系统已加载————");
+});
 
 //处理长日志
 mc.run_interval(() => {
@@ -417,6 +427,36 @@ function commit_long_log(){
         }   
     }
     long_logs = {...long_log_format};
+}
+
+function settingBar(player,back = false){
+    const ui = new infoBar();
+    ui.title = "日志设置";
+    ui.cancel = () => {
+        event.emit_custom_event("setting_changed",{player : player , back : back});
+    }
+    ui.toggle("able", "[禁用 | 启用]", config.log.able);
+    ui.range("down", "(由于无法日志服务器时,控制台会弹出警告,当首次无法连接时,USF会进入冷却,暂停日志发送,以防止控制台刷屏)\n冷却时间", 30, 600, 30, config.log.down);
+    ui.input("address", "日志服务器地址(一般不改)", "输入地址", config.log.address);
+    for (let name of data_format.logs) {
+        ui.toggle(name, text.get_text("log." + name), tool.array_has(config.log.allow, name));
+    }
+
+    ui.show(player,(r) => {
+        config.log.able = r.able;
+        config.log.down = r.down;
+        config.log.address = r.address;
+        config.log.allow = [];
+        for (let name of Object.keys(r)) {
+          if (tool.array_has(data_format.logs, name)) {
+            if (r[name]) {
+              config.log.allow.push(name);
+            }
+          }
+        }
+        save_config();
+        event.emit_custom_event("setting_changed",{player : player , back : back});
+    });
 }
 
 register_system("log" , {
