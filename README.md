@@ -10,7 +10,7 @@
 最新版本：__USF0.8.0F__  
 当前仓库版本可能落后于最新版本或者比最新版本新  
 插件所有版本请查看 YYTZ666/usfdown 仓库内文件  
-[https://github.com/YYTZ666/usfdown/tree/main/files/main](https://github.com/YYTZ666/usfdown/tree/main/files/main)   
+[https://github.com/YYTZ666/usfdown/tree/main/public/files/main](https://github.com/YYTZ666/usfdown/tree/main/public/files/main)   
  
 适用于 MinecraftBE 官方服务端 (BDS)、个人存档、LLSE 和 Realms 的生存辅助向、服务器管理插件  
 
