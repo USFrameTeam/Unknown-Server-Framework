@@ -1,0 +1,44 @@
+name: Build mcpack on PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - v2-dev-community-vibecoding
+
+permissions:
+  contents: read
+  pull-requests: write   # 用于同仓库分支 PR 的评论；Fork PR 下该权限实际仍为只读
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR merge commit
+        uses: actions/checkout@v4
+        # 默认检出 refs/pull/<number>/merge，即 PR 合并后的代码
+
+      - name: Package BehaviourPack
+        run: |
+          if [ ! -d "BehaviourPack" ]; then
+            echo "::error::BehaviourPack 目录不存在"
+            exit 1
+          fi
+          cd BehaviourPack
+          zip -r ../USF-PrBuild-${{ github.event.pull_request.number }}.mcpack .
+          cd ..
+
+      - name: Upload mcpack artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: USF-PrBuild-${{ github.event.pull_request.number }}
+          path: USF-PrBuild-*.mcpack
+          retention-days: 7
+
+      - name: Comment on PR
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --body "📦 为本次 PR 构建的测试包已就绪。请到 [Actions 运行页面](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) 底部下载 **USF-PrBuild-${{ github.event.pull_request.number }}**。"
