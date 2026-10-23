@@ -1,0 +1,39 @@
+name: Auto Merge USF PR
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+    branches:
+      - v2-dev-community-vibecoding
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  validate-and-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: v2-dev-community-vibecoding
+
+      - name: Validate BehaviourPack manifest
+        run: |
+          if [ ! -f "BehaviourPack/manifest.json" ]; then
+            echo "::error::BehaviourPack/manifest.json 不存在"
+            exit 1
+          fi
+          python3 -m json.tool "BehaviourPack/manifest.json" > /dev/null || {
+            echo "::error::manifest.json 格式无效"
+            exit 1
+          }
+
+      - name: Enable auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr merge --auto --squash "$PR_URL" \
+            --body "Auto-merged after basic validation passed for v2-dev-community-vibecoding."
